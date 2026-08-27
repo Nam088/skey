@@ -1,0 +1,36 @@
+/* SKey English Localization */
+
+"app.title" = "SKey";
+"keyboard.menu.toggle" = "Toggle Vietnamese/English (Opt+Z)";
+"keyboard.menu.input_method" = "Input Method";
+"keyboard.options.spell_check" = "Spell Check";
+"keyboard.options.free_marking" = "Free Marking";
+"keyboard.options.modern_style" = "Modern Accent Style (oà, uỳ)";
+"keyboard.options.smart_switch" = "Smart App Switch (IDE/Terminal -> English)";
+"keyboard.options.advanced" = "Advanced Options";
+"keyboard.advanced.quick_telex" = "Quick Telex (cc->ch, gg->gi, uu->ươ)";
+"keyboard.advanced.quick_start_consonant" = "Quick Initial Consonant (f->ph, j->gi, w->qu)";
+"keyboard.advanced.quick_end_consonant" = "Quick Final Consonant (g->ng, h->nh, k->ch)";
+"keyboard.advanced.upper_case_first" = "Capitalize First Letter of Sentences";
+"keyboard.advanced.swallowed_restore" = "Restore Swallowed English Keys";
+
+"clipboard.menu.title" = "Clipboard History (Maccy)";
+"clipboard.status.empty" = "No copy history";
+"clipboard.action.clear_all" = "Clear All History";
+
+"permissions.menu.title" = "System Permissions (Required)";
+"permissions.action.input_monitoring" = "Open Input Monitoring Settings...";
+"permissions.action.accessibility" = "Open Accessibility Settings...";
+
+"tools.menu.title" = "Tools & Logs";
+"tools.action.open_log" = "Open Log File (/tmp/skey.log)...";
+"tools.action.clear_log" = "Clear Log Buffer";
+
+"language.menu.title" = "Interface Language";
+"language.option.vietnamese" = "Tiếng Việt";
+"language.option.english" = "English";
+"language.option.system" = "System Default";
+
+"tooltip.vietnamese" = "SKey: Vietnamese (Click to switch to English, right-click for menu)";
+"tooltip.english" = "SKey: English (Click to switch to Vietnamese, right-click for menu)";
+"app.action.quit" = "Quit SKey";

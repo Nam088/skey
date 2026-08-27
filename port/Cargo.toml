@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = ["skey-core", "skey-capi", "skey-cli", "difftest"]
+
+[profile.release]
+lto = true
+codegen-units = 1

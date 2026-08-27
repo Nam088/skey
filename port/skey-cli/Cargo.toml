@@ -1,0 +1,9 @@
+[package]
+name = "skey-cli"
+version = "0.1.0"
+edition = "2021"
+description = "Interactive Vietnamese terminal typing CLI powered by skey-core"
+license = "GPL-2.0-or-later"
+
+[dependencies]
+skey-core = { path = "../skey-core" }

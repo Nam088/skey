@@ -1,0 +1,13 @@
+[package]
+name = "skey-capi"
+version = "0.1.0"
+edition = "2021"
+description = "C ABI for SKey Vietnamese typing engine"
+license = "GPL-2.0-or-later"
+
+[lib]
+name = "skey"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+skey-core = { path = "../skey-core", default-features = false, features = ["alloc"] }

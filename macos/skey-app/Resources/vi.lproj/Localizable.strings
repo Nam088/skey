@@ -1,0 +1,36 @@
+/* SKey Vietnamese Localization */
+
+"app.title" = "SKey";
+"keyboard.menu.toggle" = "Chuyển Tiếng Việt/Anh (Opt+Z)";
+"keyboard.menu.input_method" = "Kiểu gõ";
+"keyboard.options.spell_check" = "Kiểm tra chính tả";
+"keyboard.options.free_marking" = "Bỏ dấu tự do";
+"keyboard.options.modern_style" = "Đặt dấu kiểu mới (oà, uỳ)";
+"keyboard.options.smart_switch" = "Tự động đổi Tiếng Anh khi vào IDE/Terminal";
+"keyboard.options.advanced" = "Tùy chọn nâng cao";
+"keyboard.advanced.quick_telex" = "Gõ nhanh Telex (cc->ch, gg->gi, uu->ươ)";
+"keyboard.advanced.quick_start_consonant" = "Gõ nhanh phụ âm đầu (f->ph, j->gi, w->qu)";
+"keyboard.advanced.quick_end_consonant" = "Gõ nhanh phụ âm cuối (g->ng, h->nh, k->ch)";
+"keyboard.advanced.upper_case_first" = "Tự động viết hoa đầu câu";
+"keyboard.advanced.swallowed_restore" = "Khôi phục phím bị nuốt từ tiếng Anh";
+
+"clipboard.menu.title" = "Lịch sử Clipboard (Maccy)";
+"clipboard.status.empty" = "Chưa có lịch sử copy";
+"clipboard.action.clear_all" = "Xóa toàn bộ lịch sử";
+
+"permissions.menu.title" = "Cấp quyền hệ thống (Bắt buộc)";
+"permissions.action.input_monitoring" = "Mở cài đặt Theo dõi đầu vào (Input Monitoring)...";
+"permissions.action.accessibility" = "Mở cài đặt Trợ năng (Accessibility)...";
+
+"tools.menu.title" = "Công cụ & Nhật ký (Logs)";
+"tools.action.open_log" = "Mở file nhật ký (/tmp/skey.log)...";
+"tools.action.clear_log" = "Xóa sạch bộ đệm nhật ký";
+
+"language.menu.title" = "Ngôn ngữ giao diện";
+"language.option.vietnamese" = "Tiếng Việt";
+"language.option.english" = "English";
+"language.option.system" = "Theo hệ thống";
+
+"tooltip.vietnamese" = "SKey: Tiếng Việt (Click để chuyển sang Anh, chuột phải xem menu)";
+"tooltip.english" = "SKey: Tiếng Anh (Click để chuyển sang Việt, chuột phải xem menu)";
+"app.action.quit" = "Thoát SKey";
