@@ -84,8 +84,8 @@ jobs:
       - name: the tables still match the C++ binary they came from
         run: |
           make tables
-          git diff --exit-code -- skey-core/src/tables.rs \
-                                  skey-core/src/lexi_consts.rs
+          git diff --exit-code -- skey-core/src/phonetics/tables.rs \
+                                  skey-core/src/phonetics/lexi_consts.rs
 
       - name: exhaustive and random sweep
         run: make sweep
