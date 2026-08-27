@@ -15,9 +15,9 @@
 //! original data. The engine keeps the search functions and, in debug
 //! builds, asserts that table and search agree on every use.
 
-use crate::lexi::{CSeq, Lexi, VSeq};
-use crate::lexi_consts as L;
-use crate::tables::{CSEQ, CSEQ_COUNT, VSEQ, VSEQ_COUNT};
+use super::lexi::{CSeq, Lexi, VSeq};
+use super::lexi_consts as L;
+use super::tables::{CSEQ, CSEQ_COUNT, VSEQ, VSEQ_COUNT};
 
 /// Lexi values run from -1 to 185, so shift by one to index by them.
 pub const LEXI_SPAN: usize = 187;

@@ -61,9 +61,9 @@ tablegen/dump: tablegen/dump.cpp $(ENGINE)
 
 tables: tablegen/dump
 	./tablegen/dump > tablegen/tables.rs
-	cp tablegen/tables.rs skey-core/src/tables.rs
+	cp tablegen/tables.rs skey-core/src/phonetics/tables.rs
 	python3 tablegen/gen_lexi.py > tablegen/lexi_consts.rs
-	cp tablegen/lexi_consts.rs skey-core/src/lexi_consts.rs
+	cp tablegen/lexi_consts.rs skey-core/src/phonetics/lexi_consts.rs
 
 rust:
 	cargo build --release

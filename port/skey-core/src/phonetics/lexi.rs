@@ -99,7 +99,7 @@ pub const INVALID_STD_CHAR: u32 = 0xFFFF_FFFF;
 /// If any of these fires, the generated tables and the engine are out
 /// of sync and every tone decision in the engine is wrong.
 const _: () = {
-    use crate::lexi_consts as L;
+    use super::lexi_consts as L;
     assert!(L::a.0 == L::A.0 + 1, "parity: lower case is upper + 1");
     assert!(L::A1.0 == L::A.0 + 2, "tone step is 2");
     assert!(L::a5.0 == L::a.0 + 10, "five tone levels above the base");

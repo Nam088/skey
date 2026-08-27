@@ -399,16 +399,13 @@ rules survivable.
 ## Layout
 
     skey-core/           no_std, forbid(unsafe_code)
-      src/lexi.rs        newtypes plus compile time guards on the numeric encoding
-      src/tables.rs      generated, never edited by hand
-      src/input.rs       key classification and the per method maps
-      src/charset.rs     all 21 charsets, encode and decode
-      src/engine.rs      the state machine
-      src/macros.rs      macro table, file format, lookup
-      src/keymap.rs      user defined key map parser
+      src/phonetics/     linguistic rules, lexi symbols, transition & lookup tables
+      src/engine/        state machine, transform, append, shortcuts & dispatch
+      src/input/         key classification and per-method maps (Telex, VNI, VIQR)
+      src/charset/       all 21 charsets, encode and decode
+      src/extensions/    swallowed words, quick shortcuts, macro table, user keymaps
       src/out.rs         output sinks
       src/limits.rs      fixed limits, allocator free
-      src/seq.rs         compile time transition tables
       src/testkit.rs     corpus generator and trace hasher, feature gated
     skey-capi/           both C ABIs, cdylib and staticlib (libskey.a)
       include/skey.h     native SKey C header

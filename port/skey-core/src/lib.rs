@@ -12,28 +12,35 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
+// 4 Primary Domain Packages:
 pub mod charset;
 pub mod engine;
-pub mod enwords;
+pub mod extensions;
 pub mod input;
-#[cfg(feature = "alloc")]
-pub mod keymap;
-pub mod lexi;
+pub mod phonetics;
+
+// Core Infrastructure:
 pub mod limits;
-#[cfg(feature = "alloc")]
-pub mod macros;
-mod lexi_consts;
 pub mod out;
-pub mod quick;
-pub mod seq;
 #[cfg(feature = "testkit")]
 #[doc(hidden)]
 pub mod testkit;
-// Tables for charsets that are not ported yet are carried here so the
-// generator stays a single pass; they light up as those charsets land.
-#[rustfmt::skip]
-#[allow(dead_code)]
-mod tables;
 
+// Backwards compatibility re-exports so no downstream caller breaks:
 pub use charset::Charset;
 pub use engine::{Edit, Engine, Options, OutputType};
+
+pub use extensions::enwords;
+#[cfg(feature = "alloc")]
+pub use extensions::keymap;
+#[cfg(feature = "alloc")]
+pub use extensions::macros;
+pub use extensions::quick;
+
+pub use phonetics::lexi;
+pub use phonetics::seq;
+pub use phonetics::tables;
+#[allow(unused_imports)]
+mod lexi_consts {
+    pub use crate::phonetics::lexi_consts::*;
+}
