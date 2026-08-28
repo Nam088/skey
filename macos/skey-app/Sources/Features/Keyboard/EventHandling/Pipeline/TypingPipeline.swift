@@ -74,7 +74,7 @@ public final class TypingPipeline {
         if isCommand || isControl || isOption {
             engine.reset()
             MacroEngine.shared.reset()
-            caretMayHaveMoved = true
+            caretMayHaveMoved = false
             return .passThrough
         }
 
@@ -107,11 +107,11 @@ public final class TypingPipeline {
             return .passThrough
         }
 
-        // Fast-path 2: Navigation keys (Arrows, Home, End, Esc, ForwardDelete) reset buffer & mark caret movement
+        // Fast-path 2: Navigation keys (Arrows, Home, End, ForwardDelete) reset buffer & mark caret movement
         if category == .navigation {
             engine.reset()
             MacroEngine.shared.reset()
-            caretMayHaveMoved = true
+            caretMayHaveMoved = (keyCode != KeyConstants.kVK_Escape)
             return .passThrough
         }
 
@@ -131,7 +131,7 @@ public final class TypingPipeline {
                 KeyEventSender.shared.inject(backspaces: bs, text: res.text)
                 return .swallowed
             }
-            caretMayHaveMoved = true
+            caretMayHaveMoved = false
             return .passThrough
         }
 
@@ -139,7 +139,7 @@ public final class TypingPipeline {
         if category == .wordBreak && keyCode != KeyConstants.kVK_Space {
             engine.reset()
             MacroEngine.shared.reset()
-            caretMayHaveMoved = true
+            caretMayHaveMoved = false
             return .passThrough
         }
 
@@ -189,19 +189,17 @@ public final class TypingPipeline {
                 }
 
                 // Smart Context Re-composition:
-                // Evaluated ONLY when caret was explicitly repositioned (Navigation / Focus / Backspace)
+                // Evaluated ONLY when caret was explicitly repositioned via Navigation keys (Arrows/Home/End)
                 if caretMayHaveMoved && ContextRecomposer.shared.tryRecompose(charCode: charCode, engine: engine) {
                     caretMayHaveMoved = false
                     return .swallowed
                 }
-                if keyCode == KeyConstants.kVK_Space {
-                    caretMayHaveMoved = false
-                }
+                caretMayHaveMoved = false
             }
         } else {
             engine.reset()
             MacroEngine.shared.reset()
-            caretMayHaveMoved = true
+            caretMayHaveMoved = false
         }
 
         return .passThrough

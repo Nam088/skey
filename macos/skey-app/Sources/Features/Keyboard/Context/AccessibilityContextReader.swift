@@ -82,24 +82,17 @@ public final class AccessibilityContextReader {
             return nil
         }
 
-        // Fast Role validation: Filter out non-text UI containers and read-only static text elements early
+        // Fast Role validation: Strictly require recognized editable text roles
         var roleVal: AnyObject?
         if AXUIElementCopyAttributeValue(axElement, kAXRoleAttribute as CFString, &roleVal) == .success,
            let role = roleVal as? String {
-            if role == (kAXButtonRole as String) ||
-               role == (kAXWindowRole as String) ||
-               role == (kAXListRole as String) ||
-               role == (kAXTableRole as String) ||
-               role == (kAXScrollBarRole as String) ||
-               role == (kAXStaticTextRole as String) ||
-               role == "AXHeading" ||
-               role == "AXImage" ||
-               role == "AXLink" ||
-               role == "AXCell" ||
-               role == "AXRow" ||
-               role == "AXColumn" ||
-               role == "AXWebArea" ||
-               role == "AXGroup" {
+            let validEditableRoles: Set<String> = [
+                kAXTextFieldRole as String,
+                kAXTextAreaRole as String,
+                "AXSearchField",
+                "AXComboBox"
+            ]
+            if !validEditableRoles.contains(role) {
                 return nil
             }
         }
