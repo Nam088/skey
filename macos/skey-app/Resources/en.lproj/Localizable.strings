@@ -1,36 +1,439 @@
 /* SKey English Localization */
 
 "app.title" = "SKey";
-"keyboard.menu.toggle" = "Toggle Vietnamese/English (Opt+Z)";
+"app.action.quit" = "Quit SKey";
+"tooltip.vietnamese" = "SKey: Vietnamese (Click to switch to English, right-click for menu)";
+"tooltip.english" = "SKey: English (Click to switch to Vietnamese, right-click for menu)";
+
+/* Common */
+"common.save" = "Save";
+"common.edit" = "Edit";
+"common.delete" = "Delete";
+"common.cancel" = "Cancel";
+
+/* Menu */
+"keyboard.menu.toggle" = "Vietnamese (⌥Z)";
+"keyboard.menu.vietnamese" = "Vietnamese";
+"keyboard.menu.english" = "English";
 "keyboard.menu.input_method" = "Input Method";
+"keyboard.menu.charset" = "Character Set";
+"keyboard.menu.typingOptions" = "Typing Options";
 "keyboard.options.spell_check" = "Spell Check";
-"keyboard.options.free_marking" = "Free Marking";
-"keyboard.options.modern_style" = "Modern Accent Style (oà, uỳ)";
-"keyboard.options.smart_switch" = "Smart App Switch (IDE/Terminal -> English)";
+"keyboard.options.free_marking" = "Free Tone Placement";
+"keyboard.options.modern_style" = "Modern Style (oà, uỳ)";
+"keyboard.options.smart_switch" = "Auto Switch in Terminal/IDE";
 "keyboard.options.advanced" = "Advanced Options";
 "keyboard.advanced.quick_telex" = "Quick Telex (cc->ch, gg->gi, uu->ươ)";
-"keyboard.advanced.quick_start_consonant" = "Quick Initial Consonant (f->ph, j->gi, w->qu)";
-"keyboard.advanced.quick_end_consonant" = "Quick Final Consonant (g->ng, h->nh, k->ch)";
-"keyboard.advanced.upper_case_first" = "Capitalize First Letter of Sentences";
+"keyboard.advanced.quick_start_consonant" = "Quick Initial Consonants (f->ph, j->gi, w->qu)";
+"keyboard.advanced.quick_end_consonant" = "Quick Final Consonants (g->ng, h->nh, k->ch)";
+"keyboard.advanced.upper_case_first" = "Auto Capitalize First Letter";
 "keyboard.advanced.swallowed_restore" = "Restore Swallowed English Keys";
 
-"clipboard.menu.title" = "Clipboard History (Maccy)";
-"clipboard.status.empty" = "No copy history";
+/* Clipboard Menu & Popup */
+"clipboard.menu.title" = "Clipboard History (⌥V)";
+"clipboard.status.empty" = "No copy history yet";
 "clipboard.action.clear_all" = "Clear All History";
+"clipboard.search.placeholder" = "Search clipboard history...";
+"clipboard.empty" = "No clipboard history yet";
+"clipboard.noMatches" = "No matching results found";
+"clipboard.paste" = "Paste";
+"clipboard.pasteAsPlainText" = "Paste as Plain Text";
+"clipboard.pin" = "Pin";
+"clipboard.unpin" = "Unpin";
+"clipboard.delete" = "Delete";
+"clipboard.clear" = "Clear List";
+"clipboard.clearAll" = "Clear All (Including Pinned)";
+"clipboard.clear.confirmMessage" = "Are you sure you want to clear all unpinned items?";
+"clipboard.clearAll.confirmMessage" = "Are you sure you want to clear ALL clipboard history (including pinned)?";
+"clipboard.clear.dontAskAgain" = "Don't ask again";
+"clipboard.cancel" = "Cancel";
+"clipboard.clear.confirm" = "Clear";
+"clipboard.clearAll.confirm" = "Clear All";
+"clipboard.settings" = "Settings...";
+"clipboard.about" = "About SKey";
+"clipboard.quit" = "Quit";
+"clipboard.pasteStack.title" = "Paste Stack";
+"clipboard.pasteStack.remove" = "Remove Paste Stack";
 
+/* Preview */
+"preview.title" = "Preview";
+"preview.empty" = "No preview available";
+"preview.image" = "Image";
+"preview.text" = "Text";
+"preview.richText" = "Rich Text";
+"preview.file" = "File";
+"preview.color" = "Color";
+"preview.link" = "Link";
+"preview.code" = "Code";
+"preview.image.failed" = "Failed to load image";
+"preview.unknownApp" = "Unknown Application";
+"preview.firstCopyTime" = "First Copied";
+"preview.lastCopyTime" = "Last Copied";
+"preview.shortcut.pin" = "Pin / Unpin";
+"preview.shortcut.delete" = "Delete this item";
+"preview.stats" = "%d words • %d chars";
+
+/* Permissions & Tools */
 "permissions.menu.title" = "System Permissions (Required)";
 "permissions.action.input_monitoring" = "Open Input Monitoring Settings...";
 "permissions.action.accessibility" = "Open Accessibility Settings...";
 
-"tools.menu.title" = "Tools & Logs";
+"tools.menu.title" = "Tools & Permissions";
+"tools.action.cleaner" = "Screen & Keyboard Cleaner...";
 "tools.action.open_log" = "Open Log File (/tmp/skey.log)...";
 "tools.action.clear_log" = "Clear Log Buffer";
+
+/* Screen & Keyboard Cleaner */
+"cleaner.title" = "Screen & Keyboard Cleaner";
+"cleaner.desc" = "Temporarily lock keyboard and display clean backdrops to wipe screen/keys safely";
+"cleaner.action.start" = "Start Cleaning...";
+"cleaner.badge.locked" = "KEYBOARD LOCKED";
+"cleaner.esc.hint" = "Hold Esc 2s to exit";
+"cleaner.esc.holding" = "Unlocking...";
+"cleaner.button.unlock" = "Unlock";
+"cleaner.mode.transparent" = "Transparent";
+"cleaner.mode.glassBlur" = "Glass Blur";
+"cleaner.mode.blackScreen" = "Black Screen";
+"cleaner.mode.whiteScreen" = "White Screen";
+"cleaner.help.drag" = "Drag to reposition this capsule";
+"cleaner.help.expand" = "Expand capsule";
+"cleaner.help.collapse" = "Collapse capsule";
 
 "language.menu.title" = "Interface Language";
 "language.option.vietnamese" = "Tiếng Việt";
 "language.option.english" = "English";
 "language.option.system" = "System Default";
 
-"tooltip.vietnamese" = "SKey: Vietnamese (Click to switch to English, right-click for menu)";
-"tooltip.english" = "SKey: English (Click to switch to Vietnamese, right-click for menu)";
-"app.action.quit" = "Quit SKey";
+/* Settings Dashboard Tabs & SubTabs */
+"settings.title" = "SKey Settings";
+"settings.search.placeholder" = "Search settings...";
+"settings.tab.keyboard" = "Keyboard";
+"settings.tab.keyboard.subtitle" = "Input method & Vietnamese accent rules";
+"settings.tab.clipboard" = "Clipboard";
+"settings.tab.clipboard.subtitle" = "Manage clipboard history, smart search & preview";
+"settings.tab.snippets" = "Snippets";
+"settings.tab.snippets.subtitle" = "Shortcuts & automatic text expansion";
+"settings.tab.ai" = "AI Assistant";
+"settings.tab.ai.subtitle" = "Smart system-wide AI integration for macOS";
+"settings.tab.general" = "General";
+"settings.tab.general.subtitle" = "System configuration, permissions & data";
+"settings.tab.about" = "About";
+"settings.tab.about.subtitle" = "Version info & open source contribution";
+
+"settings.subtab.inputMethod" = "Input Method";
+"settings.subtab.orthography" = "Accents & Spelling";
+"settings.subtab.quickTyping" = "Quick Typing";
+"settings.subtab.smartSwitch" = "Smart Switch";
+"settings.subtab.general" = "General";
+"settings.subtab.storage" = "Storage";
+"settings.subtab.appearance" = "Appearance";
+"settings.subtab.pins" = "Pinned";
+"settings.subtab.privacy" = "Privacy";
+"settings.subtab.snippetsList" = "Snippets List";
+"settings.subtab.options" = "Options";
+"settings.subtab.backup" = "Backup";
+"settings.subtab.aiModel" = "AI Models";
+"settings.subtab.aiPrompts" = "Prompts";
+"settings.subtab.aiShortcuts" = "Shortcuts";
+"settings.subtab.basic" = "Basic";
+"settings.subtab.permissions" = "Permissions";
+"settings.subtab.logs" = "Logs & Data";
+
+/* Settings: Keyboard */
+"keyboard.section.inputMethod" = "Input Methods";
+"keyboard.option.primaryMethod" = "Primary Input Method";
+"keyboard.option.primaryMethodDesc" = "Default Vietnamese input method";
+"keyboard.option.charset" = "Character Set";
+"keyboard.option.charsetDesc" = "Output character encoding";
+"keyboard.charset.unicode" = "Unicode (Pre-composed)";
+"keyboard.charset.tcvn3" = "TCVN3 (ABC)";
+"keyboard.charset.vni" = "VNI Windows";
+"keyboard.section.mode" = "Typing Mode";
+"keyboard.option.enableVietnamese" = "Enable Vietnamese Typing";
+"keyboard.option.enableVietnameseDesc" = "Quick toggle shortcut between Vietnamese and English";
+"keyboard.section.rules" = "Typing Rules & Accents";
+"keyboard.option.spellCheckDesc" = "Auto-revert marks for invalid Vietnamese words";
+"keyboard.option.freeMarkingDesc" = "Place tone marks anywhere in the word (e.g. toanf -> toàn)";
+"keyboard.option.modernStyleDesc" = "Place marks on second vowel (oà, uỳ instead of òa, ùy)";
+"keyboard.option.swallowedKeyDesc" = "Automatically restore deleted keystrokes in English";
+"keyboard.section.quickTelex" = "Quick Telex Options";
+"keyboard.option.quickTelexDesc" = "Auto replace cc->ch, gg->gi, uu->ươ, tt->th";
+"keyboard.option.quickStartConsonant" = "Quick Initial Consonants";
+"keyboard.option.quickStartConsonantDesc" = "Auto replace f->ph, j->gi, w->qu";
+"keyboard.option.quickEndConsonant" = "Quick Final Consonants";
+"keyboard.option.quickEndConsonantDesc" = "Auto replace g->ng, h->nh, k->ch";
+"keyboard.option.upperCaseFirst" = "Auto Capitalize First Letter";
+"keyboard.option.upperCaseFirstDesc" = "Auto capitalize letter after punctuation (. ? !)";
+"keyboard.section.smartSwitch" = "Smart Environment Switching";
+"keyboard.option.smartSwitch" = "Enable Smart App Switch";
+"keyboard.option.smartSwitchDesc" = "Auto switch to English in IDE / Terminal and restore when switching back";
+"keyboard.section.smartSwitchApps" = "Automatically Recognized Developer Apps";
+"keyboard.status.auto" = "Automatic";
+
+/* Settings: Clipboard */
+"clipboard.section.management" = "Clipboard Management";
+"clipboard.option.enableMonitor" = "Enable Clipboard Monitor";
+"clipboard.option.enableMonitorDesc" = "Automatically record copied content in macOS";
+"clipboard.option.shortcut" = "Open History Shortcut";
+"clipboard.option.shortcutDesc" = "Global shortcut to open clipboard history popup";
+"clipboard.option.searchType" = "Search Mode";
+"clipboard.option.searchTypeDesc" = "Smart search supporting Vietnamese diacritic folding";
+"clipboard.search.fuzzy" = "Smart (Fuzzy)";
+"clipboard.search.exact" = "Exact";
+"clipboard.section.pasteActions" = "Paste Actions";
+"clipboard.option.autoPaste" = "Auto-Paste on Selection";
+"clipboard.option.autoPasteDesc" = "Automatically send ⌘V to previous active application";
+"clipboard.option.plainText" = "Paste as Plain Text";
+"clipboard.option.plainTextDesc" = "Strip rich text formatting when pressing ⇧Enter";
+"clipboard.section.dataTypes" = "Captured Data Types";
+"clipboard.option.saveText" = "Save Text";
+"clipboard.option.saveTextDesc" = "Save plain text and rich text format (RTF)";
+"clipboard.option.saveImages" = "Save Images";
+"clipboard.option.saveImagesDesc" = "Automatically compress PNG and store screenshot / copied images";
+"clipboard.section.limits" = "History Limits & Capacity";
+"clipboard.option.maxItems" = "Maximum History Items";
+"clipboard.option.maxItemsDesc" = "Automatically prune oldest items when limit is exceeded";
+"clipboard.option.sortOrder" = "Sort Order";
+"clipboard.option.sortOrderDesc" = "Ranking criteria for history items";
+"clipboard.sort.copies" = "Most copied count";
+"clipboard.action.clearAll" = "Clear All Clipboard History";
+"clipboard.section.position" = "Position & Layout";
+"clipboard.option.popupPosition" = "Popup Appearance Position";
+"clipboard.pos.cursor" = "At Mouse Cursor";
+"clipboard.pos.statusItem" = "Below Menu Bar";
+"clipboard.option.pinLocation" = "Pinned Items Location";
+"clipboard.pin.top" = "Top of List";
+"clipboard.pin.bottom" = "Bottom of List";
+"clipboard.option.thumbHeight" = "Image Thumbnail Height";
+"clipboard.section.previewAux" = "Preview & Accessories";
+"clipboard.option.hoverPreview" = "Auto Show Preview on Hover";
+"clipboard.option.hoverPreviewDesc" = "Show detailed slideout preview when hovering rows";
+"clipboard.option.appIcons" = "Show Application Icons";
+"clipboard.option.appIconsDesc" = "Display source application icon on history rows";
+"clipboard.option.colorSwatch" = "Show Hex Color Swatches";
+"clipboard.option.colorSwatchDesc" = "Render color swatch preview for hex color codes";
+"clipboard.section.pinsTitle" = "Pinned Items";
+"clipboard.pins.headline" = "Quickly Manage Pinned Items";
+"clipboard.pins.desc" = "You can pin or unpin any item using shortcut ⌥P or right-click menu.";
+"clipboard.section.privacy" = "Auto Exclude Password Managers";
+"clipboard.status.protected" = "Protected";
+
+/* Settings: Macro / Snippets */
+"macro.section.add" = "Add New Snippet";
+"macro.placeholder.shortcut" = "Shortcut (e.g. vn)";
+"macro.placeholder.replacement" = "Replacement (e.g. Việt Nam)";
+"macro.placeholder.shortcutShort" = "Shortcut";
+"macro.placeholder.replacementShort" = "Replacement";
+"macro.action.add" = "Add";
+"macro.section.list" = "Snippets List";
+"macro.placeholder.search" = "Search snippets...";
+"macro.status.empty" = "No snippets added yet";
+"macro.section.options" = "Operation Options";
+"macro.option.enable" = "Enable Snippets / Macro";
+"macro.option.enableDesc" = "Automatically expand shortcuts when pressing Space";
+"macro.option.autoCaps" = "Auto-Capitalize Replacement";
+"macro.option.autoCapsDesc" = "Capitalize replacement corresponding to shortcut casing (e.g. VN -> VIỆT NAM)";
+"macro.option.inEnglish" = "Enable Snippets in English Mode";
+"macro.option.inEnglishDesc" = "Expand shortcuts even when typing in English mode [E]";
+"macro.section.backup" = "Backup & Import List";
+"macro.option.export" = "Export Snippets to File";
+"macro.option.exportDesc" = "Save snippets into Unikey format text file (shortcut:replacement)";
+"macro.option.import" = "Import Snippets from File";
+"macro.option.importDesc" = "Read and merge snippets from text file (.txt)";
+"macro.action.exportBtn" = "Export...";
+"macro.action.importBtn" = "Import...";
+
+/* Settings: General */
+"general.section.system" = "System";
+"general.option.launchAtLogin" = "Launch at Login";
+"general.option.launchAtLoginDesc" = "Automatically open SKey when logging in";
+"general.option.appLanguage" = "Interface Language";
+"general.option.appLanguageDesc" = "Display language for menus and SKey windows";
+"general.option.checkUpdates" = "Check for Updates";
+"general.option.checkUpdatesDesc" = "Notify when a new version of SKey is available";
+"general.section.permissions" = "macOS Security Permissions";
+"general.option.ax" = "Accessibility Permission";
+"general.option.axDesc" = "Allows SKey to replace text and type Vietnamese directly";
+"general.option.im" = "Input Monitoring Permission";
+"general.option.imDesc" = "Allows SKey to capture keyboard events";
+"general.action.openSettings" = "Open Settings";
+"general.section.logs" = "Activity Logs";
+"general.option.openLog" = "Open Log File";
+"general.option.openLogDesc" = "View log file at /tmp/skey.log";
+"general.option.clearLog" = "Clear Log Buffer";
+"general.option.clearLogDesc" = "Clear log file on disk";
+"general.action.openLogBtn" = "Open Log";
+"general.action.clearLogBtn" = "Clear Log";
+"general.action.resetDefaults" = "Reset All Settings to Defaults";
+"general.section.backup" = "Backup & Restore Settings";
+"general.option.exportSettings" = "Export All Settings to File";
+"general.option.exportSettingsDesc" = "Save all settings (Keyboard, Clipboard, Snippets, General) to a JSON file";
+"general.option.importSettings" = "Import Settings from File";
+"general.option.importSettingsDesc" = "Restore all settings from a backup JSON file";
+"general.action.exportSettingsBtn" = "Export...";
+"general.action.importSettingsBtn" = "Import...";
+"general.backup.exportSuccess" = "Settings exported successfully!";
+"general.backup.importSuccess" = "Settings imported successfully!";
+"general.backup.importFailed" = "Failed to import settings. Please verify the file format.";
+
+/* Settings: AI */
+"ai.section.provider" = "AI Provider";
+"ai.option.service" = "AI Service";
+"ai.option.serviceDesc" = "Select intelligent text processing model";
+"ai.option.apiKey" = "API Key";
+"ai.option.apiKeyDesc" = "Security API key from your provider";
+"ai.section.prompts" = "Prompt Templates";
+"ai.headline" = "System-Wide AI Assistant";
+"ai.headlineDesc" = "Auto spell correction, professional rewriting, summary, and translation.";
+"ai.section.shortcuts" = "Activation Shortcuts";
+"ai.option.shortcut" = "Trigger AI on Selected Text";
+"ai.option.shortcutDesc" = "Open quick AI suggestion menu";
+
+/* Settings: About */
+"about.title" = "SKey";
+"about.version" = "Version 1.0.0 (Native Apple Silicon & Intel)";
+"about.description" = "Ultra-lightweight Vietnamese IME & Smart Clipboard Manager for macOS.";
+"about.author" = "Author";
+"about.opensource" = "Open Source";
+
+/* Search Index Localization */
+"search.item.kb_input_method.sub" = "Telex, Simple Telex, VNI, VIQR";
+"search.item.kb_input_method.keys" = "telex,vni,viqr,input method,typing style,simple telex";
+
+"search.item.kb_charset.sub" = "Unicode, TCVN3, VNI Windows";
+"search.item.kb_charset.keys" = "charset,encoding,unicode,tcvn3,vni windows,character set";
+
+"search.item.kb_toggle_vn.sub" = "Shortcut ⌥Z";
+"search.item.kb_toggle_vn.keys" = "enable vietnamese,toggle,switch,hotkey,opt+z,shortcut";
+
+"search.item.kb_spell_check.sub" = "Auto-revert marks on spelling errors";
+"search.item.kb_spell_check.keys" = "spell check,spelling,dictionary,grammar,accent";
+
+"search.item.kb_free_marking.sub" = "Place tone marks anywhere in the word";
+"search.item.kb_free_marking.keys" = "free tone,tone mark,placement,accent";
+
+"search.item.kb_modern_style.sub" = "Place mark on second vowel (oà, uỳ)";
+"search.item.kb_modern_style.keys" = "modern style,oa,uy,traditional,accent";
+
+"search.item.kb_swallowed.sub" = "Restore deleted keystrokes in English";
+"search.item.kb_swallowed.keys" = "swallowed key,restore,keystroke,english";
+
+"search.item.kb_quick_telex.sub" = "Auto replace cc->ch, gg->gi, uu->ươ";
+"search.item.kb_quick_telex.keys" = "quick telex,abbreviation,fast typing";
+
+"search.item.kb_quick_start.sub" = "Auto replace f->ph, j->gi, w->qu";
+"search.item.kb_quick_start.keys" = "initial consonants,fast,f,j,w,ph,gi,qu";
+
+"search.item.kb_quick_end.sub" = "Auto replace g->ng, h->nh, k->ch";
+"search.item.kb_quick_end.keys" = "final consonants,fast,g,h,k,ng,nh,ch";
+
+"search.item.kb_upper_first.sub" = "Auto capitalize letter after punctuation";
+"search.item.kb_upper_first.keys" = "capitalize,first letter,punctuation,uppercase";
+
+"search.item.kb_smart_switch.sub" = "Auto switch in Terminal & IDEs";
+"search.item.kb_smart_switch.keys" = "smart switch,terminal,ide,vscode,xcode,developer";
+
+"search.item.cb_monitor.sub" = "Automatically capture macOS clipboard";
+"search.item.cb_monitor.keys" = "clipboard,history,monitor,copy,paste";
+
+"search.item.cb_shortcut.sub" = "Global activation shortcut (⌥V)";
+"search.item.cb_shortcut.keys" = "clipboard shortcut,opt+v,popup,hotkey";
+
+"search.item.cb_search_mode.sub" = "Smart Fuzzy Search & Exact Match";
+"search.item.cb_search_mode.keys" = "search mode,fuzzy,exact,filter";
+
+"search.item.cb_auto_paste.sub" = "Auto send ⌘V to previous application";
+"search.item.cb_auto_paste.keys" = "auto paste,cmd+v,paste immediately";
+
+"search.item.cb_plain_text.sub" = "Strip rich formatting on ⇧Enter";
+"search.item.cb_plain_text.keys" = "plain text,strip formatting,paste text";
+
+"search.item.cb_save_text.sub" = "Store plain text and rich RTF data";
+"search.item.cb_save_text.keys" = "save text,rtf,plain text";
+
+"search.item.cb_images.sub" = "Compress PNG and store screenshots";
+"search.item.cb_images.keys" = "images,screenshot,png,picture,photo";
+
+"search.item.cb_history_limit.sub" = "Maximum item retention cap (50-1000)";
+"search.item.cb_history_limit.keys" = "limit,history size,capacity,retention";
+
+"search.item.cb_sort_order.sub" = "Last copied, first copied, copy count";
+"search.item.cb_sort_order.keys" = "sort order,ranking,frequency";
+
+"search.item.cb_clear_all.sub" = "Clear all clipboard history on disk";
+"search.item.cb_clear_all.keys" = "clear history,delete clipboard,cleanup";
+
+"search.item.cb_popup_pos.sub" = "Appear at mouse cursor or menu bar";
+"search.item.cb_popup_pos.keys" = "popup position,mouse cursor,menu bar";
+
+"search.item.cb_pin_loc.sub" = "Pin items to top or bottom of list";
+"search.item.cb_pin_loc.keys" = "pin location,top,bottom";
+
+"search.item.cb_hover_preview.sub" = "Slideout preview on hovering rows";
+"search.item.cb_hover_preview.keys" = "hover preview,preview,details";
+
+"search.item.cb_app_icons.sub" = "Display source app icon on rows";
+"search.item.cb_app_icons.keys" = "app icons,source application";
+
+"search.item.cb_color_swatch.sub" = "Render hex color swatches";
+"search.item.cb_color_swatch.keys" = "color swatch,hex color,preview color";
+
+"search.item.cb_pins.sub" = "Manage pinned items quickly (⌥P)";
+"search.item.cb_pins.keys" = "pinned items,opt+p,pin";
+
+"search.item.cb_privacy.sub" = "Auto exclude 1Password, Bitwarden, Keychain";
+"search.item.cb_privacy.keys" = "privacy,password manager,security,1password,bitwarden";
+
+"search.item.macro_enable.sub" = "Auto expand shortcut upon pressing Space";
+"search.item.macro_enable.keys" = "snippets,macro,text expansion,shortcuts,expand";
+
+"search.item.macro_auto_caps.sub" = "Capitalize replacement corresponding to shortcut";
+"search.item.macro_auto_caps.keys" = "auto caps,capitalize,uppercase,casing";
+
+"search.item.macro_in_english.sub" = "Expand snippets even in English mode [E]";
+"search.item.macro_in_english.keys" = "english snippets,macro english,expansion";
+
+"search.item.macro_add_new.sub" = "Add custom shortcut and replacement text";
+"search.item.macro_add_new.keys" = "add snippet,new macro,create shortcut";
+
+"search.item.macro_backup.sub" = "Export and import snippet files (.txt)";
+"search.item.macro_backup.keys" = "backup,export,import,unikey format,txt";
+
+"search.item.gen_launch_at_login.sub" = "Automatically start SKey on system startup";
+"search.item.gen_launch_at_login.keys" = "launch at login,startup,autostart,login items";
+
+"search.item.gen_language.sub" = "Interface language (Tiếng Việt / English)";
+"search.item.gen_language.keys" = "language,interface,vietnamese,english,locale";
+
+"search.item.gen_check_updates.sub" = "Notify when a new version is available";
+"search.item.gen_check_updates.keys" = "check updates,version,upgrade";
+
+"search.item.gen_permissions.sub" = "Accessibility & Input Monitoring settings";
+"search.item.gen_permissions.keys" = "permissions,accessibility,input monitoring,security";
+
+"search.item.gen_logs.sub" = "View detailed logs at /tmp/skey.log";
+"search.item.gen_logs.keys" = "logs,debug,file log,diagnostics";
+
+"search.item.gen_reset.sub" = "Restore all settings to default values";
+"search.item.gen_reset.keys" = "reset,factory defaults,restore";
+
+"search.item.gen_export_settings.sub" = "Backup all settings to JSON file";
+"search.item.gen_export_settings.keys" = "export,backup settings,save config,export json";
+
+"search.item.gen_import_settings.sub" = "Restore all settings from JSON backup";
+"search.item.gen_import_settings.keys" = "import,restore settings,load config,import json";
+
+"search.item.gen_cleaner.sub" = "Lock keyboard & show clean backdrops for wiping";
+"search.item.gen_cleaner.keys" = "cleaner,keyboard cleaner,screen cleaner,lock keyboard,wipe screen";
+
+"search.item.ai_provider.sub" = "Configure AI provider and API Key";
+"search.item.ai_provider.keys" = "ai,assistant,gemini,chatgpt,api key,intelligence";
+
+"search.item.ai_prompts.sub" = "Prompt templates for rewriting and grammar";
+"search.item.ai_prompts.keys" = "prompts,templates,rewrite,translate";
+
+"search.item.ai_shortcuts.sub" = "Global shortcut to trigger AI assistant";
+"search.item.ai_shortcuts.keys" = "ai shortcut,activation,trigger";
+
+"search.item.about_info.sub" = "Version info & open source details";
+"search.item.about_info.keys" = "about,version,open source,author";

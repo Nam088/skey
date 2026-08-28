@@ -136,11 +136,11 @@ impl Engine {
 
         let char_count = text_len;
         if case != VnCase::NoChange {
-            for k in 0..char_count {
-                text[k] = match case {
-                    VnCase::AllCapital => charset::std_to_upper(text[k]),
-                    VnCase::AllSmall => charset::std_to_lower(text[k]),
-                    VnCase::NoChange => text[k],
+            for item in text[..char_count].iter_mut() {
+                *item = match case {
+                    VnCase::AllCapital => charset::std_to_upper(*item),
+                    VnCase::AllSmall => charset::std_to_lower(*item),
+                    VnCase::NoChange => *item,
                 };
             }
         }
@@ -152,8 +152,8 @@ impl Engine {
         let mut written = {
             let mut enc = charset::Encoder::new(self.charset);
             let mut sink = At::new(&mut self.out, 0, cap);
-            for k in 0..char_count {
-                enc.put_into(&mut sink, text[k]);
+            for &c in &text[..char_count] {
+                enc.put_into(&mut sink, c);
             }
             sink.count()
         };
@@ -240,7 +240,7 @@ impl Engine {
         // vowel sequence rather than substituting a letter: two buffer
         // entries change, symbols and sub sequence markers both, so it
         // does its own work and reports the key as finished.
-        if ev.key_code < 128 && (ev.key_code as u8).to_ascii_lowercase() == b'u' {
+        if ev.key_code < 128 && (ev.key_code as u8).eq_ignore_ascii_case(&b'u') {
             let prev = self.cur();
             let vowel_form = prev.form() == VNW_V || prev.form() == VNW_CV;
             if vowel_form && prev.vseq() == L::vs_u && prev.vn_sym == L::u {
@@ -278,7 +278,7 @@ impl Engine {
             return None;
         }
         let typed = ev.key_code as u8;
-        if typed.to_ascii_lowercase() != (prev.key_code as u8).to_ascii_lowercase() {
+        if !typed.eq_ignore_ascii_case(&(prev.key_code as u8)) {
             return None;
         }
         let second = crate::extensions::quick::doubled(typed)?;
@@ -639,7 +639,7 @@ impl Engine {
         if n == 0 || n > buf.len() {
             return false;
         }
-        for k in 0..n {
+        for (k, slot) in buf[..n].iter_mut().enumerate() {
             let c = self.keys[(start + k as i32) as usize];
             if c > 127 {
                 return false;
@@ -648,7 +648,7 @@ impl Engine {
             if !b.is_ascii_alphabetic() {
                 return false;
             }
-            buf[k] = b.to_ascii_lowercase();
+            *slot = b.to_ascii_lowercase();
         }
         crate::extensions::enwords::is_swallowed_word(&buf[..n])
     }

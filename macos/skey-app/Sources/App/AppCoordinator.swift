@@ -8,7 +8,7 @@ public final class AppCoordinator {
 
     // Registered features
     public let keyboardFeature  = KeyboardFeature()
-    public let clipboardFeature = ClipboardFeature()
+    public let clipboardFeature = ClipboardFeature.shared
 
     private(set) var features: [Feature] = []
 
@@ -32,7 +32,7 @@ public final class AppCoordinator {
         keyboardFeature.onStatusIconChange = { isVietnamese in
             StatusBarManager.shared.updateStatusIcon(isVietnamese: isVietnamese)
         }
-        StatusBarManager.shared.updateStatusIcon(isVietnamese: PreferencesService.shared.isVietnamese)
+        StatusBarManager.shared.updateStatusIcon(isVietnamese: AppSettings.shared.keyboard.isVietnamese)
 
         // 3. Start all registered features
         features.forEach { $0.start() }
@@ -42,7 +42,10 @@ public final class AppCoordinator {
             self?.keyboardFeature.handleAppFocusChanged(to: bundleID)
         }
 
-        // 5. Check permissions & start polling if needed
+        // 5. Sync Launch at Login system service
+        LaunchAtLoginService.syncOnLaunch()
+
+        // 6. Check permissions & start polling if needed
         checkAndRequestPermissions()
     }
 

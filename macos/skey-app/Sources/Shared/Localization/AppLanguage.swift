@@ -2,10 +2,12 @@ import Foundation
 
 // MARK: - AppLanguage
 
-public enum AppLanguage: String, CaseIterable, Codable {
+public enum AppLanguage: String, CaseIterable, Codable, Identifiable {
     case vietnamese = "vi"
     case english    = "en"
     case system     = "system"
+
+    public var id: String { rawValue }
 
     public var displayName: String {
         switch self {

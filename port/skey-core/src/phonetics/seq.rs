@@ -356,12 +356,11 @@ const fn build_tone_pos() -> [i8; VSEQ_COUNT * 4] {
                     } else {
                         info.hook_pos
                     }
-                } else if info.len == 3 {
-                    1
-                } else if modern == 1
-                    && (i == L::vs_oa.0 as usize
-                        || i == L::vs_oe.0 as usize
-                        || i == L::vs_uy.0 as usize)
+                } else if info.len == 3
+                    || (modern == 1
+                        && (i == L::vs_oa.0 as usize
+                            || i == L::vs_oe.0 as usize
+                            || i == L::vs_uy.0 as usize))
                 {
                     1
                 } else if term == 1 {
@@ -413,9 +412,9 @@ const fn build_cv_valid() -> [u128; CSEQ_COUNT] {
         let mut v = 0;
         while v < VSEQ_COUNT {
             let first = VSEQ[v].v[0].0;
-            let ok = if c == L::cs_gi.0 as usize && first == L::i.0 {
-                false
-            } else if c == L::cs_qu.0 as usize && first == L::u.0 {
+            let ok = if (c == L::cs_gi.0 as usize && first == L::i.0)
+                || (c == L::cs_qu.0 as usize && first == L::u.0)
+            {
                 false
             } else if c == L::cs_k.0 as usize {
                 let mut found = false;

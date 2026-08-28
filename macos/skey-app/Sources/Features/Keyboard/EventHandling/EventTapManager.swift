@@ -48,7 +48,7 @@ public final class EventTapManager {
             // so UserDefaults.set() must not run there (it may trigger KVO / disk flush).
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
-                PreferencesService.shared.isVietnamese = newValue
+                AppSettings.shared.keyboard.isVietnamese = newValue
                 self.delegate?.statusDidChange(isVietnamese: newValue)
             }
         }
@@ -67,11 +67,12 @@ public final class EventTapManager {
     private var _isVietnamese: Bool = true
 
     private init() {
-        _isVietnamese = PreferencesService.shared.isVietnamese
+        _isVietnamese = AppSettings.shared.keyboard.isVietnamese
     }
 
     // MARK: - Language
 
+    public var isListening: Bool { eventTap != nil }
     public func toggleLanguage() { isVietnamese.toggle() }
     public func setLanguage(vietnamese: Bool) { isVietnamese = vietnamese }
 

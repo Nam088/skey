@@ -82,49 +82,58 @@ public final class AccessibilityContextReader {
             return nil
         }
 
-        // 1. Try to read text via SelectedTextRange
-        if let range = getSelectedRange(for: axElement) {
-            // If there's an active text selection (length > 0), do not recompose
-            guard range.length == 0, range.location > 0 else { return nil }
-
-            // Strategy A: Parameterized attribute kAXStringForRangeParameterizedAttribute
-            let readLen = min(range.location, 30)
-            let startLoc = range.location - readLen
-            var readRange = CFRange(location: startLoc, length: readLen)
-
-            if let rangeValue = AXValueCreate(.cfRange, &readRange) {
-                var stringVal: AnyObject?
-                let paramErr = AXUIElementCopyParameterizedAttributeValue(
-                    axElement,
-                    kAXStringForRangeParameterizedAttribute as CFString,
-                    rangeValue,
-                    &stringVal
-                )
-                if paramErr == .success, let text = stringVal as? String, !text.isEmpty {
-                    if let word = extractLastWord(from: text) {
-                        return word
-                    }
-                }
+        // Fast Role validation: Filter out non-text UI containers early
+        var roleVal: AnyObject?
+        if AXUIElementCopyAttributeValue(axElement, kAXRoleAttribute as CFString, &roleVal) == .success,
+           let role = roleVal as? String {
+            if role == (kAXButtonRole as String) ||
+               role == (kAXWindowRole as String) ||
+               role == (kAXListRole as String) ||
+               role == (kAXTableRole as String) ||
+               role == (kAXScrollBarRole as String) ||
+               role == "AXWebArea" ||
+               role == "AXGroup" {
+                return nil
             }
+        }
 
-            // Strategy B: Read full kAXValueAttribute and slice up to range.location
-            var valueAttr: AnyObject?
-            if AXUIElementCopyAttributeValue(axElement, kAXValueAttribute as CFString, &valueAttr) == .success,
-               let fullText = valueAttr as? String, !fullText.isEmpty {
-                let location = min(range.location, fullText.utf16.count)
-                let prefixIndex = fullText.utf16.index(fullText.utf16.startIndex, offsetBy: location, limitedBy: fullText.utf16.endIndex) ?? fullText.utf16.endIndex
-                let prefixString = String(fullText.utf16[..<prefixIndex]) ?? ""
-                if let word = extractLastWord(from: prefixString) {
+        // 1. Must have a valid SelectedTextRange with a caret (length == 0 and location > 0)
+        guard let range = getSelectedRange(for: axElement),
+              range.length == 0,
+              range.location > 0 else {
+            return nil
+        }
+
+        // Strategy A: Parameterized attribute kAXStringForRangeParameterizedAttribute
+        let readLen = min(range.location, 30)
+        let startLoc = range.location - readLen
+        var readRange = CFRange(location: startLoc, length: readLen)
+
+        if let rangeValue = AXValueCreate(.cfRange, &readRange) {
+            var stringVal: AnyObject?
+            let paramErr = AXUIElementCopyParameterizedAttributeValue(
+                axElement,
+                kAXStringForRangeParameterizedAttribute as CFString,
+                rangeValue,
+                &stringVal
+            )
+            if paramErr == .success, let text = stringVal as? String, !text.isEmpty {
+                if let word = extractLastWord(from: text) {
                     return word
                 }
             }
         }
 
-        // 2. Direct fallback: read kAXValueAttribute
+        // Strategy B: Read full kAXValueAttribute and slice up to range.location
         var valueAttr: AnyObject?
         if AXUIElementCopyAttributeValue(axElement, kAXValueAttribute as CFString, &valueAttr) == .success,
            let fullText = valueAttr as? String, !fullText.isEmpty {
-            return extractLastWord(from: fullText)
+            let location = min(range.location, fullText.utf16.count)
+            let prefixIndex = fullText.utf16.index(fullText.utf16.startIndex, offsetBy: location, limitedBy: fullText.utf16.endIndex) ?? fullText.utf16.endIndex
+            let prefixString = String(fullText.utf16[..<prefixIndex]) ?? ""
+            if let word = extractLastWord(from: prefixString) {
+                return word
+            }
         }
 
         return nil

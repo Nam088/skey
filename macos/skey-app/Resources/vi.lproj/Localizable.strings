@@ -1,12 +1,27 @@
 /* SKey Vietnamese Localization */
 
 "app.title" = "SKey";
-"keyboard.menu.toggle" = "Chuyển Tiếng Việt/Anh (Opt+Z)";
+"app.action.quit" = "Thoát SKey";
+"tooltip.vietnamese" = "SKey: Tiếng Việt (Click để chuyển sang Anh, chuột phải xem menu)";
+"tooltip.english" = "SKey: Tiếng Anh (Click để chuyển sang Việt, chuột phải xem menu)";
+
+/* Common */
+"common.save" = "Lưu";
+"common.edit" = "Sửa";
+"common.delete" = "Xóa";
+"common.cancel" = "Hủy";
+
+/* Menu */
+"keyboard.menu.toggle" = "Tiếng Việt (⌥Z)";
+"keyboard.menu.vietnamese" = "Tiếng Việt";
+"keyboard.menu.english" = "Tiếng Anh";
 "keyboard.menu.input_method" = "Kiểu gõ";
+"keyboard.menu.charset" = "Bảng mã";
+"keyboard.menu.typingOptions" = "Tùy chọn bộ gõ";
 "keyboard.options.spell_check" = "Kiểm tra chính tả";
 "keyboard.options.free_marking" = "Bỏ dấu tự do";
 "keyboard.options.modern_style" = "Đặt dấu kiểu mới (oà, uỳ)";
-"keyboard.options.smart_switch" = "Tự động đổi Tiếng Anh khi vào IDE/Terminal";
+"keyboard.options.smart_switch" = "Chuyển tiếng Anh trong Terminal/IDE";
 "keyboard.options.advanced" = "Tùy chọn nâng cao";
 "keyboard.advanced.quick_telex" = "Gõ nhanh Telex (cc->ch, gg->gi, uu->ươ)";
 "keyboard.advanced.quick_start_consonant" = "Gõ nhanh phụ âm đầu (f->ph, j->gi, w->qu)";
@@ -14,23 +29,411 @@
 "keyboard.advanced.upper_case_first" = "Tự động viết hoa đầu câu";
 "keyboard.advanced.swallowed_restore" = "Khôi phục phím bị nuốt từ tiếng Anh";
 
-"clipboard.menu.title" = "Lịch sử Clipboard (Maccy)";
+/* Clipboard Menu & Popup */
+"clipboard.menu.title" = "Lịch sử Clipboard (⌥V)";
 "clipboard.status.empty" = "Chưa có lịch sử copy";
 "clipboard.action.clear_all" = "Xóa toàn bộ lịch sử";
+"clipboard.search.placeholder" = "Tìm kiếm lịch sử clipboard...";
+"clipboard.empty" = "Lịch sử clipboard trống";
+"clipboard.noMatches" = "Không tìm thấy kết quả phù hợp";
+"clipboard.paste" = "Dán";
+"clipboard.pasteAsPlainText" = "Dán dạng văn bản thuần";
+"clipboard.pin" = "Ghim";
+"clipboard.unpin" = "Bỏ ghim";
+"clipboard.delete" = "Xóa";
+"clipboard.clear" = "Xóa danh sách";
+"clipboard.clearAll" = "Xóa tất cả (kể cả ghim)";
+"clipboard.clear.confirmMessage" = "Bạn có chắc chắn muốn xóa tất cả các mục chưa ghim trong lịch sử?";
+"clipboard.clearAll.confirmMessage" = "Bạn có chắc chắn muốn xóa TOÀN BỘ lịch sử clipboard (kể cả các mục đã ghim)?";
+"clipboard.clear.dontAskAgain" = "Không hỏi lại lần sau";
+"clipboard.cancel" = "Hủy";
+"clipboard.clear.confirm" = "Xóa";
+"clipboard.clearAll.confirm" = "Xóa tất cả";
+"clipboard.settings" = "Cài đặt...";
+"clipboard.about" = "Thông tin SKey";
+"clipboard.quit" = "Thoát";
+"clipboard.pasteStack.title" = "Danh sách dán liên tiếp";
+"clipboard.pasteStack.remove" = "Xóa danh sách dán";
 
+/* Preview */
+"preview.title" = "Xem trước";
+"preview.empty" = "Không có nội dung xem trước";
+"preview.image" = "Hình ảnh";
+"preview.text" = "Văn bản";
+"preview.richText" = "Văn bản định dạng";
+"preview.file" = "Tệp tin";
+"preview.color" = "Màu sắc";
+"preview.link" = "Liên kết";
+"preview.code" = "Mã nguồn";
+"preview.image.failed" = "Không thể tải hình ảnh";
+"preview.unknownApp" = "Ứng dụng không xác định";
+"preview.firstCopyTime" = "Lần đầu copy";
+"preview.lastCopyTime" = "Lần gần nhất";
+"preview.shortcut.pin" = "Ghim / Bỏ ghim";
+"preview.shortcut.delete" = "Xóa mục này";
+"preview.stats" = "%d từ • %d ký tự";
+
+/* Permissions & Tools */
 "permissions.menu.title" = "Cấp quyền hệ thống (Bắt buộc)";
 "permissions.action.input_monitoring" = "Mở cài đặt Theo dõi đầu vào (Input Monitoring)...";
 "permissions.action.accessibility" = "Mở cài đặt Trợ năng (Accessibility)...";
 
-"tools.menu.title" = "Công cụ & Nhật ký (Logs)";
+"tools.menu.title" = "Công cụ & Quyền";
+"tools.action.cleaner" = "Lau màn hình & Vệ sinh phím...";
 "tools.action.open_log" = "Mở file nhật ký (/tmp/skey.log)...";
 "tools.action.clear_log" = "Xóa sạch bộ đệm nhật ký";
+
+/* Screen & Keyboard Cleaner */
+"cleaner.title" = "Lau màn hình & Vệ sinh phím";
+"cleaner.desc" = "Tạm khóa bàn phím và phủ nền để lau bụi bẩn mà không sợ bấm nhầm phím";
+"cleaner.action.start" = "Bắt đầu lau...";
+"cleaner.badge.locked" = "ĐÃ KHÓA PHÍM";
+"cleaner.esc.hint" = "Giữ Esc 2s để thoát";
+"cleaner.esc.holding" = "Đang mở khóa...";
+"cleaner.button.unlock" = "Mở khóa";
+"cleaner.mode.transparent" = "Trong suốt";
+"cleaner.mode.glassBlur" = "Làm mờ kính";
+"cleaner.mode.blackScreen" = "Màn hình Đen";
+"cleaner.mode.whiteScreen" = "Màn hình Trắng";
+"cleaner.help.drag" = "Kéo để di chuyển vị trí thanh này";
+"cleaner.help.expand" = "Mở rộng thanh điều khiển";
+"cleaner.help.collapse" = "Thu gọn siêu nhỏ";
 
 "language.menu.title" = "Ngôn ngữ giao diện";
 "language.option.vietnamese" = "Tiếng Việt";
 "language.option.english" = "English";
 "language.option.system" = "Theo hệ thống";
 
-"tooltip.vietnamese" = "SKey: Tiếng Việt (Click để chuyển sang Anh, chuột phải xem menu)";
-"tooltip.english" = "SKey: Tiếng Anh (Click để chuyển sang Việt, chuột phải xem menu)";
-"app.action.quit" = "Thoát SKey";
+/* Settings Dashboard Tabs & SubTabs */
+"settings.title" = "Cài đặt SKey";
+"settings.search.placeholder" = "Tìm kiếm cài đặt...";
+"settings.tab.keyboard" = "Bộ gõ";
+"settings.tab.keyboard.subtitle" = "Phương thức nhập liệu & Quy tắc bỏ dấu tiếng Việt";
+"settings.tab.clipboard" = "Clipboard";
+"settings.tab.clipboard.subtitle" = "Quản lý lịch sử sao chép, tìm kiếm & xem trước thông minh";
+"settings.tab.snippets" = "Gõ tắt";
+"settings.tab.snippets.subtitle" = "Bảng từ viết tắt & Thay thế văn bản tự động";
+"settings.tab.ai" = "Trợ lý AI";
+"settings.tab.ai.subtitle" = "Tích hợp trợ lý AI thông minh trên macOS";
+"settings.tab.general" = "Cài đặt chung";
+"settings.tab.general.subtitle" = "Cấu hình hệ thống, quyền bảo mật & dữ liệu";
+"settings.tab.about" = "Giới thiệu";
+"settings.tab.about.subtitle" = "Thông tin phiên bản & Đóng góp phát triển";
+
+"settings.subtab.inputMethod" = "Kiểu gõ";
+"settings.subtab.orthography" = "Bỏ dấu & Chính tả";
+"settings.subtab.quickTyping" = "Gõ nhanh";
+"settings.subtab.smartSwitch" = "Chuyển app";
+"settings.subtab.general" = "Chung";
+"settings.subtab.storage" = "Lưu trữ";
+"settings.subtab.appearance" = "Giao diện";
+"settings.subtab.pins" = "Mục đã ghim";
+"settings.subtab.privacy" = "Bảo mật";
+"settings.subtab.snippetsList" = "Bảng gõ tắt";
+"settings.subtab.options" = "Tùy chọn";
+"settings.subtab.backup" = "Sao lưu";
+"settings.subtab.aiModel" = "Mô hình AI";
+"settings.subtab.aiPrompts" = "Mẫu câu lệnh";
+"settings.subtab.aiShortcuts" = "Phím tắt";
+"settings.subtab.basic" = "Cơ bản";
+"settings.subtab.permissions" = "Quyền hệ thống";
+"settings.subtab.logs" = "Nhật ký & Dữ liệu";
+
+/* Settings: Keyboard */
+"keyboard.section.inputMethod" = "Phương thức nhập liệu";
+"keyboard.option.primaryMethod" = "Kiểu gõ chính";
+"keyboard.option.primaryMethodDesc" = "Phương thức gõ tiếng Việt mặc định";
+"keyboard.option.charset" = "Bảng mã";
+"keyboard.option.charsetDesc" = "Bảng mã ký tự chuẩn đầu ra";
+"keyboard.charset.unicode" = "Unicode (Dựng sẵn)";
+"keyboard.charset.tcvn3" = "TCVN3 (ABC)";
+"keyboard.charset.vni" = "VNI Windows";
+"keyboard.section.mode" = "Chế độ gõ";
+"keyboard.option.enableVietnamese" = "Bật gõ tiếng Việt";
+"keyboard.option.enableVietnameseDesc" = "Phím tắt chuyển đổi nhanh giữa tiếng Việt và tiếng Anh";
+"keyboard.section.rules" = "Quy tắc gõ & Đặt dấu";
+"keyboard.option.spellCheckDesc" = "Tự động hoàn tác dấu khi gõ từ không có trong từ điển tiếng Việt";
+"keyboard.option.freeMarkingDesc" = "Cho phép bỏ dấu thanh ở bất kỳ vị trí nào trong từ (vd: toanf -> toàn)";
+"keyboard.option.modernStyleDesc" = "Đặt dấu trên nguyên âm thứ 2 (thay vì kiểu truyền thống òa, ùy)";
+"keyboard.option.swallowedKeyDesc" = "Tự động phục hồi ký tự bị xoá nhầm khi chuyển sang từ tiếng Anh";
+"keyboard.section.quickTelex" = "Tùy chọn gõ nhanh Telex";
+"keyboard.option.quickTelexDesc" = "Tự động đổi cc->ch, gg->gi, uu->ươ, tt->th";
+"keyboard.option.quickStartConsonant" = "Gõ nhanh phụ âm đầu";
+"keyboard.option.quickStartConsonantDesc" = "Tự động đổi f->ph, j->gi, w->qu";
+"keyboard.option.quickEndConsonant" = "Gõ nhanh phụ âm cuối";
+"keyboard.option.quickEndConsonantDesc" = "Tự động đổi g->ng, h->nh, k->ch";
+"keyboard.option.upperCaseFirst" = "Tự động viết hoa đầu câu";
+"keyboard.option.upperCaseFirstDesc" = "Tự động viết hoa chữ cái sau các dấu chấm câu (. ? !)";
+"keyboard.section.smartSwitch" = "Tự động chuyển đổi môi trường";
+"keyboard.option.smartSwitch" = "Bật Smart App Switch";
+"keyboard.option.smartSwitchDesc" = "Tự động chuyển sang Tiếng Anh khi vào IDE / Terminal và khôi phục khi quay lại";
+"keyboard.section.smartSwitchApps" = "Ứng dụng lập trình được nhận diện tự động";
+"keyboard.status.auto" = "Tự động";
+
+/* Settings: Clipboard */
+"clipboard.section.management" = "Quản lý Clipboard";
+"clipboard.option.enableMonitor" = "Bật giám sát Clipboard";
+"clipboard.option.enableMonitorDesc" = "Tự động ghi nhớ lịch sử sao chép trong hệ thống macOS";
+"clipboard.option.shortcut" = "Phím tắt mở danh sách";
+"clipboard.option.shortcutDesc" = "Phím tắt toàn cục kích hoạt cửa sổ lịch sử clipboard";
+"clipboard.option.searchType" = "Kiểu tìm kiếm";
+"clipboard.option.searchTypeDesc" = "Tìm kiếm thông minh hỗ trợ gõ không dấu tiếng Việt";
+"clipboard.search.fuzzy" = "Thông minh (Fuzzy)";
+"clipboard.search.exact" = "Chính xác (Exact)";
+"clipboard.section.pasteActions" = "Hành động dán";
+"clipboard.option.autoPaste" = "Tự động dán sau khi chọn";
+"clipboard.option.autoPasteDesc" = "Tự động gửi phím ⌘V vào ứng dụng đang hoạt động trước đó";
+"clipboard.option.plainText" = "Dán văn bản thuần";
+"clipboard.option.plainTextDesc" = "Loại bỏ định dạng rich text khi bấm ⇧Enter";
+"clipboard.section.dataTypes" = "Loại dữ liệu sao chép";
+"clipboard.option.saveText" = "Lưu văn bản";
+"clipboard.option.saveTextDesc" = "Lưu nội dung văn bản thuần túy và văn bản định dạng (RTF)";
+"clipboard.option.saveImages" = "Lưu hình ảnh";
+"clipboard.option.saveImagesDesc" = "Tự động nén PNG và lưu ảnh chụp màn hình hoặc ảnh copy";
+"clipboard.section.limits" = "Giới hạn lịch sử & Dung lượng";
+"clipboard.option.maxItems" = "Số lượng mục tối đa";
+"clipboard.option.maxItemsDesc" = "Tự động xoá các mục cũ khi vượt quá giới hạn";
+"clipboard.option.sortOrder" = "Thứ tự sắp xếp";
+"clipboard.option.sortOrderDesc" = "Tiêu chí xếp hạng mục trong danh sách";
+"clipboard.sort.copies" = "Số lần copy nhiều nhất";
+"clipboard.action.clearAll" = "Xóa toàn bộ lịch sử clipboard";
+"clipboard.section.position" = "Vị trí & Bố cục";
+"clipboard.option.popupPosition" = "Vị trí xuất hiện Popup";
+"clipboard.pos.cursor" = "Theo con trỏ chuột";
+"clipboard.pos.statusItem" = "Dưới thanh Menu Bar";
+"clipboard.option.pinLocation" = "Vị trí các mục đã ghim";
+"clipboard.pin.top" = "Trên đầu danh sách";
+"clipboard.pin.bottom" = "Dưới đáy danh sách";
+"clipboard.option.thumbHeight" = "Chiều cao ảnh thu nhỏ (Thumbnail)";
+"clipboard.section.previewAux" = "Xem trước & Phụ trợ";
+"clipboard.option.hoverPreview" = "Tự động hiện bản xem trước khi rê chuột";
+"clipboard.option.hoverPreviewDesc" = "Mở khung xem trước chi tiết khi hover qua từng dòng";
+"clipboard.option.appIcons" = "Hiện icon ứng dụng nguồn";
+"clipboard.option.appIconsDesc" = "Hiển thị biểu tượng ứng dụng bạn đã copy nội dung";
+"clipboard.option.colorSwatch" = "Hiện ô màu sắc (Color Swatch)";
+"clipboard.option.colorSwatchDesc" = "Hiển thị ô xem trước màu cho các mã hex dạng #RRGGBB";
+"clipboard.section.pinsTitle" = "Mục đã ghim";
+"clipboard.pins.headline" = "Quản lý mục ghim nhanh chóng";
+"clipboard.pins.desc" = "Bạn có thể ghim/bỏ ghim bất kỳ mục nào bằng phím tắt ⌥P hoặc trong menu chuột phải.";
+"clipboard.section.privacy" = "Tự động loại trừ ứng dụng bảo mật";
+"clipboard.status.protected" = "Đã bảo vệ";
+
+/* Settings: Macro / Snippets */
+"macro.section.add" = "Thêm từ gõ tắt mới";
+"macro.placeholder.shortcut" = "Từ viết tắt (vd: vn)";
+"macro.placeholder.replacement" = "Từ thay thế (vd: Việt Nam)";
+"macro.placeholder.shortcutShort" = "Viết tắt";
+"macro.placeholder.replacementShort" = "Thay thế";
+"macro.action.add" = "Thêm";
+"macro.section.list" = "Danh sách từ gõ tắt";
+"macro.placeholder.search" = "Tìm từ gõ tắt...";
+"macro.status.empty" = "Chưa có từ gõ tắt nào";
+"macro.section.options" = "Cấu hình hoạt động";
+"macro.option.enable" = "Bật tính năng Gõ tắt";
+"macro.option.enableDesc" = "Tự động thay thế từ viết tắt khi bấm phím Cách (Space)";
+"macro.option.autoCaps" = "Tự động viết hoa từ thay thế";
+"macro.option.autoCapsDesc" = "Viết hoa chữ đầu hoặc toàn bộ từ thay thế tương ứng với cách gõ từ viết tắt (vd: VN -> VIỆT NAM)";
+"macro.option.inEnglish" = "Cho phép gõ tắt cả khi tắt tiếng Việt";
+"macro.option.inEnglishDesc" = "Vẫn tự động thay thế từ gõ tắt khi đang ở chế độ gõ tiếng Anh [E]";
+"macro.section.backup" = "Sao lưu & Nhập danh sách";
+"macro.option.export" = "Xuất danh sách gõ tắt ra file";
+"macro.option.exportDesc" = "Lưu toàn bộ bảng gõ tắt thành file văn bản (.txt chuẩn Unikey: viết_tắt:thay_thế)";
+"macro.option.import" = "Nhập danh sách từ file";
+"macro.option.importDesc" = "Đọc và gộp bảng gõ tắt từ file văn bản (.txt)";
+"macro.action.exportBtn" = "Xuất file...";
+"macro.action.importBtn" = "Nhập file...";
+
+/* Settings: General */
+"general.section.system" = "Hệ thống";
+"general.option.launchAtLogin" = "Khởi động cùng macOS";
+"general.option.launchAtLoginDesc" = "Tự động mở SKey khi bạn đăng nhập vào máy tính";
+"general.option.appLanguage" = "Ngôn ngữ giao diện";
+"general.option.appLanguageDesc" = "Ngôn ngữ hiển thị trên Menu và các cửa sổ SKey";
+"general.option.checkUpdates" = "Tự động kiểm tra bản cập nhật";
+"general.option.checkUpdatesDesc" = "Thông báo khi có phiên bản mới của SKey";
+"general.section.permissions" = "Quyền bảo mật macOS";
+"general.option.ax" = "Quyền Trợ năng (Accessibility)";
+"general.option.axDesc" = "Cho phép SKey thay thế và gõ tiếng Việt trực tiếp";
+"general.option.im" = "Quyền Theo dõi đầu vào (Input Monitoring)";
+"general.option.imDesc" = "Cho phép SKey nhận diện phím gõ";
+"general.action.openSettings" = "Mở Cài đặt";
+"general.section.logs" = "Nhật ký hoạt động";
+"general.option.openLog" = "Mở file nhật ký";
+"general.option.openLogDesc" = "Xem log chi tiết tại /tmp/skey.log";
+"general.option.clearLog" = "Xóa sạch bộ đệm nhật ký";
+"general.option.clearLogDesc" = "Dọn dẹp file log trên ổ cứng";
+"general.action.openLogBtn" = "Mở Log";
+"general.action.clearLogBtn" = "Xóa Log";
+"general.action.resetDefaults" = "Khôi phục toàn bộ cài đặt gốc";
+"general.section.backup" = "Sao lưu & Phục hồi cài đặt";
+"general.option.exportSettings" = "Xuất toàn bộ cấu hình ra file";
+"general.option.exportSettingsDesc" = "Lưu toàn bộ cài đặt (Bộ gõ, Clipboard, Gõ tắt, Hệ thống) thành file JSON";
+"general.option.importSettings" = "Nhập cấu hình từ file";
+"general.option.importSettingsDesc" = "Khôi phục toàn bộ cài đặt từ file sao lưu JSON";
+"general.action.exportSettingsBtn" = "Xuất file...";
+"general.action.importSettingsBtn" = "Nhập file...";
+"general.backup.exportSuccess" = "Đã xuất cấu hình thành công!";
+"general.backup.importSuccess" = "Đã nhập cấu hình thành công!";
+"general.backup.importFailed" = "Không thể đọc file cấu hình. Vui lòng kiểm tra lại định dạng file.";
+
+/* Settings: AI */
+"ai.section.provider" = "Nhà cung cấp AI";
+"ai.option.service" = "Dịch vụ AI";
+"ai.option.serviceDesc" = "Chọn mô hình xử lý văn bản thông minh";
+"ai.option.apiKey" = "API Key";
+"ai.option.apiKeyDesc" = "Khóa bảo mật từ nhà cung cấp của bạn";
+"ai.section.prompts" = "Mẫu câu lệnh thông minh";
+"ai.headline" = "Trợ lý AI trên toàn hệ thống";
+"ai.headlineDesc" = "Tự động sửa lỗi chính tả, Viết lại chuyên nghiệp, Tóm tắt, Dịch thuật mọi đoạn văn bản.";
+"ai.section.shortcuts" = "Phím tắt kích hoạt";
+"ai.option.shortcut" = "Kích hoạt AI trên văn bản đang chọn";
+"ai.option.shortcutDesc" = "Mở menu gợi ý AI nhanh";
+
+/* Settings: About */
+"about.title" = "SKey";
+"about.version" = "Phiên bản 1.0.0 (Native Apple Silicon & Intel)";
+"about.description" = "Bộ gõ tiếng Việt siêu nhẹ & Clipboard Manager thông minh cho macOS.";
+"about.author" = "Tác giả";
+"about.opensource" = "Mã nguồn mở";
+
+/* Search Index Localization */
+"search.item.kb_input_method.sub" = "Telex, Simple Telex, VNI, VIQR";
+"search.item.kb_input_method.keys" = "telex,vni,viqr,kiểu gõ,phương thức nhập,simple telex";
+
+"search.item.kb_charset.sub" = "Unicode, TCVN3, VNI Windows";
+"search.item.kb_charset.keys" = "bảng mã,unicode,tcvn3,vni windows,mã ký tự";
+
+"search.item.kb_toggle_vn.sub" = "Phím tắt ⌥Z";
+"search.item.kb_toggle_vn.keys" = "bật gõ,tiếng việt,chuyển anh việt,phím tắt,opt+z,toggle";
+
+"search.item.kb_spell_check.sub" = "Tự động hoàn tác dấu khi gõ từ sai";
+"search.item.kb_spell_check.keys" = "chính tả,kiểm tra chính tả,từ điển,sai từ";
+
+"search.item.kb_free_marking.sub" = "Đặt dấu thanh ở bất kỳ vị trí nào";
+"search.item.kb_free_marking.keys" = "bỏ dấu,bỏ dấu tự do,dấu thanh,vị trí dấu";
+
+"search.item.kb_modern_style.sub" = "Đặt dấu trên nguyên âm thứ 2 (oà, uỳ)";
+"search.item.kb_modern_style.keys" = "dấu mới,oà,uỳ,òa,ùy,kiểu mới,truyền thống";
+
+"search.item.kb_swallowed.sub" = "Khôi phục phím bị xoá nhầm trong tiếng Anh";
+"search.item.kb_swallowed.keys" = "nuốt phím,khôi phục phím,phục hồi phím,tiếng anh";
+
+"search.item.kb_quick_telex.sub" = "Tự động đổi cc->ch, gg->gi, uu->ươ";
+"search.item.kb_quick_telex.keys" = "gõ nhanh,quick telex,viết nhanh,tắt nhanh";
+
+"search.item.kb_quick_start.sub" = "Tự động đổi f->ph, j->gi, w->qu";
+"search.item.kb_quick_start.keys" = "phụ âm đầu,gõ nhanh,f,j,w,ph,gi,qu";
+
+"search.item.kb_quick_end.sub" = "Tự động đổi g->ng, h->nh, k->ch";
+"search.item.kb_quick_end.keys" = "phụ âm cuối,gõ nhanh,g,h,k,ng,nh,ch";
+
+"search.item.kb_upper_first.sub" = "Tự động viết hoa chữ cái sau dấu câu";
+"search.item.kb_upper_first.keys" = "viết hoa đầu câu,chữ hoa,dấu chấm";
+
+"search.item.kb_smart_switch.sub" = "Tự đổi tiếng Anh trong IDE/Terminal";
+"search.item.kb_smart_switch.keys" = "smart switch,terminal,ide,vscode,xcode,lập trình";
+
+"search.item.cb_monitor.sub" = "Tự động ghi nhớ lịch sử sao chép macOS";
+"search.item.cb_monitor.keys" = "clipboard,lịch sử copy,giám sát,bộ nhớ tạm";
+
+"search.item.cb_shortcut.sub" = "Phím tắt kích hoạt toàn cục (⌥V)";
+"search.item.cb_shortcut.keys" = "phím tắt clipboard,opt+v,mở popup,kích hoạt";
+
+"search.item.cb_search_mode.sub" = "Tìm kiếm thông minh (Fuzzy) & Chính xác";
+"search.item.cb_search_mode.keys" = "tìm kiếm clipboard,fuzzy,exact,tìm thông minh";
+
+"search.item.cb_auto_paste.sub" = "Tự động gửi ⌘V vào app trước đó";
+"search.item.cb_auto_paste.keys" = "tự động dán,auto paste,cmd+v,dán nhanh";
+
+"search.item.cb_plain_text.sub" = "Loại bỏ định dạng khi bấm ⇧Enter";
+"search.item.cb_plain_text.keys" = "văn bản thuần,plain text,xóa định dạng";
+
+"search.item.cb_save_text.sub" = "Lưu văn bản thuần túy và RTF";
+"search.item.cb_save_text.keys" = "lưu văn bản,save text,rtf";
+
+"search.item.cb_images.sub" = "Nén PNG và lưu ảnh chụp màn hình";
+"search.item.cb_images.keys" = "hình ảnh,ảnh chụp màn hình,png,screenshot";
+
+"search.item.cb_history_limit.sub" = "Giới hạn số lượng mục lưu trữ (50-1000)";
+"search.item.cb_history_limit.keys" = "giới hạn,số lượng copy,dung lượng,lịch sử";
+
+"search.item.cb_sort_order.sub" = "Lần copy gần nhất, lần đầu, số lần copy";
+"search.item.cb_sort_order.keys" = "sắp xếp,thứ tự,sort,lần copy";
+
+"search.item.cb_clear_all.sub" = "Xóa toàn bộ lịch sử copy trên máy";
+"search.item.cb_clear_all.keys" = "xóa lịch sử,clear clipboard,dọn dẹp";
+
+"search.item.cb_popup_pos.sub" = "Hiện theo con trỏ chuột hoặc dưới Menu Bar";
+"search.item.cb_popup_pos.keys" = "vị trí popup,con trỏ chuột,menu bar";
+
+"search.item.cb_pin_loc.sub" = "Ghim ở trên đầu hoặc dưới đáy danh sách";
+"search.item.cb_pin_loc.keys" = "vị trí ghim,trên đầu,dưới đáy";
+
+"search.item.cb_hover_preview.sub" = "Mở khung xem trước chi tiết khi hover";
+"search.item.cb_hover_preview.keys" = "hover preview,xem trước,rê chuột";
+
+"search.item.cb_app_icons.sub" = "Hiện biểu tượng ứng dụng đã copy";
+"search.item.cb_app_icons.keys" = "icon app,nguồn copy,ứng dụng";
+
+"search.item.cb_color_swatch.sub" = "Xem trước ô màu hex #RRGGBB";
+"search.item.cb_color_swatch.keys" = "màu sắc,color swatch,hex color,mã màu";
+
+"search.item.cb_pins.sub" = "Quản lý các mục copy quan trọng (⌥P)";
+"search.item.cb_pins.keys" = "mục đã ghim,pinned,opt+p,quan trọng";
+
+"search.item.cb_privacy.sub" = "Tự loại trừ 1Password, Bitwarden, Keychain";
+"search.item.cb_privacy.keys" = "bảo mật,mật khẩu,password manager,1password,bitwarden";
+
+"search.item.macro_enable.sub" = "Tự động thay thế từ khi bấm phím Space";
+"search.item.macro_enable.keys" = "gõ tắt,macro,snippets,bật gõ tắt,viết tắt,thay thế";
+
+"search.item.macro_auto_caps.sub" = "Viết hoa tương ứng theo từ viết tắt";
+"search.item.macro_auto_caps.keys" = "viết hoa,auto caps,chữ hoa,in hoa";
+
+"search.item.macro_in_english.sub" = "Thay thế từ ngay cả khi ở chế độ [E]";
+"search.item.macro_in_english.keys" = "gõ tắt tiếng anh,chế độ e,macro english";
+
+"search.item.macro_add_new.sub" = "Tạo từ viết tắt và đoạn văn bản thay thế";
+"search.item.macro_add_new.keys" = "thêm gõ tắt,tạo từ viết tắt,thêm mới,shortcut";
+
+"search.item.macro_backup.sub" = "Xuất và nhập file bảng gõ tắt (.txt)";
+"search.item.macro_backup.keys" = "sao lưu,nhập file,xuất file,backup,unikey";
+
+"search.item.gen_launch_at_login.sub" = "Tự mở SKey khi đăng nhập vào máy tính";
+"search.item.gen_launch_at_login.keys" = "khởi động cùng macos,tự mở,startup,login items";
+
+"search.item.gen_language.sub" = "Ngôn ngữ hiển thị (Tiếng Việt / English)";
+"search.item.gen_language.keys" = "ngôn ngữ,language,tiếng việt,tiếng anh,giao diện";
+
+"search.item.gen_check_updates.sub" = "Thông báo khi có phiên bản mới của SKey";
+"search.item.gen_check_updates.keys" = "cập nhật,update,phiên bản mới,check update";
+
+"search.item.gen_permissions.sub" = "Quyền Trợ năng & Theo dõi đầu vào";
+"search.item.gen_permissions.keys" = "quyền,trợ năng,accessibility,input monitoring,bảo mật";
+
+"search.item.gen_logs.sub" = "Xem chi tiết nhật ký tại /tmp/skey.log";
+"search.item.gen_logs.keys" = "log,nhật ký,file log,debug,lỗi";
+
+"search.item.gen_reset.sub" = "Khôi phục toàn bộ cài đặt về trạng thái ban đầu";
+"search.item.gen_reset.keys" = "cài lại,reset,khôi phục gốc,mặc định";
+
+"search.item.gen_export_settings.sub" = "Xuất toàn bộ cấu hình ra file JSON";
+"search.item.gen_export_settings.keys" = "export,sao lưu,xuất cài đặt,backup setting,lưu cấu hình";
+
+"search.item.gen_import_settings.sub" = "Phục hồi cấu hình từ file sao lưu JSON";
+"search.item.gen_import_settings.keys" = "import,nhập cài đặt,khôi phục,restore setting,nạp cấu hình";
+
+"search.item.gen_cleaner.sub" = "Khóa phím và đổi nền để vệ sinh màn hình / phím";
+"search.item.gen_cleaner.keys" = "lau màn hình,vệ sinh phím,khóa bàn phím,cleaner,keyboard cleaner,screen cleaner,lau phím";
+
+"search.item.ai_provider.sub" = "Cấu hình nhà cung cấp và API Key";
+"search.item.ai_provider.keys" = "ai,trợ lý ai,chatgpt,gemini,api key,trí tuệ nhân tạo";
+
+"search.item.ai_prompts.sub" = "Mẫu câu lệnh sửa lỗi, viết lại, tóm tắt";
+"search.item.ai_prompts.keys" = "prompts,câu lệnh ai,sửa văn bản,dịch thuật";
+
+"search.item.ai_shortcuts.sub" = "Phím tắt kích hoạt AI trên văn bản chọn";
+"search.item.ai_shortcuts.keys" = "phím tắt ai,shortcut ai,kích hoạt nhanh";
+
+"search.item.about_info.sub" = "Thông tin phiên bản & Mã nguồn mở";
+"search.item.about_info.keys" = "giới thiệu,phiên bản,version,tác giả,about";

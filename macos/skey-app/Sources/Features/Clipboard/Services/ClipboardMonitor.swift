@@ -1,78 +1,194 @@
 import AppKit
+import CryptoKit
 import Foundation
 
 // MARK: - ClipboardMonitor
 
-public final class ClipboardMonitor {
+/// Detects new clipboard content by polling NSPasteboard.general.changeCount on a background timer
+public final class ClipboardMonitor: @unchecked Sendable {
     public static let shared = ClipboardMonitor()
 
-    private let pasteboard = NSPasteboard.general
-    private var lastChangeCount: Int = 0
+    private let pollInterval: TimeInterval
     private var timer: Timer?
+    private var lastChangeCount: Int
+    private var onCapture: (@Sendable (CapturedClipboardContent) -> Void)?
 
-    public private(set) var history: [ClipboardItem] = []
-    public var onHistoryUpdated: (() -> Void)?
-
-    private init() {
-        lastChangeCount = pasteboard.changeCount
+    public init(pollInterval: TimeInterval = 0.5) {
+        self.pollInterval = pollInterval
+        self.lastChangeCount = NSPasteboard.general.changeCount
     }
 
-    public func start() {
-        stop()
-        lastChangeCount = pasteboard.changeCount
-        let t = Timer(timeInterval: 0.75, repeats: true) { [weak self] _ in
-            self?.checkForChanges()
+    public func startMonitoring(onCapture: @escaping @Sendable (CapturedClipboardContent) -> Void) {
+        self.onCapture = onCapture
+        self.lastChangeCount = NSPasteboard.general.changeCount
+        let timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { [weak self] _ in
+            self?.checkPasteboard()
         }
-        // Timer tolerance allows macOS power management to coalesce wakeups,
-        // avoiding waking the CPU out of deep C-states and preserving battery life.
-        t.tolerance = 0.5
-        RunLoop.main.add(t, forMode: .common)
-        self.timer = t
+        RunLoop.main.add(timer, forMode: .common)
+        self.timer = timer
     }
 
-    public func stop() {
+    public func stopMonitoring() {
         timer?.invalidate()
         timer = nil
+        onCapture = nil
     }
 
-    public func clearHistory() {
-        // Keep pinned items
-        history = history.filter { $0.isPinned }
-        onHistoryUpdated?()
-    }
-
-    public func copyToPasteboard(_ item: ClipboardItem) {
-        pasteboard.clearContents()
-        pasteboard.setString(item.text, forType: .string)
-        lastChangeCount = pasteboard.changeCount
-    }
-
-    private func checkForChanges() {
+    private func checkPasteboard() {
+        let pasteboard = NSPasteboard.general
         guard pasteboard.changeCount != lastChangeCount else { return }
         lastChangeCount = pasteboard.changeCount
 
-        guard let newString = pasteboard.string(forType: .string), !newString.isEmpty else {
+        guard let captured = Self.capture(from: pasteboard) else { return }
+        onCapture?(captured)
+    }
+
+    public static func capture(from pasteboard: NSPasteboard) -> CapturedClipboardContent? {
+        let markers = Set((pasteboard.types ?? []).map(\.rawValue))
+        let sourceBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+
+        // 1. Files
+        if let fileURLs = pasteboard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL],
+           let fileURL = fileURLs.first, fileURL.isFileURL {
+            let payload = try? Data(contentsOf: fileURL)
+            let size = payload?.count
+                ?? ((try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int) ?? 0)
+            return CapturedClipboardContent(
+                contentType: .fileReference,
+                contentHash: sha256Hex(Data(fileURL.path.utf8)),
+                textContent: fileURL.lastPathComponent,
+                payloadData: payload,
+                payloadSizeBytes: size,
+                sourceBundleID: sourceBundleID,
+                pasteboardTypeMarkers: markers
+            )
+        }
+
+        // 2. Text / Rich Text (Prioritized: rich editors often attach redundant TIFF/PNG preview blobs)
+        if let string = pasteboard.string(forType: .string), !string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if let rtf = pasteboard.data(forType: .rtf) {
+                return CapturedClipboardContent(
+                    contentType: .richText,
+                    contentHash: sha256Hex(Data(string.utf8)),
+                    textContent: string,
+                    payloadData: rtf,
+                    payloadSizeBytes: rtf.count,
+                    sourceBundleID: sourceBundleID,
+                    pasteboardTypeMarkers: markers
+                )
+            } else {
+                let data = Data(string.utf8)
+                return CapturedClipboardContent(
+                    contentType: .plainText,
+                    contentHash: sha256Hex(data),
+                    textContent: string,
+                    payloadData: nil,
+                    payloadSizeBytes: data.count,
+                    sourceBundleID: sourceBundleID,
+                    pasteboardTypeMarkers: markers
+                )
+            }
+        }
+
+        // 3. RTF without plain text
+        if let rtf = pasteboard.data(forType: .rtf) {
+            let plain = (try? NSAttributedString(data: rtf, options: [.documentType: NSAttributedString.DocumentType.rtf], documentAttributes: nil).string) ?? ""
+            if !plain.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                return CapturedClipboardContent(
+                    contentType: .richText,
+                    contentHash: sha256Hex(rtf),
+                    textContent: plain,
+                    payloadData: rtf,
+                    payloadSizeBytes: rtf.count,
+                    sourceBundleID: sourceBundleID,
+                    pasteboardTypeMarkers: markers
+                )
+            }
+        }
+
+        // 4. Standalone Images (Screenshots, copied image files from Preview/Finder)
+        if let pngData = pasteboard.data(forType: .png) {
+            return CapturedClipboardContent(
+                contentType: .image,
+                contentHash: sha256Hex(pngData),
+                textContent: nil,
+                payloadData: pngData,
+                payloadSizeBytes: pngData.count,
+                sourceBundleID: sourceBundleID,
+                pasteboardTypeMarkers: markers
+            )
+        } else if let tiffData = pasteboard.data(forType: .tiff) {
+            let finalData: Data
+            if let imageRep = NSBitmapImageRep(data: tiffData),
+               let compressedPng = imageRep.representation(using: .png, properties: [:]) {
+                finalData = compressedPng
+            } else {
+                finalData = tiffData
+            }
+            return CapturedClipboardContent(
+                contentType: .image,
+                contentHash: sha256Hex(finalData),
+                textContent: nil,
+                payloadData: finalData,
+                payloadSizeBytes: finalData.count,
+                sourceBundleID: sourceBundleID,
+                pasteboardTypeMarkers: markers
+            )
+        }
+
+        // 5. Plain text fallback
+        if let string = pasteboard.string(forType: .string), !string.isEmpty {
+            let data = Data(string.utf8)
+            return CapturedClipboardContent(
+                contentType: .plainText,
+                contentHash: sha256Hex(data),
+                textContent: string,
+                payloadData: nil,
+                payloadSizeBytes: data.count,
+                sourceBundleID: sourceBundleID,
+                pasteboardTypeMarkers: markers
+            )
+        }
+
+        return nil
+    }
+
+    public static func copyToPasteboard(_ item: ClipboardItem, payloadData: Data? = nil, asPlainText: Bool = false) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+
+        if asPlainText || item.contentType == .plainText {
+            if let text = item.textContent ?? (item.previewText.isEmpty ? nil : item.previewText) {
+                pasteboard.setString(text, forType: .string)
+            }
             return
         }
 
-        // Avoid duplicate at the top of history
-        if let first = history.first, first.text == newString {
-            return
+        switch item.contentType {
+        case .plainText:
+            if let text = item.textContent {
+                pasteboard.setString(text, forType: .string)
+            }
+        case .richText:
+            if let rtfData = payloadData {
+                pasteboard.setData(rtfData, forType: .rtf)
+            }
+            if let text = item.textContent {
+                pasteboard.setString(text, forType: .string)
+            }
+        case .image:
+            if let imageData = payloadData {
+                pasteboard.setData(imageData, forType: .png)
+            }
+        case .fileReference:
+            if let path = item.textContent {
+                let url = URL(fileURLWithPath: path)
+                pasteboard.writeObjects([url as NSURL])
+            }
         }
+    }
 
-        // Remove if existing in history to bubble up
-        history.removeAll(where: { $0.text == newString && !$0.isPinned })
-
-        let newItem = ClipboardItem(text: newString)
-        history.insert(newItem, at: 0)
-
-        // Limit size
-        let limit = PreferencesService.shared.clipboardLimit
-        if history.count > limit {
-            history = Array(history.prefix(limit))
-        }
-
-        skeyLog("Clipboard captured: '\(newItem.previewText)'")
-        onHistoryUpdated?()
+    private static func sha256Hex(_ data: Data) -> String {
+        SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
     }
 }

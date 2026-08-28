@@ -3,197 +3,185 @@ import Foundation
 
 // MARK: - KeyboardFeature
 
-/// Feature module providing Vietnamese IME typing (Telex, VNI, VIQR, etc.)
-public final class KeyboardFeature: NSObject, Feature, EventTapManagerDelegate {
-    public let id = "com.nam088.skey.feature.keyboard"
-    public var name: String { L10n(.inputMethodMenu) }
-
-    public var isEnabled: Bool = true
-
-    // UI Menu items
-    private var telexItem: NSMenuItem!
-    private var simpleTelexItem: NSMenuItem!
-    private var vniItem: NSMenuItem!
-    private var viqrItem: NSMenuItem!
-
-    private var spellCheckItem: NSMenuItem!
-    private var freeMarkingItem: NSMenuItem!
-    private var modernStyleItem: NSMenuItem!
-    private var smartAppSwitchItem: NSMenuItem!
-    private var wasVietnameseBeforeAutoSwitch: Bool = false
-
-    // Advanced Items
-    private var quickTelexItem: NSMenuItem!
-    private var quickStartConsonantItem: NSMenuItem!
-    private var quickEndConsonantItem: NSMenuItem!
-    private var upperCaseFirstCharItem: NSMenuItem!
-    private var swallowedKeyRestoreItem: NSMenuItem!
+public final class KeyboardFeature: Feature, EventTapManagerDelegate {
+    public let id: String = "keyboard"
+    public var name: String { L10n(.appTitle) }
+    public var isEnabled: Bool { EventTapManager.shared.isListening }
 
     public var onStatusIconChange: ((Bool) -> Void)?
 
-    public override init() {
-        super.init()
-        EventTapManager.shared.delegate = self
-    }
+    private var wasVietnameseBeforeAutoSwitch = false
 
-    // MARK: - Lifecycle
+    // Menu items cache for quick state updates
+    private var languageToggleItem: NSMenuItem?
+    private var telexItem: NSMenuItem?
+    private var simpleTelexItem: NSMenuItem?
+    private var vniItem: NSMenuItem?
+    private var viqrItem: NSMenuItem?
+    private var spellCheckItem: NSMenuItem?
+    private var freeMarkingItem: NSMenuItem?
+    private var modernStyleItem: NSMenuItem?
+    private var smartAppSwitchItem: NSMenuItem?
+    private var quickTelexItem: NSMenuItem?
+    private var quickStartConsonantItem: NSMenuItem?
+    private var quickEndConsonantItem: NSMenuItem?
+    private var upperCaseFirstCharItem: NSMenuItem?
+    private var swallowedKeyRestoreItem: NSMenuItem?
+
+    public init() {}
 
     public func start() {
         loadPreferences()
-        if PermissionsService.shared.checkPermissions(prompt: false) {
-            _ = EventTapManager.shared.start()
-        }
+        EventTapManager.shared.delegate = self
+        _ = EventTapManager.shared.start()
     }
 
     public func stop() {
         EventTapManager.shared.stop()
     }
 
-    public func resetBuffer() {
-        EventTapManager.shared.engine.reset()
+    public func statusDidChange(isVietnamese: Bool) {
+        onStatusIconChange?(isVietnamese)
+        syncMenuState()
     }
 
-    /// Handles application focus changes: resets composing buffer and performs Smart App Switching
+    // MARK: - App Focus Handling (Smart App Switch)
+
     public func handleAppFocusChanged(to bundleID: String?) {
-        resetBuffer()
+        guard AppSettings.shared.keyboard.smartAppSwitchEnabled, let bundleID else { return }
 
-        guard PreferencesService.shared.smartAppSwitchEnabled, let bundleID else { return }
+        let isDev = AppFocusObserver.category(for: bundleID) == .developerTool
 
-        let developerApps: Set<String> = [
-            "com.apple.dt.Xcode",
-            "com.microsoft.VSCode",
-            "com.microsoft.VSCodeInsiders",
-            "com.apple.Terminal",
-            "com.googlecode.iterm2",
-            "dev.warp.Warp-Stable",
-            "com.sublimetext.4",
-            "com.jetbrains.intellij",
-            "com.jetbrains.pycharm",
-            "com.jetbrains.webstorm",
-            "com.jetbrains.goland",
-            "com.jetbrains.rider",
-            "com.jetbrains.clion",
-            "com.mitchellh.ghostty",
-            "co.zeit.hyper",
-            "net.kovidgoyal.kitty",
-            "org.alacritty"
-        ]
-
-        if developerApps.contains(bundleID) {
+        if isDev {
             if EventTapManager.shared.isVietnamese {
                 wasVietnameseBeforeAutoSwitch = true
                 EventTapManager.shared.setLanguage(vietnamese: false)
                 skeyLog("Smart Switch: Auto-switched to English for '\(bundleID)'", category: .keyboard)
             }
         } else if wasVietnameseBeforeAutoSwitch {
-            // Restore Vietnamese when returning to browser, chat, notes, etc.
             EventTapManager.shared.setLanguage(vietnamese: true)
             wasVietnameseBeforeAutoSwitch = false
             skeyLog("Smart Switch: Restored Vietnamese for '\(bundleID)'", category: .keyboard)
         }
     }
 
-    // MARK: - Menu Builder
+    // MARK: - Clean Grouped Menu Builder
 
     public func buildMenuItems() -> [NSMenuItem] {
         var items: [NSMenuItem] = []
+        let isVn = EventTapManager.shared.isVietnamese
 
-        // Language toggle item
+        // 1. Primary Language Toggle Item
         let toggleItem = NSMenuItem(
-            title: L10n(.toggleLanguage),
+            title: L10n("keyboard.menu.toggle"),
             action: #selector(toggleLanguage),
             keyEquivalent: "z"
         )
         toggleItem.keyEquivalentModifierMask = .option
         toggleItem.target = self
+        toggleItem.state = isVn ? .on : .off
+        languageToggleItem = toggleItem
         items.append(toggleItem)
 
-        // Input methods submenu
+        // 2. Input Methods Submenu
         let inputMethodMenu = NSMenu()
         telexItem = NSMenuItem(title: "Telex", action: #selector(selectTelex), keyEquivalent: "")
-        telexItem.target = self
-        inputMethodMenu.addItem(telexItem)
+        telexItem?.target = self
+        inputMethodMenu.addItem(telexItem!)
 
         simpleTelexItem = NSMenuItem(title: "Simple Telex", action: #selector(selectSimpleTelex), keyEquivalent: "")
-        simpleTelexItem.target = self
-        inputMethodMenu.addItem(simpleTelexItem)
+        simpleTelexItem?.target = self
+        inputMethodMenu.addItem(simpleTelexItem!)
 
         vniItem = NSMenuItem(title: "VNI", action: #selector(selectVni), keyEquivalent: "")
-        vniItem.target = self
-        inputMethodMenu.addItem(vniItem)
+        vniItem?.target = self
+        inputMethodMenu.addItem(vniItem!)
 
         viqrItem = NSMenuItem(title: "VIQR", action: #selector(selectViqr), keyEquivalent: "")
-        viqrItem.target = self
-        inputMethodMenu.addItem(viqrItem)
+        viqrItem?.target = self
+        inputMethodMenu.addItem(viqrItem!)
 
-        let imSubmenuItem = NSMenuItem(title: L10n(.inputMethodMenu), action: nil, keyEquivalent: "")
+        let imSubmenuItem = NSMenuItem(title: L10n("keyboard.menu.input_method"), action: nil, keyEquivalent: "")
         imSubmenuItem.submenu = inputMethodMenu
         items.append(imSubmenuItem)
 
-        // Standard Options
-        spellCheckItem = NSMenuItem(title: L10n(.spellCheck), action: #selector(toggleSpellCheck), keyEquivalent: "")
-        spellCheckItem.target = self
-        items.append(spellCheckItem)
+        // 3. Character Set Submenu
+        let charsetMenu = NSMenu()
+        let unicodeItem = NSMenuItem(title: L10n("keyboard.charset.unicode"), action: #selector(selectUnicode), keyEquivalent: "")
+        unicodeItem.target = self
+        unicodeItem.state = .on
+        charsetMenu.addItem(unicodeItem)
 
-        freeMarkingItem = NSMenuItem(title: L10n(.freeMarking), action: #selector(toggleFreeMarking), keyEquivalent: "")
-        freeMarkingItem.target = self
-        items.append(freeMarkingItem)
+        let tcvn3Item = NSMenuItem(title: L10n("keyboard.charset.tcvn3"), action: nil, keyEquivalent: "")
+        charsetMenu.addItem(tcvn3Item)
 
-        modernStyleItem = NSMenuItem(title: L10n(.modernStyle), action: #selector(toggleModernStyle), keyEquivalent: "")
-        modernStyleItem.target = self
-        items.append(modernStyleItem)
+        let vniWinItem = NSMenuItem(title: L10n("keyboard.charset.vni"), action: nil, keyEquivalent: "")
+        charsetMenu.addItem(vniWinItem)
 
-        smartAppSwitchItem = NSMenuItem(title: L10n(.smartAppSwitch), action: #selector(toggleSmartAppSwitch), keyEquivalent: "")
-        smartAppSwitchItem.target = self
-        items.append(smartAppSwitchItem)
+        let charsetSubmenuItem = NSMenuItem(title: L10n("keyboard.menu.charset"), action: nil, keyEquivalent: "")
+        charsetSubmenuItem.submenu = charsetMenu
+        items.append(charsetSubmenuItem)
 
-        // Advanced Options Submenu
-        let advancedMenu = NSMenu()
+        // 4. Typing Options Submenu
+        let optionsMenu = NSMenu()
 
-        quickTelexItem = NSMenuItem(title: L10n(.quickTelex), action: #selector(toggleQuickTelex), keyEquivalent: "")
-        quickTelexItem.target = self
-        advancedMenu.addItem(quickTelexItem)
+        spellCheckItem = NSMenuItem(title: L10n("keyboard.options.spell_check"), action: #selector(toggleSpellCheck), keyEquivalent: "")
+        spellCheckItem?.target = self
+        optionsMenu.addItem(spellCheckItem!)
 
-        quickStartConsonantItem = NSMenuItem(title: L10n(.quickStartConsonant), action: #selector(toggleQuickStartConsonant), keyEquivalent: "")
-        quickStartConsonantItem.target = self
-        advancedMenu.addItem(quickStartConsonantItem)
+        freeMarkingItem = NSMenuItem(title: L10n("keyboard.options.free_marking"), action: #selector(toggleFreeMarking), keyEquivalent: "")
+        freeMarkingItem?.target = self
+        optionsMenu.addItem(freeMarkingItem!)
 
-        quickEndConsonantItem = NSMenuItem(title: L10n(.quickEndConsonant), action: #selector(toggleQuickEndConsonant), keyEquivalent: "")
-        quickEndConsonantItem.target = self
-        advancedMenu.addItem(quickEndConsonantItem)
+        modernStyleItem = NSMenuItem(title: L10n("keyboard.options.modern_style"), action: #selector(toggleModernStyle), keyEquivalent: "")
+        modernStyleItem?.target = self
+        optionsMenu.addItem(modernStyleItem!)
 
-        upperCaseFirstCharItem = NSMenuItem(title: L10n(.upperCaseFirstChar), action: #selector(toggleUpperCaseFirstChar), keyEquivalent: "")
-        upperCaseFirstCharItem.target = self
-        advancedMenu.addItem(upperCaseFirstCharItem)
+        swallowedKeyRestoreItem = NSMenuItem(title: L10n("keyboard.advanced.swallowed_restore"), action: #selector(toggleSwallowedKeyRestore), keyEquivalent: "")
+        swallowedKeyRestoreItem?.target = self
+        optionsMenu.addItem(swallowedKeyRestoreItem!)
 
-        swallowedKeyRestoreItem = NSMenuItem(title: L10n(.swallowedKeyRestore), action: #selector(toggleSwallowedKeyRestore), keyEquivalent: "")
-        swallowedKeyRestoreItem.target = self
-        advancedMenu.addItem(swallowedKeyRestoreItem)
+        smartAppSwitchItem = NSMenuItem(title: L10n("keyboard.options.smart_switch"), action: #selector(toggleSmartAppSwitch), keyEquivalent: "")
+        smartAppSwitchItem?.target = self
+        optionsMenu.addItem(smartAppSwitchItem!)
 
-        let advSubmenuItem = NSMenuItem(title: L10n(.advancedOptions), action: nil, keyEquivalent: "")
-        advSubmenuItem.submenu = advancedMenu
-        items.append(advSubmenuItem)
+        optionsMenu.addItem(NSMenuItem.separator())
 
-        // Sync initial checked states
+        quickTelexItem = NSMenuItem(title: L10n("keyboard.advanced.quick_telex"), action: #selector(toggleQuickTelex), keyEquivalent: "")
+        quickTelexItem?.target = self
+        optionsMenu.addItem(quickTelexItem!)
+
+        quickStartConsonantItem = NSMenuItem(title: L10n("keyboard.advanced.quick_start_consonant"), action: #selector(toggleQuickStartConsonant), keyEquivalent: "")
+        quickStartConsonantItem?.target = self
+        optionsMenu.addItem(quickStartConsonantItem!)
+
+        quickEndConsonantItem = NSMenuItem(title: L10n("keyboard.advanced.quick_end_consonant"), action: #selector(toggleQuickEndConsonant), keyEquivalent: "")
+        quickEndConsonantItem?.target = self
+        optionsMenu.addItem(quickEndConsonantItem!)
+
+        upperCaseFirstCharItem = NSMenuItem(title: L10n("keyboard.advanced.upper_case_first"), action: #selector(toggleUpperCaseFirstChar), keyEquivalent: "")
+        upperCaseFirstCharItem?.target = self
+        optionsMenu.addItem(upperCaseFirstCharItem!)
+
+        let optionsSubmenuItem = NSMenuItem(title: L10n("keyboard.menu.typingOptions"), action: nil, keyEquivalent: "")
+        optionsSubmenuItem.submenu = optionsMenu
+        items.append(optionsSubmenuItem)
+
         syncMenuState()
-
         return items
     }
 
     // MARK: - Preferences & State
 
     private func loadPreferences() {
-        let prefs = PreferencesService.shared
+        let prefs = AppSettings.shared.keyboard
         let engine = EventTapManager.shared.engine
 
-        // Language
         EventTapManager.shared.setLanguage(vietnamese: prefs.isVietnamese)
 
-        // Input Method
-        let method = InputMethodType(rawValue: prefs.inputMethodRawValue) ?? .telex
+        let method = prefs.inputMethod
         applyInputMethod(method)
 
-        // Options
         engine.setSpellCheck(prefs.spellCheck)
         engine.setFreeMarking(prefs.freeMarking)
         engine.setModernStyle(prefs.modernStyle)
@@ -206,19 +194,21 @@ public final class KeyboardFeature: NSObject, Feature, EventTapManagerDelegate {
     }
 
     private func syncMenuState() {
-        guard telexItem != nil else { return }
-        let prefs = PreferencesService.shared
-        let method = InputMethodType(rawValue: prefs.inputMethodRawValue) ?? .telex
+        let prefs = AppSettings.shared.keyboard
+        let method = prefs.inputMethod
+        let isVn = EventTapManager.shared.isVietnamese
 
-        telexItem.state       = (method == .telex) ? .on : .off
-        simpleTelexItem.state = (method == .simpleTelex) ? .on : .off
-        vniItem.state         = (method == .vni) ? .on : .off
-        viqrItem.state        = (method == .viqr) ? .on : .off
+        languageToggleItem?.state = isVn ? .on : .off
 
-        spellCheckItem.state  = prefs.spellCheck ? .on : .off
-        freeMarkingItem.state = prefs.freeMarking ? .on : .off
-        modernStyleItem?.state        = prefs.modernStyle ? .on : .off
-        smartAppSwitchItem?.state     = prefs.smartAppSwitchEnabled ? .on : .off
+        telexItem?.state       = (method == .telex) ? .on : .off
+        simpleTelexItem?.state = (method == .simpleTelex) ? .on : .off
+        vniItem?.state         = (method == .vni) ? .on : .off
+        viqrItem?.state        = (method == .viqr) ? .on : .off
+
+        spellCheckItem?.state  = prefs.spellCheck ? .on : .off
+        freeMarkingItem?.state = prefs.freeMarking ? .on : .off
+        modernStyleItem?.state = prefs.modernStyle ? .on : .off
+        smartAppSwitchItem?.state = prefs.smartAppSwitchEnabled ? .on : .off
 
         quickTelexItem?.state = prefs.quickTelex ? .on : .off
         quickStartConsonantItem?.state = prefs.quickStartConsonant ? .on : .off
@@ -229,7 +219,7 @@ public final class KeyboardFeature: NSObject, Feature, EventTapManagerDelegate {
 
     private func applyInputMethod(_ method: InputMethodType) {
         EventTapManager.shared.engine.setInputMethod(method)
-        PreferencesService.shared.inputMethodRawValue = method.rawValue
+        AppSettings.shared.keyboard.inputMethod = method
         syncMenuState()
     }
 
@@ -237,6 +227,8 @@ public final class KeyboardFeature: NSObject, Feature, EventTapManagerDelegate {
 
     @objc public func toggleLanguage() {
         EventTapManager.shared.toggleLanguage()
+        AppSettings.shared.keyboard.isVietnamese = EventTapManager.shared.isVietnamese
+        syncMenuState()
     }
 
     @objc private func selectTelex() {
@@ -255,72 +247,67 @@ public final class KeyboardFeature: NSObject, Feature, EventTapManagerDelegate {
         applyInputMethod(.viqr)
     }
 
+    @objc private func selectUnicode() {}
+
     @objc private func toggleSpellCheck() {
-        let newState = !PreferencesService.shared.spellCheck
-        PreferencesService.shared.spellCheck = newState
-        EventTapManager.shared.engine.setSpellCheck(newState)
+        let val = !AppSettings.shared.keyboard.spellCheck
+        AppSettings.shared.keyboard.spellCheck = val
+        EventTapManager.shared.engine.setSpellCheck(val)
         syncMenuState()
     }
 
     @objc private func toggleFreeMarking() {
-        let newState = !PreferencesService.shared.freeMarking
-        PreferencesService.shared.freeMarking = newState
-        EventTapManager.shared.engine.setFreeMarking(newState)
+        let val = !AppSettings.shared.keyboard.freeMarking
+        AppSettings.shared.keyboard.freeMarking = val
+        EventTapManager.shared.engine.setFreeMarking(val)
         syncMenuState()
     }
 
     @objc private func toggleModernStyle() {
-        let newState = !PreferencesService.shared.modernStyle
-        PreferencesService.shared.modernStyle = newState
-        EventTapManager.shared.engine.setModernStyle(newState)
+        let val = !AppSettings.shared.keyboard.modernStyle
+        AppSettings.shared.keyboard.modernStyle = val
+        EventTapManager.shared.engine.setModernStyle(val)
         syncMenuState()
     }
 
     @objc private func toggleSmartAppSwitch() {
-        let newState = !PreferencesService.shared.smartAppSwitchEnabled
-        PreferencesService.shared.smartAppSwitchEnabled = newState
+        let val = !AppSettings.shared.keyboard.smartAppSwitchEnabled
+        AppSettings.shared.keyboard.smartAppSwitchEnabled = val
         syncMenuState()
-        skeyLog("Smart App Switch: \(newState ? "Enabled" : "Disabled")", category: .keyboard)
     }
 
     @objc private func toggleQuickTelex() {
-        let newState = !PreferencesService.shared.quickTelex
-        PreferencesService.shared.quickTelex = newState
-        EventTapManager.shared.engine.setQuickTelex(newState)
+        let val = !AppSettings.shared.keyboard.quickTelex
+        AppSettings.shared.keyboard.quickTelex = val
+        EventTapManager.shared.engine.setQuickTelex(val)
         syncMenuState()
     }
 
     @objc private func toggleQuickStartConsonant() {
-        let newState = !PreferencesService.shared.quickStartConsonant
-        PreferencesService.shared.quickStartConsonant = newState
-        EventTapManager.shared.engine.setQuickStartConsonant(newState)
+        let val = !AppSettings.shared.keyboard.quickStartConsonant
+        AppSettings.shared.keyboard.quickStartConsonant = val
+        EventTapManager.shared.engine.setQuickStartConsonant(val)
         syncMenuState()
     }
 
     @objc private func toggleQuickEndConsonant() {
-        let newState = !PreferencesService.shared.quickEndConsonant
-        PreferencesService.shared.quickEndConsonant = newState
-        EventTapManager.shared.engine.setQuickEndConsonant(newState)
+        let val = !AppSettings.shared.keyboard.quickEndConsonant
+        AppSettings.shared.keyboard.quickEndConsonant = val
+        EventTapManager.shared.engine.setQuickEndConsonant(val)
         syncMenuState()
     }
 
     @objc private func toggleUpperCaseFirstChar() {
-        let newState = !PreferencesService.shared.upperCaseFirstChar
-        PreferencesService.shared.upperCaseFirstChar = newState
-        EventTapManager.shared.engine.setUpperCaseFirstChar(newState)
+        let val = !AppSettings.shared.keyboard.upperCaseFirstChar
+        AppSettings.shared.keyboard.upperCaseFirstChar = val
+        EventTapManager.shared.engine.setUpperCaseFirstChar(val)
         syncMenuState()
     }
 
     @objc private func toggleSwallowedKeyRestore() {
-        let newState = !PreferencesService.shared.swallowedKeyRestore
-        PreferencesService.shared.swallowedKeyRestore = newState
-        EventTapManager.shared.engine.setSwallowedKeyRestore(newState)
+        let val = !AppSettings.shared.keyboard.swallowedKeyRestore
+        AppSettings.shared.keyboard.swallowedKeyRestore = val
+        EventTapManager.shared.engine.setSwallowedKeyRestore(val)
         syncMenuState()
-    }
-
-    // MARK: - EventTapManagerDelegate
-
-    public func statusDidChange(isVietnamese: Bool) {
-        onStatusIconChange?(isVietnamese)
     }
 }

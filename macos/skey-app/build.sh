@@ -50,6 +50,9 @@ swiftc -O -wmo -D DEBUG \
     -framework Cocoa \
     -framework ApplicationServices \
     -framework Carbon \
+    -framework SwiftUI \
+    -framework CryptoKit \
+    -lsqlite3 \
     -o "$APP_BUNDLE/Contents/MacOS/SKey"
 
 echo "==> 4. Code signing SKey.app with trusted certificate SKeyDev..."

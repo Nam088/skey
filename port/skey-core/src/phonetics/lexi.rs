@@ -6,7 +6,7 @@
 //!   * even index  = upper case, odd index = lower case
 //!   * tone level  = +2 per level from the toneless base
 //!   * StdVnChar   = lexi index + 0x10000, minus 1 when capitalised,
-//!                   plus 2 * tone
+//!     plus 2 * tone
 //!
 //! `changeCase`, `vnToLower`, `appendVowel` and `writeOutput` in the
 //! original all rely on this arithmetic. Reordering the enum silently

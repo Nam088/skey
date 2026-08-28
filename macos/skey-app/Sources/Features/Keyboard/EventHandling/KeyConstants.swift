@@ -8,10 +8,10 @@ public enum KeyConstants {
     /// 4-byte ASCII marker "SKEY" written into eventSourceUserData.
     public static let eventMarker: Int64 = 0x534B_4559
 
-    // Standard high-performance timing delays (microseconds) for synthetic event delivery
-    public static let interBackspaceDelayUs: useconds_t = 2_000   // 2 ms
-    public static let settleDelayUs: useconds_t         = 3_500   // 3.5 ms
-    public static let interChunkDelayUs: useconds_t     = 1_500   // 1.5 ms
+    // Standard ultra-fast timing delays (microseconds) for synthetic event delivery
+    public static let interBackspaceDelayUs: useconds_t = 1_200   // 1.2 ms
+    public static let settleDelayUs: useconds_t         = 2_000   // 2.0 ms
+    public static let interChunkDelayUs: useconds_t     = 1_000   // 1.0 ms
 
     // Virtual Keycodes (from Carbon HIToolbox / Events.h)
     public static let kVK_ANSI_A: CGKeyCode = 0x00
@@ -146,55 +146,46 @@ public enum KeyCategory: UInt8 {
 // MARK: - KeyClassifier
 
 public enum KeyClassifier {
+    private static let lut: [KeyCategory] = {
+        var table = Array(repeating: KeyCategory.character, count: 128)
+        
+        table[Int(KeyConstants.kVK_Delete)] = .backspace
+        
+        // Navigation
+        for k in [KeyConstants.kVK_LeftArrow, KeyConstants.kVK_RightArrow, KeyConstants.kVK_UpArrow, KeyConstants.kVK_DownArrow,
+                  KeyConstants.kVK_Home, KeyConstants.kVK_End, KeyConstants.kVK_PageUp, KeyConstants.kVK_PageDown,
+                  KeyConstants.kVK_ForwardDelete, KeyConstants.kVK_Escape] {
+            table[Int(k)] = .navigation
+        }
+        
+        // Word breaks
+        for k in [KeyConstants.kVK_Return, KeyConstants.kVK_Tab, KeyConstants.kVK_Space, KeyConstants.kVK_ANSI_KeypadEnter] {
+            table[Int(k)] = .wordBreak
+        }
+        
+        // Modifiers
+        for k in [KeyConstants.kVK_Command, KeyConstants.kVK_Shift, KeyConstants.kVK_CapsLock, KeyConstants.kVK_Option,
+                  KeyConstants.kVK_Control, KeyConstants.kVK_RightShift, KeyConstants.kVK_RightOption, KeyConstants.kVK_RightControl,
+                  KeyConstants.kVK_Function] {
+            table[Int(k)] = .modifier
+        }
+        
+        // Function & Media
+        for k in [KeyConstants.kVK_F1, KeyConstants.kVK_F2, KeyConstants.kVK_F3, KeyConstants.kVK_F4,
+                  KeyConstants.kVK_F5, KeyConstants.kVK_F6, KeyConstants.kVK_F7, KeyConstants.kVK_F8,
+                  KeyConstants.kVK_F9, KeyConstants.kVK_F10, KeyConstants.kVK_F11, KeyConstants.kVK_F12,
+                  KeyConstants.kVK_F13, KeyConstants.kVK_F14, KeyConstants.kVK_F15, KeyConstants.kVK_F16,
+                  KeyConstants.kVK_F17, KeyConstants.kVK_F18, KeyConstants.kVK_F19, KeyConstants.kVK_F20,
+                  KeyConstants.kVK_VolumeUp, KeyConstants.kVK_VolumeDown, KeyConstants.kVK_Mute, KeyConstants.kVK_Help] {
+            table[Int(k)] = .functionOrMedia
+        }
+        
+        return table
+    }()
+
     @inline(__always)
     public static func classify(keyCode: CGKeyCode) -> KeyCategory {
-        if keyCode == KeyConstants.kVK_Delete {
-            return .backspace
-        }
-
-        if keyCode == KeyConstants.kVK_LeftArrow ||
-           keyCode == KeyConstants.kVK_RightArrow ||
-           keyCode == KeyConstants.kVK_UpArrow ||
-           keyCode == KeyConstants.kVK_DownArrow ||
-           keyCode == KeyConstants.kVK_Home ||
-           keyCode == KeyConstants.kVK_End ||
-           keyCode == KeyConstants.kVK_PageUp ||
-           keyCode == KeyConstants.kVK_PageDown ||
-           keyCode == KeyConstants.kVK_ForwardDelete ||
-           keyCode == KeyConstants.kVK_Escape {
-            return .navigation
-        }
-
-        if keyCode == KeyConstants.kVK_Return ||
-           keyCode == KeyConstants.kVK_Tab ||
-           keyCode == KeyConstants.kVK_Space ||
-           keyCode == KeyConstants.kVK_ANSI_KeypadEnter {
-            return .wordBreak
-        }
-
-        if keyCode == KeyConstants.kVK_Command ||
-           keyCode == KeyConstants.kVK_Shift ||
-           keyCode == KeyConstants.kVK_CapsLock ||
-           keyCode == KeyConstants.kVK_Option ||
-           keyCode == KeyConstants.kVK_Control ||
-           keyCode == KeyConstants.kVK_RightShift ||
-           keyCode == KeyConstants.kVK_RightOption ||
-           keyCode == KeyConstants.kVK_RightControl ||
-           keyCode == KeyConstants.kVK_Function {
-            return .modifier
-        }
-
-        if (keyCode >= 0x40 && keyCode <= 0x7F) {
-            // Function keys, media, volume
-            if (keyCode >= KeyConstants.kVK_F1 && keyCode <= KeyConstants.kVK_F20) ||
-               keyCode == KeyConstants.kVK_VolumeUp ||
-               keyCode == KeyConstants.kVK_VolumeDown ||
-               keyCode == KeyConstants.kVK_Mute ||
-               keyCode == KeyConstants.kVK_Help {
-                return .functionOrMedia
-            }
-        }
-
-        return .character
+        let code = Int(keyCode)
+        return code < 128 ? lut[code] : .character
     }
 }

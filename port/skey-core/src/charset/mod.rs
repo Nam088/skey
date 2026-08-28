@@ -351,8 +351,8 @@ fn kind_of(cs: Charset) -> Kind {
         UNI_CSTRING => Kind::CString,
         VIQR | UTF8VIQR => Kind::Viqr,
         WINCP1258 => Kind::Cp1258,
-        _ if id >= TCVN3 && id < TCVN3 + TOTAL_SINGLE => Kind::Single((id - TCVN3) as usize),
-        _ if id >= VNIWIN && id < VNIWIN + TOTAL_DOUBLE => Kind::Double((id - VNIWIN) as usize),
+        _ if (TCVN3..TCVN3 + TOTAL_SINGLE).contains(&id) => Kind::Single((id - TCVN3) as usize),
+        _ if (VNIWIN..VNIWIN + TOTAL_DOUBLE).contains(&id) => Kind::Double((id - VNIWIN) as usize),
         _ => panic!("charset has no encoder"),
     }
 }
