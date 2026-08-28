@@ -167,23 +167,124 @@ public struct SettingsRow<Control: View>: View {
 
 public struct KeyCapBadge: View {
     public let text: String
+    public var isHighlighted: Bool = false
 
-    public init(_ text: String) {
+    public init(_ text: String, isHighlighted: Bool = false) {
         self.text = text
+        self.isHighlighted = isHighlighted
     }
 
     public var body: some View {
         Text(text)
-            .font(.system(size: 11.5, weight: .bold, design: .monospaced))
-            .foregroundColor(.primary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3.5)
-            .background(Color(NSColor.windowBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .stroke(Color(NSColor.separatorColor).opacity(0.7), lineWidth: 0.5)
+            .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+            .foregroundColor(isHighlighted ? .accentColor : .primary)
+            .frame(minWidth: text.count == 1 ? 19 : 24, minHeight: 20)
+            .padding(.horizontal, text.count > 1 ? 6 : 4)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4.5, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(NSColor.controlBackgroundColor),
+                                Color(NSColor.controlBackgroundColor).opacity(0.85)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
             )
-            .shadow(color: Color.black.opacity(0.06), radius: 1, x: 0, y: 0.5)
+            .overlay(
+                RoundedRectangle(cornerRadius: 4.5, style: .continuous)
+                    .stroke(
+                        isHighlighted
+                            ? Color.accentColor.opacity(0.7)
+                            : Color(NSColor.separatorColor).opacity(0.6),
+                        lineWidth: 0.75
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.09), radius: 0.5, x: 0, y: 1)
+    }
+}
+
+// MARK: - SKey Official Logo View (Concept B Negative Space S)
+
+public struct SKeyLogoView: View {
+    public var size: CGFloat
+
+    public init(size: CGFloat = 38) {
+        self.size = size
+    }
+
+    public var body: some View {
+        ZStack {
+            // Background Squircle
+            RoundedRectangle(cornerRadius: size * 0.226, style: .continuous)
+                .fill(Color(red: 8/255.0, green: 9/255.0, blue: 12/255.0))
+                .frame(width: size, height: size)
+
+            // Scaled Concept B Graphic
+            GeometryReader { geo in
+                let scale = geo.size.width / 512.0
+
+                ZStack {
+                    // Top Block (White)
+                    Path { path in
+                        path.move(to: CGPoint(x: 180 * scale, y: 136 * scale))
+                        path.addLine(to: CGPoint(x: 332 * scale, y: 136 * scale))
+                        path.addArc(
+                            tangent1End: CGPoint(x: 360 * scale, y: 136 * scale),
+                            tangent2End: CGPoint(x: 360 * scale, y: 164 * scale),
+                            radius: 24 * scale
+                        )
+                        path.addLine(to: CGPoint(x: 360 * scale, y: 212 * scale))
+                        path.addArc(
+                            tangent1End: CGPoint(x: 360 * scale, y: 240 * scale),
+                            tangent2End: CGPoint(x: 332 * scale, y: 240 * scale),
+                            radius: 24 * scale
+                        )
+                        path.addLine(to: CGPoint(x: 236 * scale, y: 240 * scale))
+                        path.addLine(to: CGPoint(x: 164 * scale, y: 168 * scale))
+                        path.addArc(
+                            tangent1End: CGPoint(x: 156 * scale, y: 160 * scale),
+                            tangent2End: CGPoint(x: 180 * scale, y: 136 * scale),
+                            radius: 18 * scale
+                        )
+                        path.closeSubpath()
+                    }
+                    .fill(Color.white)
+
+                    // Bottom Block (Apple Electric Blue)
+                    Path { path in
+                        path.move(to: CGPoint(x: 332 * scale, y: 376 * scale))
+                        path.addLine(to: CGPoint(x: 180 * scale, y: 376 * scale))
+                        path.addArc(
+                            tangent1End: CGPoint(x: 152 * scale, y: 376 * scale),
+                            tangent2End: CGPoint(x: 152 * scale, y: 348 * scale),
+                            radius: 24 * scale
+                        )
+                        path.addLine(to: CGPoint(x: 152 * scale, y: 300 * scale))
+                        path.addArc(
+                            tangent1End: CGPoint(x: 152 * scale, y: 272 * scale),
+                            tangent2End: CGPoint(x: 180 * scale, y: 272 * scale),
+                            radius: 24 * scale
+                        )
+                        path.addLine(to: CGPoint(x: 276 * scale, y: 272 * scale))
+                        path.addLine(to: CGPoint(x: 348 * scale, y: 344 * scale))
+                        path.addArc(
+                            tangent1End: CGPoint(x: 356 * scale, y: 352 * scale),
+                            tangent2End: CGPoint(x: 332 * scale, y: 376 * scale),
+                            radius: 18 * scale
+                        )
+                        path.closeSubpath()
+                    }
+                    .fill(Color(red: 10/255.0, green: 132/255.0, blue: 255/255.0))
+                }
+            }
+            .frame(width: size, height: size)
+        }
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: size * 0.226, style: .continuous))
+        .shadow(color: Color.black.opacity(0.2), radius: size * 0.08, x: 0, y: size * 0.04)
     }
 }

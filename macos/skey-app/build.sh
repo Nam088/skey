@@ -33,8 +33,27 @@ fi
 if [[ -f "$SCRIPT_DIR/Resources/Localizable.xcstrings" ]]; then
     cp "$SCRIPT_DIR/Resources/Localizable.xcstrings" "$APP_BUNDLE/Contents/Resources/"
 fi
+if [[ -f "$SCRIPT_DIR/Resources/AppIcon.icns" ]]; then
+    cp "$SCRIPT_DIR/Resources/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/"
+fi
 
-echo "==> 3. Compiling Swift files with Whole Module Optimization (-wmo)..."
+BUILD_MODE="release"
+DEBUG_FLAG=()
+
+for arg in "$@"; do
+    case "$arg" in
+        --debug|--dev)
+            BUILD_MODE="debug"
+            DEBUG_FLAG=("-D" "DEBUG")
+            ;;
+        --release)
+            BUILD_MODE="release"
+            DEBUG_FLAG=()
+            ;;
+    esac
+done
+
+echo "==> 3. Compiling Swift files (Mode: $BUILD_MODE, WMO)..."
 cd "$SCRIPT_DIR"
 
 SWIFT_FILES=()
@@ -42,7 +61,8 @@ while IFS= read -r -d '' file; do
     SWIFT_FILES+=("$file")
 done < <(find "$SCRIPT_DIR/Sources" -name "*.swift" -print0)
 
-swiftc -O -wmo -D DEBUG \
+swiftc -O -wmo \
+    "${DEBUG_FLAG[@]}" \
     -import-objc-header "$SCRIPT_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/port/skey-capi/include" \
     "${SWIFT_FILES[@]}" \

@@ -5,6 +5,7 @@ import SwiftUI
 
 public struct ClipboardSettingsTab: View {
     @ObservedObject var clipboardSettings = AppSettings.shared.clipboard
+    @ObservedObject var shortcutSettings = AppSettings.shared.shortcuts
     @ObservedObject var loc = LocalizationService.shared
     @ObservedObject var navState = SettingsNavigationState.shared
 
@@ -64,7 +65,12 @@ public struct ClipboardSettingsTab: View {
                     title: L10n("clipboard.option.shortcut"),
                     subtitle: L10n("clipboard.option.shortcutDesc")
                 ) {
-                    KeyCapBadge("⌥V")
+                    ShortcutPickerView(
+                        preset: $shortcutSettings.clipboardPreset,
+                        shortcut: $shortcutSettings.clipboardShortcut,
+                        presets: ShortcutSettings.clipboardPresets,
+                        target: .clipboard
+                    )
                 }
 
                 SettingsRow(

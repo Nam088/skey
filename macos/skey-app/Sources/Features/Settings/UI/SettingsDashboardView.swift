@@ -81,7 +81,7 @@ public struct SettingsDashboardView: View {
                 // Sidebar Header Profile
                 sidebarHeader
                     .padding(.horizontal, 16)
-                    .padding(.top, 16)
+                    .padding(.top, 38)
 
                 // Search Bar in Sidebar
                 HStack(spacing: 8) {
@@ -198,7 +198,7 @@ public struct SettingsDashboardView: View {
             .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 280)
         } detail: {
             VStack(alignment: .leading, spacing: 0) {
-                // Main Header Area
+                // Main Header Area (Unified across all tabs)
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(navState.selectedTab.title)
@@ -257,30 +257,13 @@ public struct SettingsDashboardView: View {
     // MARK: - Sidebar Header Profile
 
     private var sidebarHeader: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                LinearGradient(
-                    colors: [Color.blue, Color.purple],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .frame(width: 38, height: 38)
-                .clipShape(Circle())
-                .shadow(color: Color.blue.opacity(0.35), radius: 4, x: 0, y: 2)
+        HStack(spacing: 10) {
+            SKeyLogoView(size: 32)
 
-                Image(systemName: "keyboard.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-            }
+            Text("SKey")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(.primary)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text("SKey")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(.primary)
-                Text("macOS Ventura / Sequoia")
-                    .font(.system(size: 11))
-                    .foregroundColor(.secondary)
-            }
             Spacer()
         }
     }

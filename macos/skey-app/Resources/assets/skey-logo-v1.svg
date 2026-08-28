@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Background: Apple Deep Obsidian Squircle -->
+  <rect width="512" height="512" rx="116" fill="#090A0F"/>
+
+  <!-- Minimalist Geometric S-Key Glyph -->
+  <!-- Top Segment (Left to Right hook) -->
+  <path d="M 336 176 
+           C 336 136, 304 112, 256 112 
+           C 200 112, 168 144, 168 196 
+           C 168 252, 216 268, 260 280 
+           C 304 292, 344 312, 344 364 
+           C 344 416, 308 448, 256 448 
+           C 200 448, 168 416, 168 376" 
+        fill="none" 
+        stroke="#F5F5F7" 
+        stroke-width="48" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+
+  <!-- Accent Keystroke Dot (Electric Cyan) -->
+  <circle cx="344" cy="112" r="18" fill="#00D2FF"/>
+</svg>

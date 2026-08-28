@@ -12,6 +12,7 @@ public final class GeneralSettings: NSObject, SettingsModule {
         public static let launchAtLogin = "SKey_LaunchAtLogin"
         public static let appLanguage   = "SKey_AppLanguage"
         public static let checkUpdates  = "SKey_CheckUpdates"
+        public static let debugMode     = "SKey_DebugMode"
     }
 
     public init(storage: SettingsStorage = .shared) {
@@ -24,7 +25,8 @@ public final class GeneralSettings: NSObject, SettingsModule {
         storage.registerDefaults([
             Keys.launchAtLogin: false,
             Keys.appLanguage:   "vi",
-            Keys.checkUpdates:  true
+            Keys.checkUpdates:  true,
+            Keys.debugMode:     false
         ])
     }
 
@@ -33,6 +35,7 @@ public final class GeneralSettings: NSObject, SettingsModule {
         storage.removeObject(forKey: Keys.launchAtLogin)
         storage.removeObject(forKey: Keys.appLanguage)
         storage.removeObject(forKey: Keys.checkUpdates)
+        storage.removeObject(forKey: Keys.debugMode)
         LaunchAtLoginService.setEnabled(false)
     }
 
@@ -66,4 +69,23 @@ public final class GeneralSettings: NSObject, SettingsModule {
             storage.set(newValue, forKey: Keys.checkUpdates)
         }
     }
+
+    /// Development Debug Mode: Strictly enforced to DEV/DEBUG builds only.
+    /// In Release mode, always returns false and cannot be enabled.
+    public var isDebugMode: Bool {
+        get {
+            #if DEBUG
+            return storage.bool(forKey: Keys.debugMode, default: false)
+            #else
+            return false
+            #endif
+        }
+        set {
+            #if DEBUG
+            objectWillChange.send()
+            storage.set(newValue, forKey: Keys.debugMode)
+            #endif
+        }
+    }
 }
+

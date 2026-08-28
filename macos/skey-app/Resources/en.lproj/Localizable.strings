@@ -30,7 +30,7 @@
 "keyboard.advanced.swallowed_restore" = "Restore Swallowed English Keys";
 
 /* Clipboard Menu & Popup */
-"clipboard.menu.title" = "Clipboard History (⌥V)";
+"clipboard.menu.title" = "Clipboard History";
 "clipboard.status.empty" = "No copy history yet";
 "clipboard.action.clear_all" = "Clear All History";
 "clipboard.search.placeholder" = "Search clipboard history...";
@@ -85,8 +85,10 @@
 
 /* Screen & Keyboard Cleaner */
 "cleaner.title" = "Screen & Keyboard Cleaner";
-"cleaner.desc" = "Temporarily lock keyboard and display clean backdrops to wipe screen/keys safely";
-"cleaner.action.start" = "Start Cleaning...";
+"cleaner.desc" = "Temporarily lock keyboard and cover screen to safely wipe dust without accidental key presses";
+"cleaner.action.start" = "Start";
+"cleaner.option.shortcut" = "Activation Shortcut";
+"cleaner.option.shortcutDesc" = "Global shortcut to activate keyboard lock & screen cleaning mode";
 "cleaner.badge.locked" = "KEYBOARD LOCKED";
 "cleaner.esc.hint" = "Hold Esc 2s to exit";
 "cleaner.esc.holding" = "Unlocking...";
@@ -123,6 +125,8 @@
 "settings.tab.about.subtitle" = "Version info & open source contribution";
 
 "settings.subtab.inputMethod" = "Input Method";
+"settings.subtab.typingRules" = "Typing Rules";
+"settings.subtab.appManagement" = "Applications";
 "settings.subtab.orthography" = "Accents & Spelling";
 "settings.subtab.quickTyping" = "Quick Typing";
 "settings.subtab.smartSwitch" = "Smart Switch";
@@ -134,7 +138,8 @@
 "settings.subtab.snippetsList" = "Snippets List";
 "settings.subtab.options" = "Options";
 "settings.subtab.backup" = "Backup";
-"settings.subtab.utilities" = "Utilities & Cleaning";
+"settings.subtab.translator" = "Translator";
+"settings.subtab.utilities" = "Cleaner";
 "settings.subtab.textConverter" = "Text Converter";
 "settings.subtab.aiModel" = "AI Models";
 "settings.subtab.aiPrompts" = "Prompts";
@@ -142,6 +147,75 @@
 "settings.subtab.basic" = "Basic";
 "settings.subtab.permissions" = "Permissions";
 "settings.subtab.logs" = "Logs & Data";
+
+/* Tools: Translator */
+"tools.translator.title" = "Quick Translate Settings";
+"tools.translator.shortcut" = "Quick Translate Shortcut";
+"tools.translator.shortcutDesc" = "Select text and press shortcut to open translation popup";
+"tools.translator.targetLang" = "Default Target Language";
+"tools.translator.targetLangDesc" = "Language to translate to when opening Quick Translate";
+"tools.translator.openHUD" = "Open Translator";
+"tools.translator.priorityTitle" = "Engine Priority Order (Drag & drop to reorder)";
+"tools.translator.priorityDesc" = "SKey will try translating using the top engine. If an error occurs or no API key is set, it automatically cascades to the next engine.";
+"tools.translator.apiKeyPlaceholder" = "Enter API Key...";
+"tools.translator.apiKey" = "API Key:";
+"tools.translator.freeBadge" = "FREE";
+"tools.translator.testTitle" = "Live Translation Sandbox";
+"tools.translator.testInputPlaceholder" = "Enter English or any language to test translation...";
+"tools.translator.testBtn" = "Test Translation";
+"tools.translator.testResult" = "Result:";
+"tools.translator.testOutput" = "Translation:";
+"tools.translator.testLatency" = "Latency:";
+"tools.translator.errorPrefix" = "Error:";
+"tools.quickText.empty" = "Clipboard is empty!";
+
+/* Translation Engines */
+"engine.google.name" = "Google Neural NMT";
+"engine.google.desc" = "100% Free, no API Key needed, unlimited";
+"engine.apple.name" = "Apple Translation (macOS On-Device)";
+"engine.apple.desc" = "Processed on-device, works completely offline";
+"engine.gemini.name" = "Google Gemini 2.0 Flash AI";
+"engine.gemini.desc" = "Context-aware Large AI Model, 1,500 free requests/day";
+"engine.deepl.name" = "DeepL Translator";
+"engine.deepl.desc" = "World's most natural translations, 500,000 free chars/month";
+"engine.groq.name" = "Groq Llama 3.3 Ultra-Fast";
+"engine.groq.desc" = "Ultra-fast response < 0.2s, completely free";
+
+/* Translation HUD */
+"hud.translator.title" = "SKey Quick Translate";
+"hud.translator.auto" = "Auto Detect";
+"hud.translator.translating" = "Translating...";
+"hud.translator.error" = "Translation error:";
+"hud.translator.placeholder" = "Type text or select text to translate...";
+"hud.translator.copy" = "Copy";
+"hud.translator.copied" = "Copied";
+"hud.translator.escHint" = "Press Esc to dismiss • ⌘Enter to translate";
+"hud.translator.translateNow" = "Translate Now";
+"hud.translator.swapLangs" = "Swap languages";
+"hud.translator.clear" = "Clear";
+"hud.translator.paste" = "Paste";
+"hud.translator.chars" = "chars";
+
+/* Languages */
+"lang.vi" = "Tiếng Việt";
+"lang.en" = "English";
+"lang.ja" = "日本語 (Japanese)";
+"lang.zh" = "中文 (Chinese)";
+"lang.ko" = "한국어 (Korean)";
+"lang.fr" = "Français (French)";
+"lang.de" = "Deutsch (German)";
+
+/* Main Menu Items */
+"menu.app.settings" = "Settings...";
+"menu.app.hide" = "Hide SKey";
+"menu.app.hideOthers" = "Hide Others";
+"menu.app.quit" = "Quit SKey";
+"menu.edit.undo" = "Undo";
+"menu.edit.redo" = "Redo";
+"menu.edit.cut" = "Cut";
+"menu.edit.copy" = "Copy";
+"menu.edit.paste" = "Paste";
+"menu.edit.selectAll" = "Select All";
 
 /* Cleaner & Tools Section */
 "cleaner.section.modes" = "Available backdrop modes:";
@@ -180,7 +254,17 @@
 "keyboard.charset.vni" = "VNI Windows";
 "keyboard.section.mode" = "Typing Mode";
 "keyboard.option.enableVietnamese" = "Enable Vietnamese Typing";
-"keyboard.option.enableVietnameseDesc" = "Quick toggle shortcut between Vietnamese and English";
+"keyboard.option.enableVietnameseDesc" = "Toggle Vietnamese IME on or off";
+"keyboard.shortcut.toggleTitle" = "Language Switch Shortcut";
+"keyboard.shortcut.toggleSubtitle" = "Quick toggle between Vietnamese and English typing modes";
+"shortcut.custom" = "Custom...";
+"shortcut.clickToRecord" = "Click to record or change shortcut";
+"shortcut.recording.prompt" = "Press key combination...";
+"shortcut.presets" = "Preset Shortcuts";
+"shortcut.pressEscToCancel" = "Press Esc or ✕ to cancel";
+"shortcut.editPrompt" = "Edit";
+"shortcut.resetToDefault" = "Reset to default shortcut";
+"shortcut.conflictWarning" = "Conflicts with: %@";
 "keyboard.section.rules" = "Typing Rules & Accents";
 "keyboard.option.spellCheckDesc" = "Auto-revert marks for invalid Vietnamese words";
 "keyboard.option.freeMarkingDesc" = "Place tone marks anywhere in the word (e.g. toanf -> toàn)";
@@ -333,8 +417,11 @@
 "search.item.kb_charset.sub" = "Unicode, TCVN3, VNI Windows";
 "search.item.kb_charset.keys" = "charset,encoding,unicode,tcvn3,vni windows,character set";
 
-"search.item.kb_toggle_vn.sub" = "Shortcut ⌥Z";
-"search.item.kb_toggle_vn.keys" = "enable vietnamese,toggle,switch,hotkey,opt+z,shortcut";
+"search.item.kb_toggle_vn.sub" = "Enable or disable Vietnamese typing";
+"search.item.kb_toggle_vn.keys" = "enable vietnamese,toggle,switch,english,vietnamese,mode";
+
+"search.item.kb_shortcut_toggle.sub" = "Customize language toggle hotkey";
+"search.item.kb_shortcut_toggle.keys" = "shortcut,hotkey,toggle,language switch,opt z,ctrl shift,customize shortcut";
 
 "search.item.kb_spell_check.sub" = "Auto-revert marks on spelling errors";
 "search.item.kb_spell_check.keys" = "spell check,spelling,dictionary,grammar,accent";
@@ -456,6 +543,9 @@
 "search.item.tool_cleaner.sub" = "Lock keyboard & show clean backdrops for wiping";
 "search.item.tool_cleaner.keys" = "cleaner,keyboard cleaner,screen cleaner,lock keyboard,wipe screen";
 
+"search.item.tool_cleaner_shortcut.sub" = "Cleaner activation shortcut";
+"search.item.tool_cleaner_shortcut.keys" = "cleaner shortcut,keyboard cleaner,lock keyboard,shortcut";
+
 "search.item.tool_quick_text.sub" = "Case conversion, diacritic removal, clipboard transform";
 "search.item.tool_quick_text.keys" = "uppercase,lowercase,remove tones,titlecase,clipboard transform,convert";
 
@@ -473,3 +563,57 @@
 
 "search.item.about_info.sub" = "Version info & open source details";
 "search.item.about_info.keys" = "about,version,open source,author";
+
+/* Excluded Apps */
+"settings.subtab.excludedApps" = "Excluded Apps";
+"keyboard.section.excludedApps" = "Excluded Applications List";
+"keyboard.excluded.enableMaster" = "Enable App Exclusion";
+"keyboard.excluded.enableMasterDesc" = "Automatically bypass Vietnamese engine when using selected applications";
+"keyboard.excluded.addApp" = "Add Application...";
+"keyboard.excluded.clearAll" = "Clear All";
+"keyboard.excluded.noApps" = "No excluded applications";
+"keyboard.excluded.appsCount" = "applications configured";
+"keyboard.excluded.emptyTitle" = "No excluded applications yet";
+"keyboard.excluded.emptyDesc" = "SKey will pass through raw keystrokes when working in these apps (ideal for Games, Virtual Machines, Remote Desktop...).";
+"keyboard.excluded.addFirst" = "Add Application";
+"keyboard.excluded.sheetTitle" = "Add Excluded Application";
+"keyboard.excluded.tabRunning" = "Running Apps";
+"keyboard.excluded.tabBrowse" = "Browse .app";
+"keyboard.excluded.tabCustom" = "Custom Bundle ID";
+"keyboard.excluded.searchRunningPlaceholder" = "Search running applications...";
+"keyboard.excluded.browseBtn" = "Choose Application (.app)...";
+"keyboard.excluded.browseDesc" = "Choose any application from /Applications on your Mac";
+"keyboard.excluded.customNameLabel" = "Application Name:";
+"keyboard.excluded.customBundleIDLabel" = "Bundle Identifier:";
+"keyboard.excluded.customAddBtn" = "Add to Exclusion List";
+"keyboard.excluded.chooseAppTitle" = "Select Excluded Application";
+"keyboard.excluded.quickPresets" = "Quick Presets:";
+"keyboard.excluded.deleteTooltip" = "Remove this app from exclusion list";
+
+/* Secure Debug Mode */
+"general.option.debugMode" = "Debug Mode (Dev Only)";
+"general.option.debugModeDesc" = "Log detailed typing transformations to disk. Enable only during development for security.";
+"general.option.debugModeDisabledRelease" = "Debug mode is disabled in production release to protect user privacy and prevent keylogging attacks.";
+"general.status.releaseProtected" = "Secured & Protected";
+
+/* Search Excluded Apps & Debug */
+"search.item.kb_excluded_apps.sub" = "Bypass Vietnamese typing for Games & VMs";
+"search.item.kb_excluded_apps.keys" = "excluded apps,blacklist,ignore app,games,vmware,steam,pass through";
+"search.item.gen_debug_mode.sub" = "Development debug mode and typing logs";
+"search.item.gen_debug_mode.keys" = "debug mode,dev mode,logging,security,keylogger protection";
+
+/* In-App Update */
+"about.checkUpdateBtn" = "Check for Updates";
+"about.checkUpdateChecking" = "Checking for updates...";
+"about.checkUpdateUpToDate" = "You are on the latest version (%@)";
+"about.checkUpdateAvailable" = "New update available (%@)";
+"about.checkUpdateActionUpdate" = "Update Now";
+"about.checkUpdateActionView" = "View on GitHub";
+"about.checkUpdateDownloading" = "Downloading update... (%d%%)";
+"about.checkUpdateExtracting" = "Extracting & preparing installation...";
+"about.checkUpdateRestarting" = "Restarting SKey...";
+"about.checkUpdateError" = "Update check failed: %@";
+"about.checkUpdateLastCheck" = "Last checked: %@";
+"about.checkUpdateChangelog" = "Release Highlights:";
+
+

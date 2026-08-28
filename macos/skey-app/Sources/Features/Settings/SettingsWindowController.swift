@@ -15,9 +15,9 @@ public final class SettingsWindowController: NSWindowController {
         )
         window.center()
         window.setFrameAutosaveName("SKeySettingsWindow")
-        window.title = "Cài đặt SKey"
-        window.titleVisibility = .visible
-        window.titlebarAppearsTransparent = false
+        window.title = "SKey"
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
         window.minSize = NSSize(width: 800, height: 560)
 

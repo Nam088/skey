@@ -30,7 +30,7 @@
 "keyboard.advanced.swallowed_restore" = "Khôi phục phím bị nuốt từ tiếng Anh";
 
 /* Clipboard Menu & Popup */
-"clipboard.menu.title" = "Lịch sử Clipboard (⌥V)";
+"clipboard.menu.title" = "Lịch sử Clipboard";
 "clipboard.status.empty" = "Chưa có lịch sử copy";
 "clipboard.action.clear_all" = "Xóa toàn bộ lịch sử";
 "clipboard.search.placeholder" = "Tìm kiếm lịch sử clipboard...";
@@ -86,7 +86,9 @@
 /* Screen & Keyboard Cleaner */
 "cleaner.title" = "Lau màn hình & Vệ sinh phím";
 "cleaner.desc" = "Tạm khóa bàn phím và phủ nền để lau bụi bẩn mà không sợ bấm nhầm phím";
-"cleaner.action.start" = "Bắt đầu lau...";
+"cleaner.action.start" = "Bắt đầu";
+"cleaner.option.shortcut" = "Phím tắt kích hoạt vệ sinh";
+"cleaner.option.shortcutDesc" = "Phím tắt toàn cục để bật chế độ khóa phím & lau màn hình";
 "cleaner.badge.locked" = "ĐÃ KHÓA PHÍM";
 "cleaner.esc.hint" = "Giữ Esc 2s để thoát";
 "cleaner.esc.holding" = "Đang mở khóa...";
@@ -123,6 +125,8 @@
 "settings.tab.about.subtitle" = "Thông tin phiên bản & Đóng góp phát triển";
 
 "settings.subtab.inputMethod" = "Kiểu gõ";
+"settings.subtab.typingRules" = "Quy tắc gõ";
+"settings.subtab.appManagement" = "Ứng dụng";
 "settings.subtab.orthography" = "Bỏ dấu & Chính tả";
 "settings.subtab.quickTyping" = "Gõ nhanh";
 "settings.subtab.smartSwitch" = "Chuyển app";
@@ -134,7 +138,8 @@
 "settings.subtab.snippetsList" = "Bảng gõ tắt";
 "settings.subtab.options" = "Tùy chọn";
 "settings.subtab.backup" = "Sao lưu";
-"settings.subtab.utilities" = "Tiện ích & Vệ sinh";
+"settings.subtab.translator" = "Dịch nhanh";
+"settings.subtab.utilities" = "Vệ sinh phím";
 "settings.subtab.textConverter" = "Chuyển mã văn bản";
 "settings.subtab.aiModel" = "Mô hình AI";
 "settings.subtab.aiPrompts" = "Mẫu câu lệnh";
@@ -142,6 +147,75 @@
 "settings.subtab.basic" = "Cơ bản";
 "settings.subtab.permissions" = "Quyền hệ thống";
 "settings.subtab.logs" = "Nhật ký & Dữ liệu";
+
+/* Tools: Translator */
+"tools.translator.title" = "Cài đặt Dịch nhanh (Quick Translate)";
+"tools.translator.shortcut" = "Phím tắt dịch nhanh";
+"tools.translator.shortcutDesc" = "Bôi đen văn bản và bấm phím tắt để mở cửa sổ dịch";
+"tools.translator.targetLang" = "Ngôn ngữ đích mặc định";
+"tools.translator.targetLangDesc" = "Ngôn ngữ dịch sang khi mở cửa sổ dịch nhanh";
+"tools.translator.openHUD" = "Mở cửa sổ Dịch";
+"tools.translator.priorityTitle" = "Thứ tự ưu tiên Nguồn dịch (Kéo thả để sắp xếp)";
+"tools.translator.priorityDesc" = "SKey sẽ thử dịch bằng nguồn đầu tiên. Nếu gặp lỗi hoặc chưa cấu hình API Key, hệ thống sẽ tự động chuyển tiếp sang nguồn tiếp theo.";
+"tools.translator.apiKeyPlaceholder" = "Nhập API Key...";
+"tools.translator.apiKey" = "API Key:";
+"tools.translator.freeBadge" = "MIỄN PHÍ";
+"tools.translator.testTitle" = "Kiểm tra Dịch thuật trực tiếp";
+"tools.translator.testInputPlaceholder" = "Nhập câu tiếng Anh hoặc bất kỳ ngôn ngữ nào để dịch thử...";
+"tools.translator.testBtn" = "Dịch thử nghiệm";
+"tools.translator.testResult" = "Kết quả:";
+"tools.translator.testOutput" = "Bản dịch:";
+"tools.translator.testLatency" = "Thời gian phản hồi:";
+"tools.translator.errorPrefix" = "Lỗi:";
+"tools.quickText.empty" = "Clipboard đang trống!";
+
+/* Translation Engines */
+"engine.google.name" = "Google Neural NMT";
+"engine.google.desc" = "Miễn phí 100%, không cần API Key, không giới hạn";
+"engine.apple.name" = "Apple Translation (macOS On-Device)";
+"engine.apple.desc" = "Xử lý trực tiếp trên máy Mac, hoạt động Offline";
+"engine.gemini.name" = "Google Gemini 2.0 Flash AI";
+"engine.gemini.desc" = "Mô hình AI lớn hiểu ngữ cảnh, 1.500 lượt/ngày miễn phí";
+"engine.deepl.name" = "DeepL Translator";
+"engine.deepl.desc" = "Bản dịch tự nhiên nhất thế giới, 500.000 ký tự/tháng miễn phí";
+"engine.groq.name" = "Groq Llama 3.3 Ultra-Fast";
+"engine.groq.desc" = "Tốc độ siêu thanh < 0.2s, hoàn toàn miễn phí";
+
+/* Translation HUD */
+"hud.translator.title" = "SKey Dịch nhanh";
+"hud.translator.auto" = "Tự động";
+"hud.translator.translating" = "Đang dịch...";
+"hud.translator.error" = "Lỗi dịch thuật:";
+"hud.translator.placeholder" = "Nhập văn bản hoặc bôi đen để dịch...";
+"hud.translator.copy" = "Sao chép";
+"hud.translator.copied" = "Đã chép";
+"hud.translator.escHint" = "Phím tắt Esc để đóng • ⌘Enter để dịch";
+"hud.translator.translateNow" = "Dịch ngay";
+"hud.translator.swapLangs" = "Đổi chiều ngôn ngữ";
+"hud.translator.clear" = "Xóa";
+"hud.translator.paste" = "Dán";
+"hud.translator.chars" = "ký tự";
+
+/* Languages */
+"lang.vi" = "Tiếng Việt";
+"lang.en" = "English";
+"lang.ja" = "日本語 (Japanese)";
+"lang.zh" = "中文 (Chinese)";
+"lang.ko" = "한국어 (Korean)";
+"lang.fr" = "Français (French)";
+"lang.de" = "Deutsch (German)";
+
+/* Main Menu Items */
+"menu.app.settings" = "Cài đặt...";
+"menu.app.hide" = "Ẩn SKey";
+"menu.app.hideOthers" = "Ẩn các ứng dụng khác";
+"menu.app.quit" = "Thoát SKey";
+"menu.edit.undo" = "Hoàn tác";
+"menu.edit.redo" = "Làm lại";
+"menu.edit.cut" = "Cắt";
+"menu.edit.copy" = "Sao chép";
+"menu.edit.paste" = "Dán";
+"menu.edit.selectAll" = "Chọn tất cả";
 
 /* Cleaner & Tools Section */
 "cleaner.section.modes" = "Các chế độ hiển thị nền:";
@@ -180,7 +254,17 @@
 "keyboard.charset.vni" = "VNI Windows";
 "keyboard.section.mode" = "Chế độ gõ";
 "keyboard.option.enableVietnamese" = "Bật gõ tiếng Việt";
-"keyboard.option.enableVietnameseDesc" = "Phím tắt chuyển đổi nhanh giữa tiếng Việt và tiếng Anh";
+"keyboard.option.enableVietnameseDesc" = "Bật hoặc tắt bộ gõ tiếng Việt";
+"keyboard.shortcut.toggleTitle" = "Phím tắt chuyển ngôn ngữ";
+"keyboard.shortcut.toggleSubtitle" = "Chuyển nhanh giữa tiếng Việt và tiếng Anh";
+"shortcut.custom" = "Tùy chỉnh...";
+"shortcut.clickToRecord" = "Bấm để đổi / ghi phím tắt mới";
+"shortcut.recording.prompt" = "Nhấn tổ hợp phím...";
+"shortcut.presets" = "Phím tắt mẫu";
+"shortcut.pressEscToCancel" = "Nhấn Esc hoặc dấu ✕ để hủy";
+"shortcut.editPrompt" = "Đổi";
+"shortcut.resetToDefault" = "Khôi phục phím tắt mặc định";
+"shortcut.conflictWarning" = "Trùng với: %@";
 "keyboard.section.rules" = "Quy tắc gõ & Đặt dấu";
 "keyboard.option.spellCheckDesc" = "Tự động hoàn tác dấu khi gõ từ không có trong từ điển tiếng Việt";
 "keyboard.option.freeMarkingDesc" = "Cho phép bỏ dấu thanh ở bất kỳ vị trí nào trong từ (vd: toanf -> toàn)";
@@ -333,8 +417,11 @@
 "search.item.kb_charset.sub" = "Unicode, TCVN3, VNI Windows";
 "search.item.kb_charset.keys" = "bảng mã,unicode,tcvn3,vni windows,mã ký tự";
 
-"search.item.kb_toggle_vn.sub" = "Phím tắt ⌥Z";
-"search.item.kb_toggle_vn.keys" = "bật gõ,tiếng việt,chuyển anh việt,phím tắt,opt+z,toggle";
+"search.item.kb_toggle_vn.sub" = "Bật hoặc tắt gõ tiếng Việt";
+"search.item.kb_toggle_vn.keys" = "bật gõ,tiếng việt,chuyển anh việt,tiếng anh,toggle";
+
+"search.item.kb_shortcut_toggle.sub" = "Tùy chỉnh phím tắt đổi Anh / Việt";
+"search.item.kb_shortcut_toggle.keys" = "đổi phím tắt,chuyển ngôn ngữ,opt z,ctrl shift,phím tắt tiếng việt,shortcut,toggle shortcut";
 
 "search.item.kb_spell_check.sub" = "Tự động hoàn tác dấu khi gõ từ sai";
 "search.item.kb_spell_check.keys" = "chính tả,kiểm tra chính tả,từ điển,sai từ";
@@ -456,6 +543,9 @@
 "search.item.tool_cleaner.sub" = "Khóa phím phần cứng & đổi nền lau màn hình";
 "search.item.tool_cleaner.keys" = "lau màn hình,vệ sinh phím,khóa bàn phím,cleaner,keyboard cleaner,screen cleaner,lau phím";
 
+"search.item.tool_cleaner_shortcut.sub" = "Phím tắt kích hoạt chế độ lau bàn phím";
+"search.item.tool_cleaner_shortcut.keys" = "phím tắt lau phím,cleaner shortcut,vệ sinh bàn phím,khoá phím";
+
 "search.item.tool_quick_text.sub" = "Đổi hoa thường, bỏ dấu, chuyển mã clipboard";
 "search.item.tool_quick_text.keys" = "chữ hoa,chữ thường,bỏ dấu,xóa dấu,chuyển mã nhanh,uppercase,lowercase";
 
@@ -473,3 +563,57 @@
 
 "search.item.about_info.sub" = "Thông tin phiên bản & Mã nguồn mở";
 "search.item.about_info.keys" = "giới thiệu,phiên bản,version,tác giả,about";
+
+/* Excluded Apps */
+"settings.subtab.excludedApps" = "Loại bỏ ứng dụng";
+"keyboard.section.excludedApps" = "Danh sách ứng dụng loại trừ";
+"keyboard.excluded.enableMaster" = "Bật tính năng loại bỏ ứng dụng";
+"keyboard.excluded.enableMasterDesc" = "Tự động tắt bộ gõ tiếng Việt khi sử dụng các ứng dụng được chọn";
+"keyboard.excluded.addApp" = "Thêm ứng dụng...";
+"keyboard.excluded.clearAll" = "Xóa tất cả";
+"keyboard.excluded.noApps" = "Chưa có ứng dụng nào được loại trừ";
+"keyboard.excluded.appsCount" = "ứng dụng đã cấu hình";
+"keyboard.excluded.emptyTitle" = "Chưa có ứng dụng nào trong danh sách loại trừ";
+"keyboard.excluded.emptyDesc" = "SKey sẽ giữ nguyên phím gõ gốc khi bạn thao tác trong các ứng dụng này (phù hợp cho Game, Máy ảo, Remote Desktop...).";
+"keyboard.excluded.addFirst" = "Thêm ứng dụng đầu tiên";
+"keyboard.excluded.sheetTitle" = "Thêm ứng dụng loại trừ";
+"keyboard.excluded.tabRunning" = "Đang chạy";
+"keyboard.excluded.tabBrowse" = "Duyệt file .app";
+"keyboard.excluded.tabCustom" = "Nhập Bundle ID";
+"keyboard.excluded.searchRunningPlaceholder" = "Tìm kiếm ứng dụng đang chạy...";
+"keyboard.excluded.browseBtn" = "Chọn file ứng dụng (.app)...";
+"keyboard.excluded.browseDesc" = "Chọn một ứng dụng bất kỳ từ thư mục /Applications của máy Mac";
+"keyboard.excluded.customNameLabel" = "Tên ứng dụng:";
+"keyboard.excluded.customBundleIDLabel" = "Bundle Identifier:";
+"keyboard.excluded.customAddBtn" = "Thêm vào danh sách";
+"keyboard.excluded.chooseAppTitle" = "Chọn ứng dụng loại trừ";
+"keyboard.excluded.quickPresets" = "Gợi ý nhanh:";
+"keyboard.excluded.deleteTooltip" = "Xóa ứng dụng này khỏi danh sách";
+
+/* Secure Debug Mode */
+"general.option.debugMode" = "Chế độ Debug (Dành cho Dev)";
+"general.option.debugModeDesc" = "Ghi chi tiết nhật ký biến đổi phím vào file. Chỉ nên bật khi phát triển để đảm bảo an toàn thông tin.";
+"general.option.debugModeDisabledRelease" = "Chế độ Debug đã bị vô hiệu hóa trong bản phát hành chính thức để bảo vệ quyền riêng tư và chống tấn công đánh cắp phím.";
+"general.status.releaseProtected" = "Đã bảo vệ an toàn";
+
+/* Search Excluded Apps & Debug */
+"search.item.kb_excluded_apps.sub" = "Bỏ qua bộ gõ tiếng Việt cho Game & Máy ảo";
+"search.item.kb_excluded_apps.keys" = "loại bỏ app,loại trừ ứng dụng,blacklist,exclude apps,game,máy ảo,steam,không gõ tiếng việt";
+"search.item.gen_debug_mode.sub" = "Chế độ debug và ghi nhật ký phát triển";
+"search.item.gen_debug_mode.keys" = "debug mode,nhật ký dev,dev mode,bảo mật,keylogger";
+
+/* In-App Update */
+"about.checkUpdateBtn" = "Kiểm tra bản cập nhật";
+"about.checkUpdateChecking" = "Đang kiểm tra...";
+"about.checkUpdateUpToDate" = "Bạn đang dùng phiên bản mới nhất (%@)";
+"about.checkUpdateAvailable" = "Đã có bản cập nhật mới (%@)";
+"about.checkUpdateActionUpdate" = "Cập nhật ngay";
+"about.checkUpdateActionView" = "Xem trên GitHub";
+"about.checkUpdateDownloading" = "Đang tải xuống... (%d%%)";
+"about.checkUpdateExtracting" = "Đang giải nén & chuẩn bị cài đặt...";
+"about.checkUpdateRestarting" = "Đang khởi động lại...";
+"about.checkUpdateError" = "Lỗi kiểm tra: %@";
+"about.checkUpdateLastCheck" = "Kiểm tra lần cuối: %@";
+"about.checkUpdateChangelog" = "Nội dung cập nhật:";
+
+

@@ -1,0 +1,80 @@
+name: Update Homebrew Cask
+
+on:
+  workflow_run:
+    workflows: ["Build & Release SKey macOS"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  update-cask:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Find Release Assets & Compute Checksum
+        id: asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          DMG_URL=$(gh release view "$TAG" --repo ${{ github.repository }} --json assets --jq '.assets[] | select(.name | endswith(".dmg")) | .url')
+          if [ -z "$DMG_URL" ]; then
+            echo "::error::No .dmg asset found on $TAG"
+            exit 1
+          fi
+
+          echo "dmg_url=$DMG_URL" >> "$GITHUB_OUTPUT"
+          curl -fL "$DMG_URL" -o SKey-Installer.dmg
+          SHA256=$(shasum -a 256 SKey-Installer.dmg | cut -d' ' -f1)
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+
+      - name: Update Casks/skey.rb
+        env:
+          VERSION: ${{ steps.asset.outputs.version }}
+          SHA256: ${{ steps.asset.outputs.sha256 }}
+          TAG: ${{ steps.asset.outputs.tag }}
+        run: |
+          sed -i -e "s/^  version \".*\"/  version \"$VERSION\"/" Casks/skey.rb
+
+          export NEW_BLOCK=$(cat <<EOF
+            # CASK_ARCH_URLS_START
+            on_arm do
+              sha256 "$SHA256"
+
+              url "https://github.com/${{ github.repository }}/releases/download/$TAG/SKey-Installer.dmg"
+            end
+            on_intel do
+              sha256 "$SHA256"
+
+              url "https://github.com/${{ github.repository }}/releases/download/$TAG/SKey-Installer.dmg"
+            end
+            # CASK_ARCH_URLS_END
+          EOF
+          )
+
+          perl -0777 -pi -e 's/  # CASK_ARCH_URLS_START.*?# CASK_ARCH_URLS_END/$ENV{NEW_BLOCK}/s' Casks/skey.rb
+          cat Casks/skey.rb
+
+      - name: Commit and Push Cask Update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet Casks/skey.rb; then
+            echo "Cask already up to date"
+            exit 0
+          fi
+          git add Casks/skey.rb
+          git commit -m "chore: bump Homebrew Cask to ${{ steps.asset.outputs.tag }} [skip ci]"
+          git push

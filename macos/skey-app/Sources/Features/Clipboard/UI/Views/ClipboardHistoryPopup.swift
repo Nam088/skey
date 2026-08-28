@@ -95,6 +95,15 @@ public struct ClipboardHistoryContentView: View {
                 pinsSection(showsBottomSeparator: false)
             }
         }
+        // When the mouse leaves the entire list area (including to outside the window),
+        // clear hover highlight and close any auto-opened preview.
+        .onHover { hovering in
+            if !hovering {
+                viewModel.selectedItemID = nil
+                viewModel.autoPreviewTask?.cancel()
+                viewModel.isPreviewOpen = false
+            }
+        }
     }
 
     @ViewBuilder
@@ -188,7 +197,7 @@ public struct ClipboardHistoryContentView: View {
             stackPosition: viewModel.stackPosition(of: item),
             showApplicationIcons: viewModel.settings.showApplicationIcons,
             imageThumbnailHeight: CGFloat(viewModel.settings.imageThumbnailHeight),
-            onHoverSelect: { viewModel.selectOnHover(id: $0) },
+            onHoverSelect: { id, hovering in viewModel.selectOnHover(id: id, hovering: hovering) },
             onTogglePin: { Task { await viewModel.togglePin(item) } },
             onDelete: { Task { await viewModel.delete(item) } },
             onTap: {

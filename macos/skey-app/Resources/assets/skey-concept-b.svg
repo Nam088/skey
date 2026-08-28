@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="512" height="512" rx="116" fill="#08090C"/>
+
+  <!-- Top Geometric Polygon Block -->
+  <path d="M 180 136
+           H 332
+           C 348 136, 360 148, 360 164
+           V 212
+           C 360 228, 348 240, 332 240
+           H 236
+           L 164 168
+           C 156 160, 162 136, 180 136 Z"
+        fill="#FFFFFF"/>
+
+  <!-- Bottom Geometric Polygon Block -->
+  <path d="M 332 376
+           H 180
+           C 164 376, 152 364, 152 348
+           V 300
+           C 152 284, 164 272, 180 272
+           H 276
+           L 348 344
+           C 356 352, 350 376, 332 376 Z"
+        fill="#0A84FF"/>
+</svg>

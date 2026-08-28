@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>SKey Minimalist Logo Concepts</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      background: #08090C;
+      color: #FFFFFF;
+      margin: 0;
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    p {
+      color: #7E8294;
+      font-size: 14px;
+      margin-bottom: 36px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+      max-width: 960px;
+      width: 100%;
+    }
+    .card {
+      background: #111218;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .card img {
+      width: 160px;
+      height: 160px;
+      border-radius: 36px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #F5F5F7;
+    }
+    .desc {
+      font-size: 12.5px;
+      color: #7E8294;
+      text-align: center;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <h1>SKey Logo — Phong Cách Minimalist Dribbble / Raycast</h1>
+  <p>Tổng hợp 3 hướng thiết kế phẳng, dứt khoát và hiện đại nhất</p>
+
+  <div class="grid">
+    <!-- Concept A -->
+    <div class="card">
+      <div class="title">Concept A: Typing Chevron S</div>
+      <img src="skey-concept-a.svg" alt="Concept A">
+      <div class="desc">Chữ S cách điệu từ 2 dấu ngoặc nhọn / caret bàn phím đan xen với điểm nhấn con trỏ nhấp nháy.</div>
+    </div>
+
+    <!-- Concept B -->
+    <div class="card">
+      <div class="title">Concept B: Negative Space S</div>
+      <img src="skey-concept-b.svg" alt="Concept B">
+      <div class="desc">Hai khối phím hình học bất đối xứng tạo chữ S qua khoảng trống âm (phong cách Linear / Vercel).</div>
+    </div>
+
+    <!-- Concept C -->
+    <div class="card">
+      <div class="title">Concept C: Minimal Key Cap</div>
+      <img src="skey-concept-c.svg" alt="Concept C">
+      <div class="desc">Khung phím bấm đơn tuyến tối giản với chữ S monoline chuẩn hệ điều hành macOS.</div>
+    </div>
+  </div>
+</body>
+</html>

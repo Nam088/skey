@@ -29,6 +29,13 @@ public final class SKeyLogger {
         file: String = #file,
         line: Int = #line
     ) {
+        // SECURITY ENFORCEMENT: Debug level logs are strictly restricted to DEV/DEBUG builds.
+        #if !DEBUG
+        if level == .debug { return }
+        #else
+        if level == .debug && !AppSettings.shared.general.isDebugMode { return }
+        #endif
+
         let entry = LogEntry(
             level: level,
             category: category,
@@ -49,14 +56,24 @@ public final class SKeyLogger {
             osLogger.error("[\(category.rawValue, privacy: .public)] \(message, privacy: .public)")
         }
 
-        // 2. In-memory buffer for real-time UI streaming
+        // 2. In-memory buffer for real-time UI streaming (Dev mode or Warnings/Errors)
+        #if DEBUG
         logStore.append(entry)
-
-        // 3. Asynchronous non-blocking file I/O
-        let lineFormatted = "\(entry.formattedString)\n"
-        fileQueue.async { [weak self] in
-            self?.writeToFile(lineFormatted)
+        #else
+        if level == .warning || level == .error {
+            logStore.append(entry)
         }
+        #endif
+
+        // 3. Asynchronous non-blocking file I/O (Restricted to DEV mode with Debug Mode enabled)
+        #if DEBUG
+        if AppSettings.shared.general.isDebugMode {
+            let lineFormatted = "\(entry.formattedString)\n"
+            fileQueue.async { [weak self] in
+                self?.writeToFile(lineFormatted)
+            }
+        }
+        #endif
     }
 
     // MARK: - Async File Writer
@@ -76,13 +93,22 @@ public final class SKeyLogger {
             }
         }
 
-        if let handle = FileHandle(forWritingAtPath: path) {
-            defer { try? handle.close() }
-            handle.seekToEndOfFile()
-            handle.write(data)
-        } else {
-            try? data.write(to: URL(fileURLWithPath: path))
+        if fileManager.fileExists(atPath: path) {
+            // Enforce secure POSIX permissions: 0600 (Owner Read/Write only)
+            _ = try? fileManager.setAttributes([.posixPermissions: NSNumber(value: 0o600)], ofItemAtPath: path)
+
+            if let handle = FileHandle(forWritingAtPath: path) {
+                defer { try? handle.close() }
+                handle.seekToEndOfFile()
+                handle.write(data)
+                return
+            }
         }
+
+        // Create file with secure POSIX permissions: 0600 (Owner Read/Write only)
+        fileManager.createFile(atPath: path, contents: data, attributes: [
+            .posixPermissions: NSNumber(value: 0o600)
+        ])
     }
 }
 

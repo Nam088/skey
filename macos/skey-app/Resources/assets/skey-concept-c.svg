@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="512" height="512" rx="116" fill="#0D0E12"/>
+
+  <!-- Minimal Outer Key Cap Border -->
+  <rect x="76" y="76" width="360" height="360" rx="84" fill="none" stroke="#232630" stroke-width="12"/>
+
+  <!-- Minimalist Monoline S Glyphs -->
+  <path d="M 320 188
+           C 320 156, 292 136, 256 136
+           C 212 136, 188 160, 188 196
+           C 188 238, 224 252, 256 262
+           C 292 272, 324 290, 324 326
+           C 324 366, 296 390, 256 390
+           C 212 390, 184 366, 184 332"
+        fill="none"
+        stroke="#FFFFFF"
+        stroke-width="36"
+        stroke-linecap="round"/>
+
+  <!-- Keyboard Cursor Pulse Accent -->
+  <circle cx="256" cy="428" r="6" fill="#00D2FF"/>
+</svg>

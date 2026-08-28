@@ -18,9 +18,11 @@ public final class AppSettings: ObservableObject {
     public let clipboard: ClipboardSettings
     public let macro: MacroSettings
     public let general: GeneralSettings
+    public let shortcuts: ShortcutSettings
+    public let translator: TranslatorSettings
 
     private var allModules: [any SettingsModule] {
-        [keyboard, clipboard, macro, general]
+        [keyboard, clipboard, macro, general, shortcuts, translator]
     }
 
     public init(storage: SettingsStorage = .shared) {
@@ -29,6 +31,8 @@ public final class AppSettings: ObservableObject {
         self.clipboard = ClipboardSettings(storage: storage)
         self.macro = MacroSettings(storage: storage)
         self.general = GeneralSettings(storage: storage)
+        self.shortcuts = ShortcutSettings(storage: storage)
+        self.translator = TranslatorSettings(storage: storage)
     }
 
     /// Resets all modules across the entire application to factory defaults

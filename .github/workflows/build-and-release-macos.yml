@@ -1,0 +1,152 @@
+name: Build & Release SKey macOS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'macos/skey-app/**'
+      - 'port/**'
+      - 'scripts/**'
+      - '.github/workflows/build-and-release-macos.yml'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - 'macos/skey-app/**'
+      - 'port/**'
+      - 'scripts/**'
+      - '.github/workflows/build-and-release-macos.yml'
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version Bump Type (patch / minor / major)'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Universal macOS App (Apple Silicon & Intel)
+    runs-on: macos-14
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Auto Tag & Bump Version on Main Push
+        id: auto_tag
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        run: |
+          git fetch --tags --force
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          echo "Latest existing tag: $LATEST_TAG"
+
+          VERSION="${LATEST_TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          MAJOR="${MAJOR:-1}"
+          MINOR="${MINOR:-0}"
+          PATCH="${PATCH:-0}"
+
+          COMMITS=$(git log "$LATEST_TAG..HEAD" --oneline 2>/dev/null || git log -n 5 --oneline)
+          echo "Commits since $LATEST_TAG:"
+          echo "$COMMITS"
+
+          if echo "$COMMITS" | grep -qiE "(BREAKING CHANGE|major:)"; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif echo "$COMMITS" | grep -qiE "^[a-z0-9]+ (feat|minor):"; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "Computed next semantic release tag: $NEW_TAG"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$NEW_TAG" -m "Automated macOS release $NEW_TAG by GitHub Actions"
+          git push origin "$NEW_TAG"
+
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Determine Release Version & Metadata
+        id: release_meta
+        run: |
+          if [ -n "${{ steps.auto_tag.outputs.new_tag }}" ]; then
+            TAG="${{ steps.auto_tag.outputs.new_tag }}"
+            IS_RELEASE="true"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${{ github.ref_name }}"
+            IS_RELEASE="true"
+          else
+            TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")"
+            IS_RELEASE="false"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+          echo "is_release=$IS_RELEASE" >> $GITHUB_OUTPUT
+          echo "==> Detected Release Tag: $TAG (Version: ${TAG#v}, Is Release: $IS_RELEASE)"
+
+      - name: Build Universal Binary & Package (.dmg, .zip)
+        env:
+          APP_VERSION: ${{ steps.release_meta.outputs.version }}
+        run: |
+          bash scripts/build_release.sh
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SKey-macOS-Universal
+          path: |
+            dist/SKey-Installer.dmg
+            dist/SKey-macOS-Universal.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+
+      - name: Generate Release Notes
+        if: steps.release_meta.outputs.is_release == 'true'
+        run: |
+          bash scripts/generate_release_notes.sh --version "${{ steps.release_meta.outputs.tag }}" --output dist/RELEASE_NOTES.md
+          cat dist/RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        if: steps.release_meta.outputs.is_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.tag }}
+          name: SKey ${{ steps.release_meta.outputs.tag }}
+          files: |
+            dist/SKey-Installer.dmg
+            dist/SKey-macOS-Universal.zip
+            dist/SHA256SUMS.txt
+          body_path: dist/RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

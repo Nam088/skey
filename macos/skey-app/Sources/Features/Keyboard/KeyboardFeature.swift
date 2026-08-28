@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import Foundation
 
 // MARK: - KeyboardFeature
@@ -11,6 +12,7 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
     public var onStatusIconChange: ((Bool) -> Void)?
 
     private var wasVietnameseBeforeAutoSwitch = false
+    private var cancellables = Set<AnyCancellable>()
 
     // Menu items cache for quick state updates
     private var languageToggleItem: NSMenuItem?
@@ -34,6 +36,13 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
         loadPreferences()
         EventTapManager.shared.delegate = self
         _ = EventTapManager.shared.start()
+
+        AppSettings.shared.shortcuts.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.syncMenuState()
+            }
+            .store(in: &cancellables)
     }
 
     public func stop() {
@@ -72,12 +81,13 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
         let isVn = EventTapManager.shared.isVietnamese
 
         // 1. Primary Language Toggle Item
+        let langShortcut = AppSettings.shared.shortcuts.languageToggleShortcut
         let toggleItem = NSMenuItem(
-            title: L10n("keyboard.menu.toggle"),
+            title: "\(L10n("keyboard.menu.vietnamese")) (\(langShortcut.displayString))",
             action: #selector(toggleLanguage),
-            keyEquivalent: "z"
+            keyEquivalent: langShortcut.keyEquivalent
         )
-        toggleItem.keyEquivalentModifierMask = .option
+        toggleItem.keyEquivalentModifierMask = langShortcut.keyEquivalentModifierMask
         toggleItem.target = self
         toggleItem.state = isVn ? .on : .off
         languageToggleItem = toggleItem
@@ -198,6 +208,10 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
         let method = prefs.inputMethod
         let isVn = EventTapManager.shared.isVietnamese
 
+        let langShortcut = AppSettings.shared.shortcuts.languageToggleShortcut
+        languageToggleItem?.title = "\(L10n("keyboard.menu.vietnamese")) (\(langShortcut.displayString))"
+        languageToggleItem?.keyEquivalent = langShortcut.keyEquivalent
+        languageToggleItem?.keyEquivalentModifierMask = langShortcut.keyEquivalentModifierMask
         languageToggleItem?.state = isVn ? .on : .off
 
         telexItem?.state       = (method == .telex) ? .on : .off

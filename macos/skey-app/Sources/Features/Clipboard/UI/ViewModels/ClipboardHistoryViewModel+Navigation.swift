@@ -10,8 +10,17 @@ public extension ClipboardHistoryViewModel {
         onSelect([items[index]], asPlainText)
     }
 
-    func selectOnHover(id: UUID) {
+    func selectOnHover(id: UUID, hovering: Bool) {
         autoPreviewTask?.cancel()
+
+        // When mouse leaves an item, clear selection only if this item was selected
+        if !hovering {
+            if selectedItemID == id {
+                selectedItemID = nil
+            }
+            return
+        }
+
         if selectedItemID != id {
             selectedItemID = id
         }

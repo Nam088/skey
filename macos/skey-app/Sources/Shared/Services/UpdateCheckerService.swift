@@ -1,0 +1,275 @@
+import AppKit
+import Foundation
+
+// MARK: - Update State
+
+public enum UpdateState: Equatable {
+    case idle
+    case checking
+    case upToDate
+    case updateAvailable(version: String, releaseNotes: String, htmlUrl: URL, downloadUrl: URL?)
+    case downloading(progress: Double)
+    case extracting
+    case readyToRestart
+    case error(String)
+}
+
+// MARK: - UpdateCheckerService
+
+@MainActor
+public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionDownloadDelegate {
+    public static let shared = UpdateCheckerService()
+
+    @Published public var state: UpdateState = .idle
+    @Published public var lastCheckDate: Date? {
+        didSet {
+            if let date = lastCheckDate {
+                UserDefaults.standard.set(date.timeIntervalSince1970, forKey: "SKey_LastUpdateCheck")
+            }
+        }
+    }
+
+    private let repoOwner = "Nam088"
+    private let repoName = "skey"
+    private var downloadTask: URLSessionDownloadTask?
+    private var downloadSession: URLSession?
+
+    override private init() {
+        super.init()
+        let savedTime = UserDefaults.standard.double(forKey: "SKey_LastUpdateCheck")
+        if savedTime > 0 {
+            self.lastCheckDate = Date(timeIntervalSince1970: savedTime)
+        }
+    }
+
+    // MARK: - Current App Version
+
+    public var currentVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+
+    // MARK: - Check For Updates
+
+    public func checkForUpdates(isManual: Bool = false) {
+        // For background check: skip if checked within last 24 hours
+        if !isManual {
+            if let last = lastCheckDate, Date().timeIntervalSince(last) < 86400 {
+                return
+            }
+        }
+
+        state = .checking
+
+        guard let url = URL(string: "https://api.github.com/repos/\(repoOwner)/\(repoName)/releases/latest") else {
+            state = .error("Invalid API URL")
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 10
+        request.setValue("SKey-macOS/\(currentVersion)", forHTTPHeaderField: "User-Agent")
+        request.setValue("application/vnd.github.v3+json", forHTTPHeaderField: "Accept")
+
+        Task {
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    if isManual { self.state = .error("Không nhận được phản hồi từ máy chủ") }
+                    else { self.state = .idle }
+                    return
+                }
+
+                if httpResponse.statusCode == 404 {
+                    // No releases yet
+                    self.lastCheckDate = Date()
+                    self.state = isManual ? .upToDate : .idle
+                    return
+                }
+
+                guard httpResponse.statusCode == 200 else {
+                    if isManual { self.state = .error("Lỗi máy chủ: \(httpResponse.statusCode)") }
+                    else { self.state = .idle }
+                    return
+                }
+
+                guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let tagName = json["tag_name"] as? String,
+                      let htmlUrlStr = json["html_url"] as? String,
+                      let htmlUrl = URL(string: htmlUrlStr) else {
+                    if isManual { self.state = .error("Dữ liệu phản hồi không hợp lệ") }
+                    else { self.state = .idle }
+                    return
+                }
+
+                self.lastCheckDate = Date()
+                let releaseNotes = (json["body"] as? String) ?? ""
+                let remoteVersion = tagName.trimmingCharacters(in: CharacterSet(charactersIn: "vV "))
+
+                // Find Universal Zip or DMG asset
+                var downloadUrl: URL?
+                if let assets = json["assets"] as? [[String: Any]] {
+                    for asset in assets {
+                        if let name = asset["name"] as? String,
+                           let browserUrl = asset["browser_download_url"] as? String,
+                           let url = URL(string: browserUrl) {
+                            if name.hasSuffix(".zip") {
+                                downloadUrl = url
+                                break
+                            } else if name.hasSuffix(".dmg") && downloadUrl == nil {
+                                downloadUrl = url
+                            }
+                        }
+                    }
+                }
+
+                if Self.compareSemVer(remote: remoteVersion, local: self.currentVersion) == .orderedDescending {
+                    self.state = .updateAvailable(
+                        version: remoteVersion,
+                        releaseNotes: releaseNotes,
+                        htmlUrl: htmlUrl,
+                        downloadUrl: downloadUrl
+                    )
+                } else {
+                    self.state = isManual ? .upToDate : .idle
+                }
+            } catch {
+                if isManual {
+                    self.state = .error("Lỗi kết nối: \(error.localizedDescription)")
+                } else {
+                    self.state = .idle
+                }
+            }
+        }
+    }
+
+    // MARK: - Start Download & Auto Install
+
+    public func startUpdate(downloadUrl: URL) {
+        state = .downloading(progress: 0.0)
+
+        let config = URLSessionConfiguration.default
+        let session = URLSession(configuration: config, delegate: self, delegateQueue: .main)
+        self.downloadSession = session
+
+        var request = URLRequest(url: downloadUrl)
+        request.setValue("SKey-macOS/\(currentVersion)", forHTTPHeaderField: "User-Agent")
+
+        let task = session.downloadTask(with: request)
+        self.downloadTask = task
+        task.resume()
+    }
+
+    // MARK: - URLSessionDownloadDelegate (nonisolated for Swift 6 concurrency)
+
+    nonisolated public func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        if totalBytesExpectedToWrite > 0 {
+            let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            Task { @MainActor in
+                self.state = .downloading(progress: progress)
+            }
+        }
+    }
+
+    nonisolated public func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
+        Task { @MainActor in
+            self.state = .extracting
+        }
+
+        let tempDir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("SKeyUpdate")
+        let zipPath = tempDir.appendingPathComponent("update.zip")
+        let appDestination = "/Applications/SKey.app"
+
+        do {
+            try? FileManager.default.removeItem(at: tempDir)
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            try FileManager.default.moveItem(at: location, to: zipPath)
+
+            // Unzip using ditto (preserves macOS permissions & symlinks)
+            let unzipProcess = Process()
+            unzipProcess.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+            unzipProcess.arguments = ["-xk", zipPath.path, tempDir.path]
+            try unzipProcess.run()
+            unzipProcess.waitUntilExit()
+
+            let extractedApp = tempDir.appendingPathComponent("SKey.app")
+            guard FileManager.default.fileExists(atPath: extractedApp.path) else {
+                Task { @MainActor in
+                    self.state = .error("Không tìm thấy tệp SKey.app trong gói cập nhật")
+                }
+                return
+            }
+
+            Task { @MainActor in
+                self.state = .readyToRestart
+            }
+
+            // Execute atomic update script in background and relaunch
+            let scriptPath = tempDir.appendingPathComponent("relaunch.sh").path
+            let scriptContent = """
+            #!/bin/bash
+            sleep 0.8
+            rm -rf "\(appDestination)"
+            cp -R "\(extractedApp.path)" "\(appDestination)"
+            xattr -cr "\(appDestination)" 2>/dev/null || true
+            open -a "\(appDestination)"
+            """
+            try scriptContent.write(toFile: scriptPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
+
+            let relaunchProcess = Process()
+            relaunchProcess.executableURL = URL(fileURLWithPath: "/bin/bash")
+            relaunchProcess.arguments = [scriptPath]
+            try relaunchProcess.run()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                NSApp.terminate(nil)
+            }
+        } catch {
+            Task { @MainActor in
+                self.state = .error("Lỗi cài đặt: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    nonisolated public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let error = error {
+            Task { @MainActor in
+                self.state = .error("Lỗi tải về: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Semantic Versioning Comparison
+
+    public static func compareSemVer(remote: String, local: String) -> ComparisonResult {
+        func parseNumbers(_ str: String) -> [Int] {
+            let clean = str.trimmingCharacters(in: CharacterSet(charactersIn: "vV \t\n\r"))
+            let core = clean.components(separatedBy: "-").first ?? clean
+            return core.components(separatedBy: ".").compactMap { Int($0) }
+        }
+
+        let r = parseNumbers(remote)
+        let l = parseNumbers(local)
+        let maxCount = max(r.count, l.count)
+
+        for i in 0..<maxCount {
+            let rVal = i < r.count ? r[i] : 0
+            let lVal = i < l.count ? l[i] : 0
+            if rVal > lVal { return .orderedDescending }
+            if rVal < lVal { return .orderedAscending }
+        }
+
+        return .orderedSame
+    }
+}

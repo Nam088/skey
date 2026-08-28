@@ -22,6 +22,9 @@ public final class TypingPipeline {
         self.onToggleLanguage = onToggleLanguage
     }
 
+    /// Tracks candidate state for modifier-only shortcut toggle (e.g. Control + Shift)
+    private var modifierOnlyCandidate = false
+
     // MARK: - Pipeline Entry Point
 
     public func process(event: CGEvent, type: CGEventType) -> InterceptorResult {
@@ -39,6 +42,7 @@ public final class TypingPipeline {
         if type == .leftMouseDown || type == .rightMouseDown || type == .otherMouseDown {
             engine.reset()
             MacroEngine.shared.reset()
+            modifierOnlyCandidate = false
             caretMayHaveMoved = true
             return .passThrough
         }
@@ -48,29 +52,47 @@ public final class TypingPipeline {
             return .passThrough
         }
 
-        // Stage 4: Pass through modifier keys pressed alone
+        let flags = event.flags
+        let shortcutSettings = AppSettings.shared.shortcuts
+
+        // Stage 4: Handle modifier keys pressed alone & Modifier-only Shortcuts (e.g. Control+Shift)
         if type == .flagsChanged {
+            let currentMods = ShortcutModifiers(cgFlags: flags)
+            let langShortcut = shortcutSettings.languageToggleShortcut
+
+            if langShortcut.isModifierOnly {
+                let targetMods = langShortcut.modifiers
+                if currentMods == targetMods {
+                    modifierOnlyCandidate = true
+                } else if currentMods.isEmpty && modifierOnlyCandidate {
+                    modifierOnlyCandidate = false
+                    onToggleLanguage()
+                } else if !currentMods.isSubset(of: targetMods) {
+                    modifierOnlyCandidate = false
+                }
+            } else {
+                modifierOnlyCandidate = false
+            }
+
             return .passThrough
         }
 
+        // Any regular key press cancels modifier-only toggle chord
+        modifierOnlyCandidate = false
+
         let keyCode = CGKeyCode(event.getIntegerValueField(.keyboardEventKeycode))
-        let flags   = event.flags
 
-        // Stage 5: Pass through Hotkey combinations (Cmd+Key, Ctrl+Key, Option+Key)
-        let isCommand = flags.contains(.maskCommand)
-        let isControl = flags.contains(.maskControl)
-        let isOption  = flags.contains(.maskAlternate)
-
-        // Hotkey: Option + Z toggles language mode
-        if isOption && !isCommand && !isControl && keyCode == KeyConstants.kVK_ANSI_Z {
+        // Stage 5: Handle Customizable Hotkey combinations
+        let langShortcut = shortcutSettings.languageToggleShortcut
+        if !langShortcut.isModifierOnly && langShortcut.matches(keyCode: keyCode, flags: flags) {
             if type == .keyDown {
                 onToggleLanguage()
             }
             return .swallowed
         }
 
-        // Hotkey: Option + V toggles Clipboard History Popup
-        if isOption && !isCommand && !isControl && keyCode == KeyConstants.kVK_ANSI_V {
+        let cbShortcut = shortcutSettings.clipboardShortcut
+        if cbShortcut.matches(keyCode: keyCode, flags: flags) {
             if type == .keyDown {
                 DispatchQueue.main.async {
                     ClipboardFeature.shared.togglePopup()
@@ -78,6 +100,42 @@ public final class TypingPipeline {
             }
             return .swallowed
         }
+
+        if shortcutSettings.cleanerEnabled {
+            let cleanerShortcut = shortcutSettings.cleanerShortcut
+            if cleanerShortcut.matches(keyCode: keyCode, flags: flags) {
+                if type == .keyDown {
+                    DispatchQueue.main.async {
+                        KeyboardCleanerController.shared.startCleaning()
+                    }
+                }
+                return .swallowed
+            }
+        }
+
+        let aiShortcut = shortcutSettings.aiShortcut
+        if aiShortcut.matches(keyCode: keyCode, flags: flags) {
+            if type == .keyDown {
+                DispatchQueue.main.async {
+                    SettingsWindowController.shared.showSettings(tab: .ai)
+                }
+            }
+            return .swallowed
+        }
+
+        // Quick Translate Shortcut (⌥T - Option + T)
+        if keyCode == KeyConstants.kVK_ANSI_T && flags.contains(.maskAlternate) && !flags.contains(.maskCommand) && !flags.contains(.maskControl) {
+            if type == .keyDown {
+                DispatchQueue.main.async {
+                    TranslationHUDController.shared.toggleHUD()
+                }
+            }
+            return .swallowed
+        }
+
+        let isCommand = flags.contains(.maskCommand)
+        let isControl = flags.contains(.maskControl)
+        let isOption  = flags.contains(.maskAlternate)
 
         if isCommand || isControl || isOption {
             engine.reset()
@@ -88,6 +146,11 @@ public final class TypingPipeline {
 
         // Stage 6: KeyUp events - pass through and keep engine state
         if type == .keyUp {
+            return .passThrough
+        }
+
+        // Stage 6.5: Excluded Applications Bypass (App Exclusion List)
+        if AppSettings.shared.keyboard.isAppExcluded(bundleID: AppFocusObserver.shared.currentBundleID) {
             return .passThrough
         }
 
@@ -184,7 +247,9 @@ public final class TypingPipeline {
                 caretMayHaveMoved = false
                 let bs = resolveBackspaces(res.backspaces)
                 #if DEBUG
-                skeyLog("Typing transform: '\(UnicodeScalar(charCode) ?? " ")' -> bs=\(bs) '\(res.text)'", category: .keyboard)
+                if AppSettings.shared.general.isDebugMode {
+                    skeyLog("Typing transform: '\(UnicodeScalar(charCode) ?? " ")' -> bs=\(bs) '\(res.text)'", category: .keyboard)
+                }
                 #endif
                 if let scalar = UnicodeScalar(charCode) {
                     MacroEngine.shared.recordChar(Character(scalar))

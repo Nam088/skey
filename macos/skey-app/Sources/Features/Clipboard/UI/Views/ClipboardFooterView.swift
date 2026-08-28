@@ -62,6 +62,13 @@ public struct ClipboardFooterView: View {
         }
         .padding(.horizontal, ClipboardPopupUI.horizontalPadding)
         .padding(.bottom, ClipboardPopupUI.verticalPadding)
+        .onHover { hovering in
+            if hovering {
+                viewModel.selectedItemID = nil
+                viewModel.autoPreviewTask?.cancel()
+                viewModel.isPreviewOpen = false
+            }
+        }
     }
 
     private func showAbout() {

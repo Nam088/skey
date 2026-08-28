@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Background: Deep Space Obsidian -->
+  <rect width="512" height="512" rx="116" fill="#0C0D12"/>
+
+  <!-- Geometric Chevron S-Matrix -->
+  <g fill="none" stroke-width="42" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Upper Typing Caret (Electric Cyan) -->
+    <path d="M 336 168
+             L 224 168
+             C 188 168, 168 196, 168 232
+             C 168 268, 196 288, 256 296"
+          stroke="#00D2FF"/>
+
+    <!-- Lower Typing Caret (Pure White) -->
+    <path d="M 256 296
+             C 316 304, 344 324, 344 360
+             C 344 396, 324 424, 288 424
+             L 176 424"
+          stroke="#FFFFFF"/>
+  </g>
+
+  <!-- Accent Blinking Cursor Mark -->
+  <line x1="336" y1="216" x2="336" y2="240" stroke="#00D2FF" stroke-width="12" stroke-linecap="round"/>
+</svg>

@@ -4,6 +4,7 @@ import SwiftUI
 // MARK: - AISettingsTab
 
 public struct AISettingsTab: View {
+    @ObservedObject var shortcutSettings = AppSettings.shared.shortcuts
     @ObservedObject var loc = LocalizationService.shared
     @ObservedObject var navState = SettingsNavigationState.shared
 
@@ -92,7 +93,12 @@ public struct AISettingsTab: View {
                 subtitle: L10n("ai.option.shortcutDesc"),
                 showDivider: false
             ) {
-                KeyCapBadge("⌥Space")
+                ShortcutPickerView(
+                    preset: $shortcutSettings.aiPreset,
+                    shortcut: $shortcutSettings.aiShortcut,
+                    presets: ShortcutSettings.aiPresets,
+                    target: .ai
+                )
             }
         }
     }

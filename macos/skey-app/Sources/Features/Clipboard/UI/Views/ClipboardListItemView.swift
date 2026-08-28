@@ -16,7 +16,7 @@ public struct ClipboardListItemView: View, Equatable {
     public let showApplicationIcons: Bool
     public var imageThumbnailHeight: CGFloat = 40
 
-    public let onHoverSelect: (UUID) -> Void
+    public let onHoverSelect: (UUID, Bool) -> Void
     public let onTogglePin: () -> Void
     public let onDelete: () -> Void
     public let onTap: () -> Void
@@ -77,9 +77,7 @@ public struct ClipboardListItemView: View, Equatable {
         .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering
-            if hovering {
-                onHoverSelect(item.id)
-            }
+            onHoverSelect(item.id, hovering)
         }
         .onTapGesture(perform: onTap)
         .task(id: item.id) {

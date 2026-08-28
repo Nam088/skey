@@ -126,9 +126,10 @@ public final class StatusBarManager: NSObject {
         cleanerItem.target = self
         toolsSubmenu.addItem(cleanerItem)
 
+        #if DEBUG
         toolsSubmenu.addItem(NSMenuItem.separator())
 
-        // Logs
+        // Logs (Dev Only)
         let openLogItem = NSMenuItem(
             title: L10n(.openLogFile),
             action: #selector(openLogFile),
@@ -144,6 +145,7 @@ public final class StatusBarManager: NSObject {
         )
         clearLogItem.target = self
         toolsSubmenu.addItem(clearLogItem)
+        #endif
 
         let toolsItem = NSMenuItem(title: L10n("tools.menu.title"), action: nil, keyEquivalent: "")
         toolsItem.submenu = toolsSubmenu

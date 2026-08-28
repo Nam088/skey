@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="512" height="512" rx="116" fill="#0A0B0E"/>
+
+  <!-- Top Keycap Tile -->
+  <rect x="140" y="112" width="232" height="116" rx="36" fill="#1C1D24"/>
+  <path d="M 200 170 L 312 170" stroke="#007AFF" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- Middle Intersecting Keystroke Curve -->
+  <path d="M 312 170 C 312 256, 200 256, 200 342" fill="none" stroke="#007AFF" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- Bottom Keycap Tile -->
+  <rect x="140" y="284" width="232" height="116" rx="36" fill="#1C1D24"/>
+  <path d="M 200 342 L 312 342" stroke="#007AFF" stroke-width="28" stroke-linecap="round"/>
+</svg>

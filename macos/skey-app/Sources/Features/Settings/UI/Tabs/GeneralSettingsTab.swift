@@ -154,8 +154,17 @@ public struct GeneralSettingsTab: View {
                 }
             }
 
-            // Activity Logs
+            // Activity & Debug Logs (Strictly protected in Release builds)
             SettingsGroup(title: L10n("general.section.logs")) {
+                #if DEBUG
+                SettingsRow(
+                    title: L10n("general.option.debugMode"),
+                    subtitle: L10n("general.option.debugModeDesc")
+                ) {
+                    Toggle("", isOn: $generalSettings.isDebugMode)
+                        .toggleStyle(.switch)
+                }
+
                 SettingsRow(
                     title: L10n("general.option.openLog"),
                     subtitle: L10n("general.option.openLogDesc")
@@ -168,6 +177,7 @@ public struct GeneralSettingsTab: View {
                         NSWorkspace.shared.open(URL(fileURLWithPath: path))
                     }
                     .buttonStyle(.bordered)
+                    .disabled(!generalSettings.isDebugMode)
                 }
 
                 SettingsRow(
@@ -181,6 +191,26 @@ public struct GeneralSettingsTab: View {
                     }
                     .buttonStyle(.bordered)
                 }
+                #else
+                SettingsRow(
+                    title: L10n("general.option.debugMode"),
+                    subtitle: L10n("general.option.debugModeDisabledRelease"),
+                    showDivider: false
+                ) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "lock.shield.fill")
+                            .font(.system(size: 13))
+                            .foregroundColor(.green)
+                        Text(L10n("general.status.releaseProtected"))
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.green.opacity(0.12))
+                    .clipShape(Capsule())
+                }
+                #endif
             }
 
             // Factory Reset

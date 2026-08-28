@@ -79,6 +79,22 @@ public final class SettingsStorage: @unchecked Sendable {
         return loaded
     }
 
+    public func data(forKey key: String) -> Data? {
+        os_unfair_lock_lock(&lock)
+        let val = cache[key] as? Data
+        os_unfair_lock_unlock(&lock)
+
+        if let val { return val }
+
+        let loaded = defaults.data(forKey: key)
+        if let loaded {
+            os_unfair_lock_lock(&lock)
+            cache[key] = loaded
+            os_unfair_lock_unlock(&lock)
+        }
+        return loaded
+    }
+
     // MARK: - Fast In-Memory Write + Async Background Persistence
 
     public func set(_ value: Any?, forKey key: String) {

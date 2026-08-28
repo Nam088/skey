@@ -126,19 +126,20 @@ public final class ClipboardFeature: NSObject, Feature {
     public func buildMenuItems() -> [NSMenuItem] {
         var items: [NSMenuItem] = []
 
+        let cbShortcut = AppSettings.shared.shortcuts.clipboardShortcut
         let openPopupItem = NSMenuItem(
-            title: L10n(.clipboardMenu),
+            title: "\(L10n(.clipboardMenu)) (\(cbShortcut.displayString))",
             action: #selector(openClipboardPopupClicked),
-            keyEquivalent: "v"
+            keyEquivalent: cbShortcut.keyEquivalent
         )
-        openPopupItem.keyEquivalentModifierMask = [.option]
+        openPopupItem.keyEquivalentModifierMask = cbShortcut.keyEquivalentModifierMask
         openPopupItem.target = self
         items.append(openPopupItem)
 
         return items
     }
 
-    @objc private func openClipboardPopupClicked() {
+    @objc public func openClipboardPopupClicked() {
         togglePopup()
     }
 }

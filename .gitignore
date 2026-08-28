@@ -46,3 +46,5 @@ macos/skey-app/scripts/spotlight_sentence_tester
 macos/skey-app/scripts/spotlight_speed_benchmarks
 macos/skey-app/scripts/spotlight_tester
 /tmp/cross_app_test_bin
+dist/
+macos/skey-app/dist/

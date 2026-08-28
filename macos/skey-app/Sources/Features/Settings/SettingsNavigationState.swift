@@ -123,15 +123,25 @@ public final class SettingsNavigationState: ObservableObject {
                 icon: "globe",
                 keywordsKey: "search.item.kb_toggle_vn.keys"
             ),
+            SettingSearchItem(
+                id: "kb_shortcut_toggle",
+                titleKey: "keyboard.shortcut.toggleTitle",
+                subtitleKey: "search.item.kb_shortcut_toggle.sub",
+                tab: .keyboard,
+                subTab: 0,
+                subTabTitleKey: "settings.subtab.inputMethod",
+                icon: "command.circle.fill",
+                keywordsKey: "search.item.kb_shortcut_toggle.keys"
+            ),
 
-            // SubTab 1: Bỏ dấu & Chính tả (Orthography)
+            // SubTab 1: Quy tắc gõ & Gõ nhanh (Typing Rules)
             SettingSearchItem(
                 id: "kb_spell_check",
                 titleKey: "keyboard.options.spell_check",
                 subtitleKey: "search.item.kb_spell_check.sub",
                 tab: .keyboard,
                 subTab: 1,
-                subTabTitleKey: "settings.subtab.orthography",
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "checkmark.bubble.fill",
                 keywordsKey: "search.item.kb_spell_check.keys"
             ),
@@ -141,7 +151,7 @@ public final class SettingsNavigationState: ObservableObject {
                 subtitleKey: "search.item.kb_free_marking.sub",
                 tab: .keyboard,
                 subTab: 1,
-                subTabTitleKey: "settings.subtab.orthography",
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "character.cursor.ibeam",
                 keywordsKey: "search.item.kb_free_marking.keys"
             ),
@@ -151,7 +161,7 @@ public final class SettingsNavigationState: ObservableObject {
                 subtitleKey: "search.item.kb_modern_style.sub",
                 tab: .keyboard,
                 subTab: 1,
-                subTabTitleKey: "settings.subtab.orthography",
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "textformat.abc.dottedunderline",
                 keywordsKey: "search.item.kb_modern_style.keys"
             ),
@@ -161,19 +171,17 @@ public final class SettingsNavigationState: ObservableObject {
                 subtitleKey: "search.item.kb_swallowed.sub",
                 tab: .keyboard,
                 subTab: 1,
-                subTabTitleKey: "settings.subtab.orthography",
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "arrow.counterclockwise.circle.fill",
                 keywordsKey: "search.item.kb_swallowed.keys"
             ),
-
-            // SubTab 2: Gõ nhanh (Quick Typing)
             SettingSearchItem(
                 id: "kb_quick_telex",
                 titleKey: "keyboard.advanced.quick_telex",
                 subtitleKey: "search.item.kb_quick_telex.sub",
                 tab: .keyboard,
-                subTab: 2,
-                subTabTitleKey: "settings.subtab.quickTyping",
+                subTab: 1,
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "bolt.fill",
                 keywordsKey: "search.item.kb_quick_telex.keys"
             ),
@@ -182,8 +190,8 @@ public final class SettingsNavigationState: ObservableObject {
                 titleKey: "keyboard.option.quickStartConsonant",
                 subtitleKey: "search.item.kb_quick_start.sub",
                 tab: .keyboard,
-                subTab: 2,
-                subTabTitleKey: "settings.subtab.quickTyping",
+                subTab: 1,
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "character.textbox",
                 keywordsKey: "search.item.kb_quick_start.keys"
             ),
@@ -192,8 +200,8 @@ public final class SettingsNavigationState: ObservableObject {
                 titleKey: "keyboard.option.quickEndConsonant",
                 subtitleKey: "search.item.kb_quick_end.sub",
                 tab: .keyboard,
-                subTab: 2,
-                subTabTitleKey: "settings.subtab.quickTyping",
+                subTab: 1,
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "character.textbox",
                 keywordsKey: "search.item.kb_quick_end.keys"
             ),
@@ -202,22 +210,32 @@ public final class SettingsNavigationState: ObservableObject {
                 titleKey: "keyboard.option.upperCaseFirst",
                 subtitleKey: "search.item.kb_upper_first.sub",
                 tab: .keyboard,
-                subTab: 2,
-                subTabTitleKey: "settings.subtab.quickTyping",
+                subTab: 1,
+                subTabTitleKey: "settings.subtab.typingRules",
                 icon: "textformat.size",
                 keywordsKey: "search.item.kb_upper_first.keys"
             ),
 
-            // SubTab 3: Chuyển app thông minh (Smart App Switch)
+            // SubTab 2: Quản lý Ứng dụng (Smart Switch & Excluded Apps)
             SettingSearchItem(
                 id: "kb_smart_switch",
                 titleKey: "keyboard.option.smartSwitch",
                 subtitleKey: "search.item.kb_smart_switch.sub",
                 tab: .keyboard,
-                subTab: 3,
-                subTabTitleKey: "settings.subtab.smartSwitch",
+                subTab: 2,
+                subTabTitleKey: "settings.subtab.appManagement",
                 icon: "terminal.fill",
                 keywordsKey: "search.item.kb_smart_switch.keys"
+            ),
+            SettingSearchItem(
+                id: "kb_excluded_apps",
+                titleKey: "keyboard.section.excludedApps",
+                subtitleKey: "search.item.kb_excluded_apps.sub",
+                tab: .keyboard,
+                subTab: 2,
+                subTabTitleKey: "settings.subtab.appManagement",
+                icon: "xmark.app.fill",
+                keywordsKey: "search.item.kb_excluded_apps.keys"
             ),
 
             // MARK: 2. Clipboard (Tab 1)
@@ -457,34 +475,45 @@ public final class SettingsNavigationState: ObservableObject {
             ),
 
             // MARK: 4. Công cụ (Tools - Tab 3)
-            // SubTab 0: Tiện ích & Vệ sinh
+            // SubTab 0: Dịch nhanh
+            SettingSearchItem(
+                id: "tool_translator",
+                titleKey: "tools.translator.title",
+                subtitleKey: "tools.translator.shortcutDesc",
+                tab: .tools,
+                subTab: 0,
+                subTabTitleKey: "settings.subtab.translator",
+                icon: "globe.asia.australia.fill",
+                keywordsKey: "tools.translator.shortcut"
+            ),
+            // SubTab 1: Vệ sinh phím
             SettingSearchItem(
                 id: "tool_cleaner",
                 titleKey: "cleaner.title",
                 subtitleKey: "search.item.tool_cleaner.sub",
                 tab: .tools,
-                subTab: 0,
+                subTab: 1,
                 subTabTitleKey: "settings.subtab.utilities",
                 icon: "sparkles",
                 keywordsKey: "search.item.tool_cleaner.keys"
             ),
             SettingSearchItem(
-                id: "tool_quick_text",
-                titleKey: "tools.section.quickText",
-                subtitleKey: "search.item.tool_quick_text.sub",
+                id: "tool_cleaner_shortcut",
+                titleKey: "cleaner.option.shortcut",
+                subtitleKey: "search.item.tool_cleaner_shortcut.sub",
                 tab: .tools,
-                subTab: 0,
+                subTab: 1,
                 subTabTitleKey: "settings.subtab.utilities",
-                icon: "arrow.triangle.swap",
-                keywordsKey: "search.item.tool_quick_text.keys"
+                icon: "command.circle.fill",
+                keywordsKey: "search.item.tool_cleaner_shortcut.keys"
             ),
-            // SubTab 1: Chuyển mã văn bản
+            // SubTab 2: Chuyển mã văn bản
             SettingSearchItem(
                 id: "tool_converter",
                 titleKey: "tools.section.converter",
                 subtitleKey: "search.item.tool_converter.sub",
                 tab: .tools,
-                subTab: 1,
+                subTab: 2,
                 subTabTitleKey: "settings.subtab.textConverter",
                 icon: "character.textbox",
                 keywordsKey: "search.item.tool_converter.keys"
@@ -571,6 +600,16 @@ public final class SettingsNavigationState: ObservableObject {
             ),
 
             // SubTab 2: Nhật ký & Dữ liệu
+            SettingSearchItem(
+                id: "gen_debug_mode",
+                titleKey: "general.option.debugMode",
+                subtitleKey: "search.item.gen_debug_mode.sub",
+                tab: .general,
+                subTab: 2,
+                subTabTitleKey: "settings.subtab.logs",
+                icon: "ant.fill",
+                keywordsKey: "search.item.gen_debug_mode.keys"
+            ),
             SettingSearchItem(
                 id: "gen_logs",
                 titleKey: "general.section.logs",

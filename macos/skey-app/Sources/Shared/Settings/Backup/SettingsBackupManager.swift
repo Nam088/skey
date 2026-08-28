@@ -12,6 +12,19 @@ public struct SKeyBackupData: Codable {
     public var clipboard: ClipboardData
     public var macro: MacroData
     public var general: GeneralData
+    public var shortcuts: ShortcutData?
+
+    public struct ShortcutData: Codable {
+        public var languageTogglePreset: String
+        public var languageToggleCustom: KeyShortcut?
+        public var clipboardPreset: String
+        public var clipboardCustom: KeyShortcut?
+        public var cleanerPreset: String
+        public var cleanerCustom: KeyShortcut?
+        public var cleanerEnabled: Bool
+        public var aiPreset: String
+        public var aiCustom: KeyShortcut?
+    }
 
     public struct KeyboardData: Codable {
         public var isVietnamese: Bool
@@ -27,6 +40,8 @@ public struct SKeyBackupData: Codable {
         public var swallowedKeyRestore: Bool
         public var allowConsonantZFWJ: Bool
         public var smartAppSwitchEnabled: Bool
+        public var isExclusionEnabled: Bool?
+        public var excludedApps: [ExcludedApp]?
     }
 
     public struct ClipboardData: Codable {
@@ -89,7 +104,9 @@ public final class SettingsBackupManager {
             upperCaseFirstChar: app.keyboard.upperCaseFirstChar,
             swallowedKeyRestore: app.keyboard.swallowedKeyRestore,
             allowConsonantZFWJ: app.keyboard.allowConsonantZFWJ,
-            smartAppSwitchEnabled: app.keyboard.smartAppSwitchEnabled
+            smartAppSwitchEnabled: app.keyboard.smartAppSwitchEnabled,
+            isExclusionEnabled: app.keyboard.isExclusionEnabled,
+            excludedApps: app.keyboard.excludedApps
         )
 
         let cbData = SKeyBackupData.ClipboardData(
@@ -127,11 +144,24 @@ public final class SettingsBackupManager {
             checkUpdates: app.general.checkUpdates
         )
 
+        let shortcutData = SKeyBackupData.ShortcutData(
+            languageTogglePreset: app.shortcuts.languageTogglePreset,
+            languageToggleCustom: app.shortcuts.languageToggleShortcut,
+            clipboardPreset: app.shortcuts.clipboardPreset,
+            clipboardCustom: app.shortcuts.clipboardShortcut,
+            cleanerPreset: app.shortcuts.cleanerPreset,
+            cleanerCustom: app.shortcuts.cleanerShortcut,
+            cleanerEnabled: app.shortcuts.cleanerEnabled,
+            aiPreset: app.shortcuts.aiPreset,
+            aiCustom: app.shortcuts.aiShortcut
+        )
+
         return SKeyBackupData(
             keyboard: kbData,
             clipboard: cbData,
             macro: macroData,
-            general: genData
+            general: genData,
+            shortcuts: shortcutData
         )
     }
 
@@ -211,6 +241,12 @@ public final class SettingsBackupManager {
         app.keyboard.swallowedKeyRestore = backup.keyboard.swallowedKeyRestore
         app.keyboard.allowConsonantZFWJ = backup.keyboard.allowConsonantZFWJ
         app.keyboard.smartAppSwitchEnabled = backup.keyboard.smartAppSwitchEnabled
+        if let exclusionEnabled = backup.keyboard.isExclusionEnabled {
+            app.keyboard.isExclusionEnabled = exclusionEnabled
+        }
+        if let apps = backup.keyboard.excludedApps {
+            app.keyboard.excludedApps = apps
+        }
 
         // Sync with low-level engine
         EventTapManager.shared.setLanguage(vietnamese: backup.keyboard.isVietnamese)
@@ -258,6 +294,19 @@ public final class SettingsBackupManager {
         app.general.checkUpdates = backup.general.checkUpdates
         if let lang = AppLanguage(rawValue: backup.general.appLanguage) {
             LocalizationService.shared.currentLanguage = lang
+        }
+
+        // 5. Shortcuts
+        if let sc = backup.shortcuts {
+            app.shortcuts.languageTogglePreset = sc.languageTogglePreset
+            if let custom = sc.languageToggleCustom { app.shortcuts.languageToggleShortcut = custom }
+            app.shortcuts.clipboardPreset = sc.clipboardPreset
+            if let custom = sc.clipboardCustom { app.shortcuts.clipboardShortcut = custom }
+            app.shortcuts.cleanerPreset = sc.cleanerPreset
+            if let custom = sc.cleanerCustom { app.shortcuts.cleanerShortcut = custom }
+            app.shortcuts.cleanerEnabled = sc.cleanerEnabled
+            app.shortcuts.aiPreset = sc.aiPreset
+            if let custom = sc.aiCustom { app.shortcuts.aiShortcut = custom }
         }
 
         skeyLog("[Backup] Successfully imported settings snapshot", category: .general)

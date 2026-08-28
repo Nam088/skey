@@ -6,15 +6,17 @@ import SwiftUI
 public struct KeyboardSettingsTab: View {
     @ObservedObject var keyboardSettings = AppSettings.shared.keyboard
     @ObservedObject var macroSettings = AppSettings.shared.macro
+    @ObservedObject var shortcutSettings = AppSettings.shared.shortcuts
     @ObservedObject var loc = LocalizationService.shared
     @ObservedObject var navState = SettingsNavigationState.shared
+
+    @State private var isShowingAddSheet: Bool = false
 
     private var subTabs: [SubTabItem] {
         [
             SubTabItem(id: 0, title: L10n("settings.subtab.inputMethod"), icon: "keyboard"),
-            SubTabItem(id: 1, title: L10n("settings.subtab.orthography"), icon: "textformat.abc"),
-            SubTabItem(id: 2, title: L10n("settings.subtab.quickTyping"), icon: "bolt.fill"),
-            SubTabItem(id: 3, title: L10n("settings.subtab.smartSwitch"), icon: "arrow.triangle.2.circlepath")
+            SubTabItem(id: 1, title: L10n("settings.subtab.typingRules"), icon: "textformat.abc"),
+            SubTabItem(id: 2, title: L10n("settings.subtab.appManagement"), icon: "app.badge")
         ]
     }
 
@@ -30,18 +32,32 @@ public struct KeyboardSettingsTab: View {
                     case 0:
                         inputMethodSection
                     case 1:
-                        orthographySection
+                        typingRulesSection
                     case 2:
-                        quickTypingSection
-                    case 3:
-                        smartAppSwitchSection
+                        appManagementSection
                     default:
-                        EmptyView()
+                        inputMethodSection
                     }
                 }
                 .padding(.top, 4)
                 .padding(.bottom, 24)
             }
+        }
+    }
+
+    // MARK: - Combined Sections
+
+    private var typingRulesSection: some View {
+        VStack(spacing: 20) {
+            orthographySection
+            quickTypingSection
+        }
+    }
+
+    private var appManagementSection: some View {
+        VStack(spacing: 20) {
+            smartAppSwitchSection
+            excludedAppsSection
         }
     }
 
@@ -87,19 +103,29 @@ public struct KeyboardSettingsTab: View {
                 SettingsRow(
                     title: L10n("keyboard.option.enableVietnamese"),
                     subtitle: L10n("keyboard.option.enableVietnameseDesc"),
+                    showDivider: true
+                ) {
+                    Toggle("", isOn: Binding(
+                        get: { keyboardSettings.isVietnamese },
+                        set: {
+                            keyboardSettings.isVietnamese = $0
+                            EventTapManager.shared.setLanguage(vietnamese: $0)
+                        }
+                    ))
+                    .toggleStyle(.switch)
+                }
+
+                SettingsRow(
+                    title: L10n("keyboard.shortcut.toggleTitle"),
+                    subtitle: L10n("keyboard.shortcut.toggleSubtitle"),
                     showDivider: false
                 ) {
-                    HStack(spacing: 10) {
-                        KeyCapBadge("⌥Z")
-                        Toggle("", isOn: Binding(
-                            get: { keyboardSettings.isVietnamese },
-                            set: {
-                                keyboardSettings.isVietnamese = $0
-                                EventTapManager.shared.setLanguage(vietnamese: $0)
-                            }
-                        ))
-                        .toggleStyle(.switch)
-                    }
+                    ShortcutPickerView(
+                        preset: $shortcutSettings.languageTogglePreset,
+                        shortcut: $shortcutSettings.languageToggleShortcut,
+                        presets: ShortcutSettings.languagePresets,
+                        target: .languageToggle
+                    )
                 }
             }
         }
@@ -233,7 +259,7 @@ public struct KeyboardSettingsTab: View {
         }
     }
 
-    // MARK: - 4. Chuyển app thông minh
+    // MARK: - 3. Quản lý Ứng dụng (Smart Switch & Excluded Apps)
 
     private var smartAppSwitchSection: some View {
         VStack(spacing: 16) {
@@ -241,43 +267,436 @@ public struct KeyboardSettingsTab: View {
                 SettingsRow(
                     title: L10n("keyboard.option.smartSwitch"),
                     subtitle: L10n("keyboard.option.smartSwitchDesc"),
-                    showDivider: true
+                    showDivider: false
                 ) {
                     Toggle("", isOn: $keyboardSettings.smartAppSwitchEnabled)
                         .toggleStyle(.switch)
                 }
             }
+        }
+    }
 
-            SettingsGroup(title: L10n("keyboard.section.smartSwitchApps")) {
-                ForEach([
-                    ("Xcode", "com.apple.dt.Xcode", "hammer.fill"),
-                    ("Visual Studio Code", "com.microsoft.VSCode", "curlybraces"),
-                    ("Terminal", "com.apple.Terminal", "terminal.fill"),
-                    ("iTerm2", "com.googlecode.iterm2", "terminal.fill"),
-                    ("Warp", "dev.warp.Warp-Stable", "bolt.fill"),
-                    ("Cursor", "com.todesktop.230313mzl4w4u92", "wand.and.stars"),
-                    ("IntelliJ IDEA", "com.jetbrains.intellij", "cube.fill")
-                ], id: \.1) { name, bundleID, icon in
-                    SettingsRow(
-                        title: name,
-                        subtitle: bundleID,
-                        showDivider: bundleID != "com.jetbrains.intellij"
-                    ) {
-                        HStack(spacing: 6) {
-                            Image(systemName: icon)
-                                .font(.system(size: 13))
-                                .foregroundColor(.blue)
-                            Text(L10n("keyboard.status.auto"))
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.secondary)
+    private var excludedAppsSection: some View {
+        SettingsGroup(title: L10n("keyboard.section.excludedApps")) {
+            // 1. Master Toggle
+            SettingsRow(
+                title: L10n("keyboard.excluded.enableMaster"),
+                subtitle: L10n("keyboard.excluded.enableMasterDesc"),
+                showDivider: true
+            ) {
+                Toggle("", isOn: $keyboardSettings.isExclusionEnabled)
+                    .toggleStyle(.switch)
+            }
+
+            // 2. Action Bar & App List Area
+            VStack(spacing: 0) {
+                // Header Bar
+                HStack {
+                    Text(
+                        keyboardSettings.excludedApps.isEmpty
+                            ? L10n("keyboard.excluded.noApps")
+                            : "\(keyboardSettings.excludedApps.count) \(L10n("keyboard.excluded.appsCount"))"
+                    )
+                    .font(.system(size: 11.5, weight: .medium))
+                    .foregroundColor(.secondary)
+
+                    Spacer()
+
+                    if !keyboardSettings.excludedApps.isEmpty {
+                        Button(role: .destructive) {
+                            withAnimation {
+                                keyboardSettings.clearExcludedApps()
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "trash")
+                                Text(L10n("keyboard.excluded.clearAll"))
+                            }
+                            .font(.system(size: 11))
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(NSColor.quaternaryLabelColor).opacity(0.2))
-                        .clipShape(Capsule())
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.red.opacity(0.85))
+                        .padding(.trailing, 4)
                     }
+
+                    Button {
+                        isShowingAddSheet = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "plus.circle.fill")
+                            Text(L10n("keyboard.excluded.addApp"))
+                        }
+                        .font(.system(size: 11.5, weight: .semibold))
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.blue)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 12)
+
+                if keyboardSettings.excludedApps.isEmpty {
+                    // Empty State
+                    VStack(spacing: 8) {
+                        Image(systemName: "xmark.app")
+                            .font(.system(size: 28))
+                            .foregroundColor(.secondary.opacity(0.5))
+                            .padding(.top, 4)
+
+                        Text(L10n("keyboard.excluded.emptyTitle"))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.primary)
+
+                        Text(L10n("keyboard.excluded.emptyDesc"))
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+
+                        Button {
+                            isShowingAddSheet = true
+                        } label: {
+                            HStack(spacing: 5) {
+                                Image(systemName: "plus")
+                                Text(L10n("keyboard.excluded.addFirst"))
+                            }
+                            .font(.system(size: 11.5, weight: .medium))
+                        }
+                        .buttonStyle(.bordered)
+                        .padding(.top, 4)
+                        .padding(.bottom, 16)
+                    }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    // Apps List
+                    Divider()
+                        .padding(.horizontal, 16)
+
+                    VStack(spacing: 0) {
+                        ForEach(Array(keyboardSettings.excludedApps.enumerated()), id: \.element.bundleID) { index, app in
+                            HStack(spacing: 12) {
+                                Image(nsImage: getAppIcon(bundleID: app.bundleID))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 28, height: 28)
+                                    .cornerRadius(5)
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(app.name)
+                                        .font(.system(size: 12.5, weight: .semibold))
+                                        .foregroundColor(.primary)
+
+                                    Text(app.bundleID)
+                                        .font(.system(size: 10.5, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Spacer()
+
+                                Toggle("", isOn: Binding(
+                                    get: { app.isEnabled },
+                                    set: { _ in
+                                        keyboardSettings.toggleExcludedApp(bundleID: app.bundleID)
+                                    }
+                                ))
+                                .toggleStyle(.switch)
+                                .controlSize(.small)
+
+                                Button {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        keyboardSettings.removeExcludedApp(bundleID: app.bundleID)
+                                    }
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary.opacity(0.7))
+                                }
+                                .buttonStyle(.plain)
+                                .help(L10n("keyboard.excluded.deleteTooltip"))
+                            }
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+
+                            if index < keyboardSettings.excludedApps.count - 1 {
+                                Divider()
+                                    .padding(.leading, 56)
+                                    .padding(.trailing, 16)
+                            }
+                        }
+                    }
+                    .padding(.bottom, 8)
                 }
             }
         }
+        .sheet(isPresented: $isShowingAddSheet) {
+            AddExcludedAppSheet(
+                onAdd: { bid, name in
+                    keyboardSettings.addExcludedApp(bundleID: bid, name: name)
+                },
+                isPresented: $isShowingAddSheet
+            )
+        }
+    }
+
+    private func getAppIcon(bundleID: String) -> NSImage {
+        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+            return NSWorkspace.shared.icon(forFile: url.path)
+        }
+        return NSWorkspace.shared.icon(for: .application)
     }
 }
+
+// MARK: - RunningAppInfo Model
+
+public struct RunningAppInfo: Identifiable {
+    public var id: String { bundleID }
+    public let name: String
+    public let bundleID: String
+    public let icon: NSImage
+}
+
+// MARK: - AddExcludedAppSheet
+
+public struct AddExcludedAppSheet: View {
+    let onAdd: (String, String) -> Void
+    @Binding var isPresented: Bool
+
+    @State private var selectedTab: Int = 0
+    @State private var searchQuery: String = ""
+    @State private var customName: String = ""
+    @State private var customBundleID: String = ""
+    @State private var runningApps: [RunningAppInfo] = []
+
+    public init(onAdd: @escaping (String, String) -> Void, isPresented: Binding<Bool>) {
+        self.onAdd = onAdd
+        self._isPresented = isPresented
+    }
+
+    private var filteredRunningApps: [RunningAppInfo] {
+        if searchQuery.trimmingCharacters(in: .whitespaces).isEmpty {
+            return runningApps
+        }
+        let q = searchQuery.lowercased()
+        return runningApps.filter { $0.name.lowercased().contains(q) || $0.bundleID.lowercased().contains(q) }
+    }
+
+    public var body: some View {
+        VStack(spacing: 16) {
+            // Sheet Header
+            HStack {
+                Text(L10n("keyboard.excluded.sheetTitle"))
+                    .font(.system(size: 15, weight: .bold))
+                Spacer()
+                Button {
+                    isPresented = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.top, 14)
+            .padding(.horizontal, 18)
+
+            // Picker Segmented
+            Picker("", selection: $selectedTab) {
+                Text(L10n("keyboard.excluded.tabRunning")).tag(0)
+                Text(L10n("keyboard.excluded.tabBrowse")).tag(1)
+                Text(L10n("keyboard.excluded.tabCustom")).tag(2)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 18)
+
+            // Tab Content
+            Group {
+                switch selectedTab {
+                case 0:
+                    runningAppsView
+                case 1:
+                    browseFileView
+                case 2:
+                    customIDView
+                default:
+                    EmptyView()
+                }
+            }
+            .frame(height: 250)
+
+            Divider()
+
+            // Footer
+            HStack {
+                Spacer()
+                Button(L10n("common.cancel")) {
+                    isPresented = false
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 12)
+        }
+        .frame(width: 460)
+        .onAppear {
+            loadRunningApps()
+        }
+    }
+
+    private var runningAppsView: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.secondary)
+                TextField(L10n("keyboard.excluded.searchRunningPlaceholder"), text: $searchQuery)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 12))
+            }
+            .padding(7)
+            .background(Color(NSColor.controlBackgroundColor))
+            .cornerRadius(6)
+            .padding(.horizontal, 18)
+
+            ScrollView {
+                LazyVStack(spacing: 2) {
+                    ForEach(filteredRunningApps) { app in
+                        Button {
+                            onAdd(app.bundleID, app.name)
+                            isPresented = false
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(nsImage: app.icon)
+                                    .resizable()
+                                    .frame(width: 22, height: 22)
+
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(app.name)
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.primary)
+                                    Text(app.bundleID)
+                                        .font(.system(size: 10, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "plus.circle")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.blue)
+                            }
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 8)
+                            .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                            .cornerRadius(6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 18)
+            }
+        }
+    }
+
+    private var browseFileView: some View {
+        VStack(spacing: 14) {
+            Spacer()
+            Image(systemName: "folder.badge.gearshape")
+                .font(.system(size: 40))
+                .foregroundColor(.blue)
+
+            Text(L10n("keyboard.excluded.browseDesc"))
+                .font(.system(size: 12))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 30)
+
+            Button {
+                browseAppFile()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.up.forward.app.fill")
+                    Text(L10n("keyboard.excluded.browseBtn"))
+                }
+                .font(.system(size: 12, weight: .medium))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.blue)
+
+            Spacer()
+        }
+    }
+
+    private var customIDView: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L10n("keyboard.excluded.customNameLabel"))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.secondary)
+                TextField("e.g. League of Legends", text: $customName)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(size: 12))
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L10n("keyboard.excluded.customBundleIDLabel"))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.secondary)
+                TextField("e.g. com.riotgames.LeagueofLegends", text: $customBundleID)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(size: 12, design: .monospaced))
+            }
+
+            HStack {
+                Spacer()
+                Button(L10n("keyboard.excluded.customAddBtn")) {
+                    let bid = customBundleID.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !bid.isEmpty else { return }
+                    let name = customName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    onAdd(bid, name.isEmpty ? bid : name)
+                    isPresented = false
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(customBundleID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .padding(.top, 8)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 14)
+    }
+
+    private func loadRunningApps() {
+        let myBundleID = Bundle.main.bundleIdentifier ?? ""
+        runningApps = NSWorkspace.shared.runningApplications
+            .filter { app in
+                guard let bid = app.bundleIdentifier, !bid.isEmpty, bid != myBundleID else { return false }
+                return app.activationPolicy == .regular
+            }
+            .compactMap { app in
+                guard let bid = app.bundleIdentifier else { return nil }
+                let name = app.localizedName ?? bid
+                let icon = app.icon ?? NSWorkspace.shared.icon(for: .application)
+                return RunningAppInfo(name: name, bundleID: bid, icon: icon)
+            }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    private func browseAppFile() {
+        let panel = NSOpenPanel()
+        panel.title = L10n("keyboard.excluded.chooseAppTitle")
+        panel.allowedContentTypes = [.application]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+
+        if panel.runModal() == .OK, let url = panel.url {
+            let bundle = Bundle(url: url)
+            let bid = bundle?.bundleIdentifier ?? url.deletingPathExtension().lastPathComponent
+            let name = bundle?.infoDictionary?["CFBundleDisplayName"] as? String
+                ?? bundle?.infoDictionary?["CFBundleName"] as? String
+                ?? url.deletingPathExtension().lastPathComponent
+            onAdd(bid, name)
+            isPresented = false
+        }
+    }
+}
+

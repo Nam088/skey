@@ -32,8 +32,8 @@ public actor ClipboardStore {
         self.payloadStore = payloadStore
         self.sortOrderProvider = sortOrderProvider
 
-        var continuation: AsyncStream<ClipboardEvent>.Continuation!
-        self.events = AsyncStream { continuation = $0 }
+        let (stream, continuation) = AsyncStream.makeStream(of: ClipboardEvent.self)
+        self.events = stream
         self.eventContinuation = continuation
 
         Task(priority: .userInitiated) { [repo] in
