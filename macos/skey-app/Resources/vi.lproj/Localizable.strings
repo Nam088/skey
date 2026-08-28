@@ -113,6 +113,8 @@
 "settings.tab.clipboard.subtitle" = "Quản lý lịch sử sao chép, tìm kiếm & xem trước thông minh";
 "settings.tab.snippets" = "Gõ tắt";
 "settings.tab.snippets.subtitle" = "Bảng từ viết tắt & Thay thế văn bản tự động";
+"settings.tab.tools" = "Công cụ";
+"settings.tab.tools.subtitle" = "Lau màn hình, vệ sinh phím & chuyển đổi bảng mã";
 "settings.tab.ai" = "Trợ lý AI";
 "settings.tab.ai.subtitle" = "Tích hợp trợ lý AI thông minh trên macOS";
 "settings.tab.general" = "Cài đặt chung";
@@ -132,12 +134,37 @@
 "settings.subtab.snippetsList" = "Bảng gõ tắt";
 "settings.subtab.options" = "Tùy chọn";
 "settings.subtab.backup" = "Sao lưu";
+"settings.subtab.utilities" = "Tiện ích & Vệ sinh";
+"settings.subtab.textConverter" = "Chuyển mã văn bản";
 "settings.subtab.aiModel" = "Mô hình AI";
 "settings.subtab.aiPrompts" = "Mẫu câu lệnh";
 "settings.subtab.aiShortcuts" = "Phím tắt";
 "settings.subtab.basic" = "Cơ bản";
 "settings.subtab.permissions" = "Quyền hệ thống";
 "settings.subtab.logs" = "Nhật ký & Dữ liệu";
+
+/* Cleaner & Tools Section */
+"cleaner.section.modes" = "Các chế độ hiển thị nền:";
+"tools.section.quickText" = "Xử lý nhanh văn bản / Clipboard";
+"tools.quickText.desc" = "Thực hiện biến đổi văn bản trực tiếp trên nội dung vừa sao chép trong Clipboard:";
+"tools.quickText.success" = "Đã biến đổi và lưu kết quả vào Clipboard!";
+"tools.action.toUppercase" = "CHUYỂN THÀNH HOA";
+"tools.action.toLowercase" = "chuyển thành thường";
+"tools.action.toTitleCase" = "Viết Hoa Chữ Đầu";
+"tools.action.removeTones" = "Loại bỏ dấu tiếng Việt";
+"tools.action.tcvn3ToUnicode" = "TCVN3 (ABC) → Unicode";
+"tools.action.vniToUnicode" = "VNI Windows → Unicode";
+"tools.action.unicodeToTcvn3" = "Unicode → TCVN3 (ABC)";
+"tools.section.converter" = "Công cụ chuyển đổi bảng mã văn bản";
+"tools.converter.source" = "Bảng mã nguồn:";
+"tools.converter.target" = "Bảng mã đích:";
+"tools.converter.input" = "Văn bản nguồn";
+"tools.converter.output" = "Kết quả sau chuyển đổi";
+"tools.converter.placeholder" = "Nhập hoặc dán văn bản cần chuyển mã vào đây...";
+"tools.converter.convert" = "Chuyển đổi";
+"tools.converter.paste" = "Dán từ Clipboard";
+"tools.converter.copy" = "Sao chép";
+"tools.converter.copied" = "Đã sao chép!";
 
 /* Settings: Keyboard */
 "keyboard.section.inputMethod" = "Phương thức nhập liệu";
@@ -423,8 +450,14 @@
 "search.item.gen_import_settings.sub" = "Phục hồi cấu hình từ file sao lưu JSON";
 "search.item.gen_import_settings.keys" = "import,nhập cài đặt,khôi phục,restore setting,nạp cấu hình";
 
-"search.item.gen_cleaner.sub" = "Khóa phím và đổi nền để vệ sinh màn hình / phím";
-"search.item.gen_cleaner.keys" = "lau màn hình,vệ sinh phím,khóa bàn phím,cleaner,keyboard cleaner,screen cleaner,lau phím";
+"search.item.tool_cleaner.sub" = "Khóa phím phần cứng & đổi nền lau màn hình";
+"search.item.tool_cleaner.keys" = "lau màn hình,vệ sinh phím,khóa bàn phím,cleaner,keyboard cleaner,screen cleaner,lau phím";
+
+"search.item.tool_quick_text.sub" = "Đổi hoa thường, bỏ dấu, chuyển mã clipboard";
+"search.item.tool_quick_text.keys" = "chữ hoa,chữ thường,bỏ dấu,xóa dấu,chuyển mã nhanh,uppercase,lowercase";
+
+"search.item.tool_converter.sub" = "Chuyển mã giữa TCVN3, VNI Windows, Unicode";
+"search.item.tool_converter.keys" = "chuyển mã,tcvn3,vni,unicode,đổi bảng mã,converter";
 
 "search.item.ai_provider.sub" = "Cấu hình nhà cung cấp và API Key";
 "search.item.ai_provider.keys" = "ai,trợ lý ai,chatgpt,gemini,api key,trí tuệ nhân tạo";

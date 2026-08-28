@@ -154,20 +154,6 @@ public struct GeneralSettingsTab: View {
                 }
             }
 
-            // Utility Tools (Cleaner)
-            SettingsGroup(title: L10n("cleaner.title")) {
-                SettingsRow(
-                    title: L10n("cleaner.title"),
-                    subtitle: L10n("cleaner.desc"),
-                    showDivider: false
-                ) {
-                    Button(L10n("cleaner.action.start")) {
-                        KeyboardCleanerController.shared.startCleaning()
-                    }
-                    .buttonStyle(.borderedProminent)
-                }
-            }
-
             // Activity Logs
             SettingsGroup(title: L10n("general.section.logs")) {
                 SettingsRow(

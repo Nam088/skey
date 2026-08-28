@@ -7,6 +7,7 @@ public enum MainTab: String, CaseIterable, Identifiable {
     case keyboard
     case clipboard
     case snippets
+    case tools
     case ai
     case general
     case about
@@ -18,6 +19,7 @@ public enum MainTab: String, CaseIterable, Identifiable {
         case .keyboard:  return L10n("settings.tab.keyboard")
         case .clipboard: return L10n("settings.tab.clipboard")
         case .snippets:  return L10n("settings.tab.snippets")
+        case .tools:     return L10n("settings.tab.tools")
         case .ai:        return L10n("settings.tab.ai")
         case .general:   return L10n("settings.tab.general")
         case .about:     return L10n("settings.tab.about")
@@ -29,6 +31,7 @@ public enum MainTab: String, CaseIterable, Identifiable {
         case .keyboard:  return "keyboard.fill"
         case .clipboard: return "doc.on.clipboard.fill"
         case .snippets:  return "text.quote"
+        case .tools:     return "wrench.and.screwdriver.fill"
         case .ai:        return "sparkles"
         case .general:   return "gearshape.fill"
         case .about:     return "info.circle.fill"
@@ -40,6 +43,7 @@ public enum MainTab: String, CaseIterable, Identifiable {
         case .keyboard:  return .blue
         case .clipboard: return .purple
         case .snippets:  return .teal
+        case .tools:     return .indigo
         case .ai:        return .pink
         case .general:   return .gray
         case .about:     return .cyan
@@ -51,6 +55,7 @@ public enum MainTab: String, CaseIterable, Identifiable {
         case .keyboard:  return L10n("settings.tab.keyboard.subtitle")
         case .clipboard: return L10n("settings.tab.clipboard.subtitle")
         case .snippets:  return L10n("settings.tab.snippets.subtitle")
+        case .tools:     return L10n("settings.tab.tools.subtitle")
         case .ai:        return L10n("settings.tab.ai.subtitle")
         case .general:   return L10n("settings.tab.general.subtitle")
         case .about:     return L10n("settings.tab.about.subtitle")
@@ -225,6 +230,8 @@ public struct SettingsDashboardView: View {
                             ClipboardSettingsTab()
                         case .snippets:
                             SnippetsSettingsTab()
+                        case .tools:
+                            ToolsSettingsTab()
                         case .ai:
                             AISettingsTab()
                         case .general:

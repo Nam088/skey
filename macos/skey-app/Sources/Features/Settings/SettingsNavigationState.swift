@@ -60,6 +60,7 @@ public final class SettingsNavigationState: ObservableObject {
     @Published public var keyboardSubTab: Int = 0
     @Published public var clipboardSubTab: Int = 0
     @Published public var snippetsSubTab: Int = 0
+    @Published public var toolsSubTab: Int = 0
     @Published public var aiSubTab: Int = 0
     @Published public var generalSubTab: Int = 0
 
@@ -76,6 +77,8 @@ public final class SettingsNavigationState: ObservableObject {
             self.clipboardSubTab = subTab
         case .snippets:
             self.snippetsSubTab = subTab
+        case .tools:
+            self.toolsSubTab = subTab
         case .ai:
             self.aiSubTab = subTab
         case .general:
@@ -453,7 +456,41 @@ public final class SettingsNavigationState: ObservableObject {
                 keywordsKey: "search.item.macro_backup.keys"
             ),
 
-            // MARK: 4. Trợ lý AI (Tab 3)
+            // MARK: 4. Công cụ (Tools - Tab 3)
+            // SubTab 0: Tiện ích & Vệ sinh
+            SettingSearchItem(
+                id: "tool_cleaner",
+                titleKey: "cleaner.title",
+                subtitleKey: "search.item.tool_cleaner.sub",
+                tab: .tools,
+                subTab: 0,
+                subTabTitleKey: "settings.subtab.utilities",
+                icon: "sparkles",
+                keywordsKey: "search.item.tool_cleaner.keys"
+            ),
+            SettingSearchItem(
+                id: "tool_quick_text",
+                titleKey: "tools.section.quickText",
+                subtitleKey: "search.item.tool_quick_text.sub",
+                tab: .tools,
+                subTab: 0,
+                subTabTitleKey: "settings.subtab.utilities",
+                icon: "arrow.triangle.swap",
+                keywordsKey: "search.item.tool_quick_text.keys"
+            ),
+            // SubTab 1: Chuyển mã văn bản
+            SettingSearchItem(
+                id: "tool_converter",
+                titleKey: "tools.section.converter",
+                subtitleKey: "search.item.tool_converter.sub",
+                tab: .tools,
+                subTab: 1,
+                subTabTitleKey: "settings.subtab.textConverter",
+                icon: "character.textbox",
+                keywordsKey: "search.item.tool_converter.keys"
+            ),
+
+            // MARK: 5. Trợ lý AI (Tab 4)
             // SubTab 0: Mô hình AI
             SettingSearchItem(
                 id: "ai_provider",
@@ -563,16 +600,6 @@ public final class SettingsNavigationState: ObservableObject {
                 subTabTitleKey: "settings.subtab.logs",
                 icon: "square.and.arrow.down.fill",
                 keywordsKey: "search.item.gen_import_settings.keys"
-            ),
-            SettingSearchItem(
-                id: "gen_cleaner",
-                titleKey: "cleaner.title",
-                subtitleKey: "search.item.gen_cleaner.sub",
-                tab: .general,
-                subTab: 2,
-                subTabTitleKey: "settings.subtab.logs",
-                icon: "sparkles.rectangle.stack.fill",
-                keywordsKey: "search.item.gen_cleaner.keys"
             ),
             SettingSearchItem(
                 id: "gen_reset",

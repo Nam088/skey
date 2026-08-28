@@ -113,6 +113,8 @@
 "settings.tab.clipboard.subtitle" = "Manage clipboard history, smart search & preview";
 "settings.tab.snippets" = "Snippets";
 "settings.tab.snippets.subtitle" = "Shortcuts & automatic text expansion";
+"settings.tab.tools" = "Tools";
+"settings.tab.tools.subtitle" = "Screen cleaner, encoding converter & text utilities";
 "settings.tab.ai" = "AI Assistant";
 "settings.tab.ai.subtitle" = "Smart system-wide AI integration for macOS";
 "settings.tab.general" = "General";
@@ -132,12 +134,37 @@
 "settings.subtab.snippetsList" = "Snippets List";
 "settings.subtab.options" = "Options";
 "settings.subtab.backup" = "Backup";
+"settings.subtab.utilities" = "Utilities & Cleaning";
+"settings.subtab.textConverter" = "Text Converter";
 "settings.subtab.aiModel" = "AI Models";
 "settings.subtab.aiPrompts" = "Prompts";
 "settings.subtab.aiShortcuts" = "Shortcuts";
 "settings.subtab.basic" = "Basic";
 "settings.subtab.permissions" = "Permissions";
 "settings.subtab.logs" = "Logs & Data";
+
+/* Cleaner & Tools Section */
+"cleaner.section.modes" = "Available backdrop modes:";
+"tools.section.quickText" = "Quick Text / Clipboard Actions";
+"tools.quickText.desc" = "Apply instantaneous text transformations on your current clipboard content:";
+"tools.quickText.success" = "Transformed and saved directly into Clipboard!";
+"tools.action.toUppercase" = "CONVERT TO UPPERCASE";
+"tools.action.toLowercase" = "convert to lowercase";
+"tools.action.toTitleCase" = "Capitalize Each Word";
+"tools.action.removeTones" = "Remove Vietnamese Diacritics";
+"tools.action.tcvn3ToUnicode" = "TCVN3 (ABC) → Unicode";
+"tools.action.vniToUnicode" = "VNI Windows → Unicode";
+"tools.action.unicodeToTcvn3" = "Unicode → TCVN3 (ABC)";
+"tools.section.converter" = "Code Table & Text Converter";
+"tools.converter.source" = "Source Encoding:";
+"tools.converter.target" = "Target Encoding:";
+"tools.converter.input" = "Source Text";
+"tools.converter.output" = "Converted Result";
+"tools.converter.placeholder" = "Type or paste text to convert here...";
+"tools.converter.convert" = "Convert";
+"tools.converter.paste" = "Paste from Clipboard";
+"tools.converter.copy" = "Copy";
+"tools.converter.copied" = "Copied!";
 
 /* Settings: Keyboard */
 "keyboard.section.inputMethod" = "Input Methods";
@@ -423,8 +450,14 @@
 "search.item.gen_import_settings.sub" = "Restore all settings from JSON backup";
 "search.item.gen_import_settings.keys" = "import,restore settings,load config,import json";
 
-"search.item.gen_cleaner.sub" = "Lock keyboard & show clean backdrops for wiping";
-"search.item.gen_cleaner.keys" = "cleaner,keyboard cleaner,screen cleaner,lock keyboard,wipe screen";
+"search.item.tool_cleaner.sub" = "Lock keyboard & show clean backdrops for wiping";
+"search.item.tool_cleaner.keys" = "cleaner,keyboard cleaner,screen cleaner,lock keyboard,wipe screen";
+
+"search.item.tool_quick_text.sub" = "Case conversion, diacritic removal, clipboard transform";
+"search.item.tool_quick_text.keys" = "uppercase,lowercase,remove tones,titlecase,clipboard transform,convert";
+
+"search.item.tool_converter.sub" = "Convert text between TCVN3, VNI Windows, Unicode";
+"search.item.tool_converter.keys" = "converter,tcvn3,vni,unicode,encoding converter,code table";
 
 "search.item.ai_provider.sub" = "Configure AI provider and API Key";
 "search.item.ai_provider.keys" = "ai,assistant,gemini,chatgpt,api key,intelligence";
