@@ -35,7 +35,15 @@ public final class TypingPipeline {
             return .passThrough
         }
 
-        // Stage 3: Pass through non-keyboard events
+        // Stage 3: Handle Mouse Clicks (User clicked mouse to reposition caret or switch focus)
+        if type == .leftMouseDown || type == .rightMouseDown || type == .otherMouseDown {
+            engine.reset()
+            MacroEngine.shared.reset()
+            caretMayHaveMoved = true
+            return .passThrough
+        }
+
+        // Pass through non-keyboard events
         guard type == .keyDown || type == .keyUp || type == .flagsChanged else {
             return .passThrough
         }
