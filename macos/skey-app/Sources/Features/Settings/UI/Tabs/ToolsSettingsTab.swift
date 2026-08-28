@@ -51,80 +51,33 @@ public struct ToolsSettingsTab: View {
         VStack(spacing: 16) {
             // Card 1: Lau màn hình & Vệ sinh phím
             SettingsGroup(title: L10n("cleaner.title")) {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(spacing: 14) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.orange.opacity(0.15))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 20, weight: .semibold))
-                                .foregroundColor(.orange)
+                SettingsRow(
+                    title: L10n("cleaner.title"),
+                    subtitle: L10n("cleaner.desc"),
+                    showDivider: false
+                ) {
+                    Button {
+                        KeyboardCleanerController.shared.startCleaning()
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "lock.fill")
+                            Text(L10n("cleaner.action.start"))
                         }
-
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(L10n("cleaner.title"))
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.primary)
-
-                            Text(L10n("cleaner.desc"))
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                        }
-
-                        Spacer()
-
-                        Button {
-                            KeyboardCleanerController.shared.startCleaning()
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "lock.fill")
-                                Text(L10n("cleaner.action.start"))
-                            }
-                            .font(.system(size: 12.5, weight: .semibold))
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 2)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.orange)
+                        .font(.system(size: 12, weight: .medium))
                     }
-
-                    Divider()
-
-                    // Background Mode Previews
-                    HStack(spacing: 8) {
-                        Text(L10n("cleaner.section.modes"))
-                            .font(.system(size: 11.5, weight: .medium))
-                            .foregroundColor(.secondary)
-
-                        Spacer()
-
-                        ForEach(CleanerBackgroundMode.allCases) { mode in
-                            HStack(spacing: 4) {
-                                Image(systemName: mode.icon)
-                                    .font(.system(size: 10))
-                                Text(mode.title)
-                                    .font(.system(size: 11))
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color(NSColor.quaternaryLabelColor).opacity(0.15))
-                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                            .foregroundColor(.secondary)
-                        }
-                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
                 }
             }
 
             // Card 2: Xử lý nhanh Clipboard
             SettingsGroup(title: L10n("tools.section.quickText")) {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text(L10n("tools.quickText.desc"))
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
 
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 8) {
                         quickActionButton(title: L10n("tools.action.tcvn3ToUnicode"), action: .tcvn3ToUnicode)
                         quickActionButton(title: L10n("tools.action.vniToUnicode"), action: .vniToUnicode)
                         quickActionButton(title: L10n("tools.action.unicodeToTcvn3"), action: .unicodeToTcvn3)
@@ -143,7 +96,7 @@ public struct ToolsSettingsTab: View {
                                 .foregroundColor(.green)
                         }
                         .transition(.opacity)
-                        .padding(.top, 4)
+                        .padding(.top, 2)
                     }
                 }
             }
