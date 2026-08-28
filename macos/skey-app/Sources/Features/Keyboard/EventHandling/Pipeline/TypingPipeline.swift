@@ -189,10 +189,13 @@ public final class TypingPipeline {
                 }
 
                 // Smart Context Re-composition:
-                // Evaluated when engine does not handle key, allowing caret repositioning via keys or mouse
-                if ContextRecomposer.shared.tryRecompose(charCode: charCode, engine: engine) {
+                // Evaluated ONLY when caret was explicitly repositioned (Navigation / Focus / Backspace)
+                if caretMayHaveMoved && ContextRecomposer.shared.tryRecompose(charCode: charCode, engine: engine) {
                     caretMayHaveMoved = false
                     return .swallowed
+                }
+                if keyCode == KeyConstants.kVK_Space {
+                    caretMayHaveMoved = false
                 }
             }
         } else {

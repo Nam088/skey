@@ -18,7 +18,7 @@ public final class ContextRecomposer {
 
     public static func shouldSkip(bundleID: String?) -> Bool {
         let cat = AppFocusObserver.category(for: bundleID)
-        return cat == .developerTool
+        return cat == .developerTool || cat == .electronOrChat
     }
 
     private static let telexTriggers: Set<Character> = [

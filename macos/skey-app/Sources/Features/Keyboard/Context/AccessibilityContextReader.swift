@@ -82,7 +82,7 @@ public final class AccessibilityContextReader {
             return nil
         }
 
-        // Fast Role validation: Filter out non-text UI containers early
+        // Fast Role validation: Filter out non-text UI containers and read-only static text elements early
         var roleVal: AnyObject?
         if AXUIElementCopyAttributeValue(axElement, kAXRoleAttribute as CFString, &roleVal) == .success,
            let role = roleVal as? String {
@@ -91,6 +91,13 @@ public final class AccessibilityContextReader {
                role == (kAXListRole as String) ||
                role == (kAXTableRole as String) ||
                role == (kAXScrollBarRole as String) ||
+               role == (kAXStaticTextRole as String) ||
+               role == "AXHeading" ||
+               role == "AXImage" ||
+               role == "AXLink" ||
+               role == "AXCell" ||
+               role == "AXRow" ||
+               role == "AXColumn" ||
                role == "AXWebArea" ||
                role == "AXGroup" {
                 return nil
