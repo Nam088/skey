@@ -147,6 +147,8 @@
 "cleaner.section.modes" = "Các chế độ hiển thị nền:";
 "tools.section.quickText" = "Xử lý nhanh văn bản / Clipboard";
 "tools.quickText.desc" = "Thực hiện biến đổi văn bản trực tiếp trên nội dung vừa sao chép trong Clipboard:";
+"tools.quick.encodingHeader" = "CHUYỂN ĐỔI BẢNG MÃ CLIPBOARD:";
+"tools.quick.caseHeader" = "BIẾN ĐỔI KIỂU CHỮ & DẤU:";
 "tools.quickText.success" = "Đã biến đổi và lưu kết quả vào Clipboard!";
 "tools.action.toUppercase" = "CHUYỂN THÀNH HOA";
 "tools.action.toLowercase" = "chuyển thành thường";
@@ -155,6 +157,7 @@
 "tools.action.tcvn3ToUnicode" = "TCVN3 (ABC) → Unicode";
 "tools.action.vniToUnicode" = "VNI Windows → Unicode";
 "tools.action.unicodeToTcvn3" = "Unicode → TCVN3 (ABC)";
+"tools.action.unicodeToVni" = "Unicode → VNI Windows";
 "tools.section.converter" = "Công cụ chuyển đổi bảng mã văn bản";
 "tools.converter.source" = "Bảng mã nguồn:";
 "tools.converter.target" = "Bảng mã đích:";

@@ -16,6 +16,7 @@ public final class TextTransformService {
         case tcvn3ToUnicode
         case vniToUnicode
         case unicodeToTcvn3
+        case unicodeToVni
 
         public var id: String { rawValue }
 
@@ -28,6 +29,7 @@ public final class TextTransformService {
             case .tcvn3ToUnicode:  return L10n("tools.action.tcvn3ToUnicode")
             case .vniToUnicode:    return L10n("tools.action.vniToUnicode")
             case .unicodeToTcvn3:  return L10n("tools.action.unicodeToTcvn3")
+            case .unicodeToVni:    return L10n("tools.action.unicodeToVni")
             }
         }
 
@@ -40,6 +42,7 @@ public final class TextTransformService {
             case .tcvn3ToUnicode:  return "arrow.triangle.swap"
             case .vniToUnicode:    return "arrow.triangle.swap"
             case .unicodeToTcvn3:  return "arrow.triangle.swap"
+            case .unicodeToVni:    return "arrow.triangle.swap"
             }
         }
     }
@@ -75,6 +78,8 @@ public final class TextTransformService {
             return vniToUnicode(text)
         case .unicodeToTcvn3:
             return unicodeToTcvn3(text)
+        case .unicodeToVni:
+            return unicodeToVni(text)
         }
     }
 
@@ -171,6 +176,14 @@ public final class TextTransformService {
         var output = text
         for (vni, uni) in vniPairs {
             output = output.replacingOccurrences(of: vni, with: uni)
+        }
+        return output
+    }
+
+    public func unicodeToVni(_ text: String) -> String {
+        var output = text
+        for (vni, uni) in vniPairs {
+            output = output.replacingOccurrences(of: uni, with: vni)
         }
         return output
     }

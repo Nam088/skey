@@ -147,6 +147,8 @@
 "cleaner.section.modes" = "Available backdrop modes:";
 "tools.section.quickText" = "Quick Text / Clipboard Actions";
 "tools.quickText.desc" = "Apply instantaneous text transformations on your current clipboard content:";
+"tools.quick.encodingHeader" = "CLIPBOARD ENCODING CONVERSION:";
+"tools.quick.caseHeader" = "CASE & DIACRITICS TRANSFORMATION:";
 "tools.quickText.success" = "Transformed and saved directly into Clipboard!";
 "tools.action.toUppercase" = "CONVERT TO UPPERCASE";
 "tools.action.toLowercase" = "convert to lowercase";
@@ -155,6 +157,7 @@
 "tools.action.tcvn3ToUnicode" = "TCVN3 (ABC) → Unicode";
 "tools.action.vniToUnicode" = "VNI Windows → Unicode";
 "tools.action.unicodeToTcvn3" = "Unicode → TCVN3 (ABC)";
+"tools.action.unicodeToVni" = "Unicode → VNI Windows";
 "tools.section.converter" = "Code Table & Text Converter";
 "tools.converter.source" = "Source Encoding:";
 "tools.converter.target" = "Target Encoding:";

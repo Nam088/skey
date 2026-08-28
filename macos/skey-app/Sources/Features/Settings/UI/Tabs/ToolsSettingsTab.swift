@@ -1,6 +1,67 @@
 import AppKit
 import SwiftUI
 
+// MARK: - QuickActionButton Component (With Smooth Hover Effect)
+
+public struct QuickActionButton: View {
+    public let title: String
+    public let icon: String
+    public let action: () -> Void
+
+    @State private var isHovered: Bool = false
+
+    public init(title: String, icon: String, action: @escaping () -> Void) {
+        self.title = title
+        self.icon = icon
+        self.action = action
+    }
+
+    public var body: some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(Color.indigo.opacity(isHovered ? 0.18 : 0.10))
+                        .frame(width: 26, height: 26)
+
+                    Image(systemName: icon)
+                        .font(.system(size: 11.5, weight: .semibold))
+                        .foregroundColor(.indigo)
+                }
+
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+
+                Spacer(minLength: 0)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(.secondary.opacity(isHovered ? 0.8 : 0.4))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color(NSColor.controlBackgroundColor).opacity(isHovered ? 0.95 : 0.6))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(
+                        isHovered ? Color.indigo.opacity(0.35) : Color(NSColor.separatorColor).opacity(0.3),
+                        lineWidth: isHovered ? 0.8 : 0.5
+                    )
+            )
+            .animation(.easeInOut(duration: 0.15), value: isHovered)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
 // MARK: - ToolsSettingsTab
 
 public struct ToolsSettingsTab: View {
@@ -48,7 +109,7 @@ public struct ToolsSettingsTab: View {
     // MARK: - 1. Tiện ích & Vệ sinh (Utilities & Cleaner)
 
     private var utilitiesSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 18) {
             // Card 1: Lau màn hình & Vệ sinh phím
             SettingsGroup(title: L10n("cleaner.title")) {
                 SettingsRow(
@@ -59,7 +120,7 @@ public struct ToolsSettingsTab: View {
                     Button {
                         KeyboardCleanerController.shared.startCleaning()
                     } label: {
-                        HStack(spacing: 5) {
+                        HStack(spacing: 6) {
                             Image(systemName: "lock.fill")
                             Text(L10n("cleaner.action.start"))
                         }
@@ -70,21 +131,42 @@ public struct ToolsSettingsTab: View {
                 }
             }
 
-            // Card 2: Xử lý nhanh Clipboard
+            // Card 2: Xử lý nhanh Clipboard & Chuyển mã
             SettingsGroup(title: L10n("tools.section.quickText")) {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 14) {
                     Text(L10n("tools.quickText.desc"))
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
 
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 8) {
-                        quickActionButton(title: L10n("tools.action.tcvn3ToUnicode"), action: .tcvn3ToUnicode)
-                        quickActionButton(title: L10n("tools.action.vniToUnicode"), action: .vniToUnicode)
-                        quickActionButton(title: L10n("tools.action.unicodeToTcvn3"), action: .unicodeToTcvn3)
-                        quickActionButton(title: L10n("tools.action.removeTones"), action: .removeTones)
-                        quickActionButton(title: L10n("tools.action.toUppercase"), action: .toUppercase)
-                        quickActionButton(title: L10n("tools.action.toLowercase"), action: .toLowercase)
-                        quickActionButton(title: L10n("tools.action.toTitleCase"), action: .toTitleCase)
+                    // Subsection 1: Chuyển đổi bảng mã (2x2 Grid)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(L10n("tools.quick.encodingHeader"))
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.secondary)
+
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 8) {
+                            quickButton(title: L10n("tools.action.tcvn3ToUnicode"), action: .tcvn3ToUnicode)
+                            quickButton(title: L10n("tools.action.unicodeToTcvn3"), action: .unicodeToTcvn3)
+                            quickButton(title: L10n("tools.action.vniToUnicode"), action: .vniToUnicode)
+                            quickButton(title: L10n("tools.action.unicodeToVni"), action: .unicodeToVni)
+                        }
+                    }
+
+                    Divider()
+                        .padding(.vertical, 2)
+
+                    // Subsection 2: Kiểu chữ & Dấu (2x2 Grid)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(L10n("tools.quick.caseHeader"))
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.secondary)
+
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 8) {
+                            quickButton(title: L10n("tools.action.toUppercase"), action: .toUppercase)
+                            quickButton(title: L10n("tools.action.toLowercase"), action: .toLowercase)
+                            quickButton(title: L10n("tools.action.toTitleCase"), action: .toTitleCase)
+                            quickButton(title: L10n("tools.action.removeTones"), action: .removeTones)
+                        }
                     }
 
                     if let feedback = quickActionFeedback {
@@ -96,15 +178,15 @@ public struct ToolsSettingsTab: View {
                                 .foregroundColor(.green)
                         }
                         .transition(.opacity)
-                        .padding(.top, 2)
+                        .padding(.top, 4)
                     }
                 }
             }
         }
     }
 
-    private func quickActionButton(title: String, action: TextTransformService.QuickAction) -> some View {
-        Button {
+    private func quickButton(title: String, action: TextTransformService.QuickAction) -> some View {
+        QuickActionButton(title: title, icon: action.icon) {
             let success = TextTransformService.shared.transformClipboard(action: action)
             if success {
                 withAnimation {
@@ -116,33 +198,7 @@ public struct ToolsSettingsTab: View {
                     }
                 }
             }
-        } label: {
-            HStack {
-                Image(systemName: action.icon)
-                    .font(.system(size: 11.5))
-                    .foregroundColor(.indigo)
-                    .frame(width: 18)
-
-                Text(title)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.primary)
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(.secondary.opacity(0.6))
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(Color(NSColor.controlBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .stroke(Color(NSColor.separatorColor).opacity(0.35), lineWidth: 0.5)
-            )
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: - 2. Chuyển mã văn bản (Text & Code Table Converter)
@@ -309,6 +365,8 @@ public struct ToolsSettingsTab: View {
             targetText = TextTransformService.shared.unicodeToTcvn3(sourceText)
         } else if sourceFormat == "VNI" && targetFormat == "Unicode" {
             targetText = TextTransformService.shared.vniToUnicode(sourceText)
+        } else if sourceFormat == "Unicode" && targetFormat == "VNI" {
+            targetText = TextTransformService.shared.unicodeToVni(sourceText)
         } else {
             targetText = sourceText
         }
