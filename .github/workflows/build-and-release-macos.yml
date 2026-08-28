@@ -86,12 +86,16 @@ jobs:
           fi
 
           NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          while git rev-parse "$NEW_TAG" >/dev/null 2>&1; do
+            PATCH=$((PATCH + 1))
+            NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          done
           echo "Computed next semantic release tag: $NEW_TAG"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "$NEW_TAG" -m "Automated macOS release $NEW_TAG by GitHub Actions"
-          git push origin "$NEW_TAG"
+          git push origin "$NEW_TAG" || echo "Tag push skipped or already exists"
 
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
