@@ -189,14 +189,10 @@ public final class TypingPipeline {
                 }
 
                 // Smart Context Re-composition:
-                // Evaluated ONLY when caret was potentially repositioned (0-cost for continuous typing)
-                if caretMayHaveMoved && ContextRecomposer.shared.tryRecompose(charCode: charCode, engine: engine) {
+                // Evaluated when engine does not handle key, allowing caret repositioning via keys or mouse
+                if ContextRecomposer.shared.tryRecompose(charCode: charCode, engine: engine) {
                     caretMayHaveMoved = false
                     return .swallowed
-                }
-                // When user types Space, reset caret flag for next word
-                if keyCode == KeyConstants.kVK_Space {
-                    caretMayHaveMoved = false
                 }
             }
         } else {

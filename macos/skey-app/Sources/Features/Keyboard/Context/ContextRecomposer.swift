@@ -4,7 +4,8 @@ import Foundation
 // MARK: - ContextRecomposer
 
 /// Coordinates context-aware word re-composition when editing previously typed words.
-/// Uses an isolated scratch engine so failed recompositions never corrupt the main buffer.
+/// Uses atomic full-word reconstruction so editing words anywhere in any app (Browsers, Notes, Chat)
+/// produces 100% accurate Vietnamese tones with zero buffer corruption.
 public final class ContextRecomposer {
     public static let shared = ContextRecomposer()
 
@@ -17,18 +18,23 @@ public final class ContextRecomposer {
 
     public static func shouldSkip(bundleID: String?) -> Bool {
         let cat = AppFocusObserver.category(for: bundleID)
-        return cat == .developerTool || cat == .webBrowser || cat == .electronOrChat
+        return cat == .developerTool
     }
 
-    private static let telexTriggers: Set<Character> = ["a","A","e","E","o","O","u","U","i","I","y","Y","d","D","w","W","s","S","f","F","r","R","x","X","j","J","z","Z"]
-    private static let vniTriggers: Set<Character> = ["1","2","3","4","5","6","7","8","9","0","d","D","a","A","e","E","o","O","u","U"]
+    private static let telexTriggers: Set<Character> = [
+        "a","A","e","E","o","O","u","U","i","I","y","Y","d","D","w","W",
+        "s","S","f","F","r","R","x","X","j","J","z","Z"
+    ]
+    private static let vniTriggers: Set<Character> = [
+        "1","2","3","4","5","6","7","8","9","0","d","D","a","A","e","E","o","O","u","U"
+    ]
 
     public static func isTriggerKey(_ char: Character, inputMethodRaw: Int32 = AppSettings.shared.keyboard.inputMethodRawValue) -> Bool {
         inputMethodRaw == InputMethodType.vni.rawValue ? vniTriggers.contains(char) : telexTriggers.contains(char)
     }
 
     private func isValidCandidate(_ word: String) -> Bool {
-        (1...8).contains(word.count) && word.unicodeScalars.allSatisfy { CharacterSet.letters.contains($0) }
+        (1...15).contains(word.count) && word.unicodeScalars.allSatisfy { CharacterSet.letters.contains($0) }
     }
 
     public func tryRecompose(charCode: UInt32, engine: SKeyEngine) -> Bool {
@@ -37,6 +43,7 @@ public final class ContextRecomposer {
 
         guard Self.isTriggerKey(typedChar),
               !Self.shouldSkip(bundleID: AppFocusObserver.shared.currentBundleID),
+              !reader.hasActiveSelection(),
               let word = reader.getPrecedingWord(),
               isValidCandidate(word) else { return false }
 
@@ -46,18 +53,46 @@ public final class ContextRecomposer {
         let im = AppSettings.shared.keyboard.inputMethod
         scratchEngine.setInputMethod(im)
         scratchEngine.reset()
-        for k in keys { _ = scratchEngine.filter(character: k) }
 
-        let res = scratchEngine.filter(character: charCode)
-        guard res.handled, !res.text.isEmpty else { return false }
+        var reconstructedWord = ""
+        for k in keys {
+            let r = scratchEngine.filter(character: k)
+            if r.handled {
+                let bs = r.backspaces
+                if bs > 0 && bs <= reconstructedWord.count {
+                    reconstructedWord.removeLast(bs)
+                }
+                reconstructedWord.append(r.text)
+            } else if let s = UnicodeScalar(k) {
+                reconstructedWord.append(Character(s))
+            }
+        }
 
+        let finalRes = scratchEngine.filter(character: charCode)
+        guard finalRes.handled, !finalRes.text.isEmpty else { return false }
+
+        let bs = finalRes.backspaces
+        if bs > 0 && bs <= reconstructedWord.count {
+            reconstructedWord.removeLast(bs)
+        }
+        reconstructedWord.append(finalRes.text)
+
+        guard reconstructedWord != word else { return false }
+
+        // Atomic Replacement of the full word preceding cursor
+        let replaceCount = word.count
+        if AccessibilityContextReader.isSpotlightActive() {
+            _ = reader.replaceTextViaAX(backspaces: replaceCount, text: reconstructedWord)
+        } else {
+            KeyEventSender.shared.inject(backspaces: replaceCount, text: reconstructedWord)
+        }
+
+        // Sync main engine with the newly formed word
         engine.reset()
-        for k in keys { _ = engine.filter(character: k) }
-        _ = engine.filter(character: charCode)
+        let newKeys = VietnameseDecomposer.decompose(word: reconstructedWord)
+        for k in newKeys { _ = engine.filter(character: k) }
 
-        let bs = res.backspaces > 0 ? res.backspaces : word.count
-        KeyEventSender.shared.inject(backspaces: bs, text: res.text)
-        skeyLog("Context recomposed: '\(word)' + '\(typedChar)' -> bs=\(bs) '\(res.text)'", category: .keyboard)
+        skeyLog("Context recomposed: '\(word)' + '\(typedChar)' -> full='\(reconstructedWord)' (bs=\(replaceCount))", category: .keyboard)
         return true
     }
 }

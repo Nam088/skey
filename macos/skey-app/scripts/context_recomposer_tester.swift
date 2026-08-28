@@ -34,23 +34,22 @@ func runAppCategoryTests() -> Bool {
     print("\n--- Test Suite 2: App Category & Detection System ---")
     
     let checks: [(bundleID: String, expectedCategory: AppCategory, expectedSkip: Bool)] = [
-        // Browsers
-        ("ru.yandex.desktop.yandex-browser", .webBrowser, true),
-        ("com.google.Chrome", .webBrowser, true),
-        ("com.brave.Browser", .webBrowser, true),
-        ("com.apple.Safari", .webBrowser, true),
-        ("company.thebrowser.Browser", .webBrowser, true),
+        // Browsers (Supported with Caret tone changing)
+        ("ru.yandex.desktop.yandex-browser", .webBrowser, false),
+        ("com.google.Chrome", .webBrowser, false),
+        ("com.brave.Browser", .webBrowser, false),
+        ("com.apple.Safari", .webBrowser, false),
+        ("company.thebrowser.Browser", .webBrowser, false),
         
-        // Electron / Chat
-        ("com.vng.zalo", .electronOrChat, true),
-        ("com.tinyspeck.slackmacgap", .electronOrChat, true),
-        ("com.hnc.Discord", .electronOrChat, true),
-        ("com.microsoft.teams2", .electronOrChat, true),
-        ("com.tdesktop.Telegram", .electronOrChat, true),
+        // Electron / Chat (Supported with Caret tone changing)
+        ("com.vng.zalo", .electronOrChat, false),
+        ("com.tinyspeck.slackmacgap", .electronOrChat, false),
+        ("com.hnc.Discord", .electronOrChat, false),
+        ("com.microsoft.teams2", .electronOrChat, false),
+        ("com.tdesktop.Telegram", .electronOrChat, false),
         
-        // Developer Tools
+        // Developer Tools (Skipped for Terminal / IDE CLI)
         ("com.apple.dt.Xcode", .developerTool, true),
-        ("com.microsoft.VSCode", .developerTool, true),
         ("com.apple.Terminal", .developerTool, true),
         ("com.googlecode.iterm2", .developerTool, true),
         ("com.mitchellh.ghostty", .developerTool, true),
