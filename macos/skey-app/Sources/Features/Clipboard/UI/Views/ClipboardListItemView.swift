@@ -73,7 +73,7 @@ public struct ClipboardListItemView: View, Equatable {
                 ? Color.accentColor.opacity(0.85)
                 : (isHovered ? Color(nsColor: .quaternaryLabelColor).opacity(0.4) : Color.white.opacity(0.001))
         )
-        .clipShape(selectionAppearance.rect(cornerRadius: ClipboardPopupUI.cornerRadius))
+        .clipShape(selectionAppearance.shape(cornerRadius: ClipboardPopupUI.cornerRadius))
         .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering

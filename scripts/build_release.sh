@@ -66,7 +66,7 @@ done < <(find "$APP_DIR/Sources" -name "*.swift" -print0)
 
 # Compile arm64 binary
 swiftc -O -wmo \
-    -target arm64-apple-macos12.0 \
+    -target arm64-apple-macos14.0 \
     -import-objc-header "$APP_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/port/skey-capi/include" \
     "${SWIFT_FILES[@]}" \
@@ -81,7 +81,7 @@ swiftc -O -wmo \
 
 # Compile x86_64 binary
 swiftc -O -wmo \
-    -target x86_64-apple-macos12.0 \
+    -target x86_64-apple-macos14.0 \
     -import-objc-header "$APP_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/port/skey-capi/include" \
     "${SWIFT_FILES[@]}" \

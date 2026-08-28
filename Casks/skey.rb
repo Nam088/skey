@@ -18,7 +18,7 @@ cask "skey" do
   desc "Modern, high-performance Vietnamese input engine & utilities for macOS"
   homepage "https://github.com/Nam088/skey"
 
-  depends_on macos: ">= :monterey"
+  depends_on macos: ">= :sonoma"
 
   app "SKey.app"
 
