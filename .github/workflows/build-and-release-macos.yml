@@ -40,11 +40,22 @@ concurrency:
 jobs:
   build:
     name: Build Universal macOS App (Apple Silicon & Intel)
-    runs-on: macos-14
+    runs-on: macos-15
     permissions:
       contents: write
 
     steps:
+      - name: Select Latest Xcode 16
+        run: |
+          if [ -d "/Applications/Xcode_16.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.app
+          elif [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.0.app
+          elif [ -d "/Applications/Xcode_16.1.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_16.1.app
+          fi
+          xcodebuild -version
+
       - name: Checkout Source Code
         uses: actions/checkout@v4
         with:
