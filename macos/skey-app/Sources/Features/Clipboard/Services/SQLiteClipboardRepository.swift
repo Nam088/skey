@@ -78,24 +78,39 @@ public final class SQLiteClipboardRepository: ClipboardRepository, @unchecked Se
                 """
                 var statement: OpaquePointer?
                 if sqlite3_prepare_v2(self.db, sql, -1, &statement, nil) == SQLITE_OK {
-                    sqlite3_bind_text(statement, 1, (item.id.uuidString as NSString).utf8String, -1, nil)
-                    sqlite3_bind_text(statement, 2, (item.contentType.rawValue as NSString).utf8String, -1, nil)
-                    sqlite3_bind_text(statement, 3, (item.contentHash as NSString).utf8String, -1, nil)
+                    // Use withCString for optimized C string conversion (avoids NSString bridge allocation)
+                    item.id.uuidString.withCString { uuidPtr in
+                        _ = sqlite3_bind_text(statement, 1, uuidPtr, -1, nil)
+                    }
+                    item.contentType.rawValue.withCString { typePtr in
+                        _ = sqlite3_bind_text(statement, 2, typePtr, -1, nil)
+                    }
+                    item.contentHash.withCString { hashPtr in
+                        _ = sqlite3_bind_text(statement, 3, hashPtr, -1, nil)
+                    }
                     if let text = item.textContent {
-                        sqlite3_bind_text(statement, 4, (text as NSString).utf8String, -1, nil)
+                        text.withCString { textPtr in
+                            _ = sqlite3_bind_text(statement, 4, textPtr, -1, nil)
+                        }
                     } else {
                         sqlite3_bind_null(statement, 4)
                     }
                     if let path = item.payloadPath {
-                        sqlite3_bind_text(statement, 5, (path as NSString).utf8String, -1, nil)
+                        path.withCString { pathPtr in
+                            _ = sqlite3_bind_text(statement, 5, pathPtr, -1, nil)
+                        }
                     } else {
                         sqlite3_bind_null(statement, 5)
                     }
                     sqlite3_bind_int64(statement, 6, Int64(item.payloadSizeBytes))
                     sqlite3_bind_int(statement, 7, item.hasFullPayload ? 1 : 0)
-                    sqlite3_bind_text(statement, 8, (item.previewText as NSString).utf8String, -1, nil)
+                    item.previewText.withCString { previewPtr in
+                        _ = sqlite3_bind_text(statement, 8, previewPtr, -1, nil)
+                    }
                     if let source = item.sourceBundleID {
-                        sqlite3_bind_text(statement, 9, (source as NSString).utf8String, -1, nil)
+                        source.withCString { sourcePtr in
+                            _ = sqlite3_bind_text(statement, 9, sourcePtr, -1, nil)
+                        }
                     } else {
                         sqlite3_bind_null(statement, 9)
                     }
@@ -103,7 +118,9 @@ public final class SQLiteClipboardRepository: ClipboardRepository, @unchecked Se
                     sqlite3_bind_int(statement, 11, item.isPinned ? 1 : 0)
                     sqlite3_bind_double(statement, 12, item.firstCopiedAt.timeIntervalSince1970)
                     sqlite3_bind_int64(statement, 13, Int64(item.copyCount))
-                    sqlite3_bind_text(statement, 14, (item.normalizedSearchText as NSString).utf8String, -1, nil)
+                    item.normalizedSearchText.withCString { searchPtr in
+                        _ = sqlite3_bind_text(statement, 14, searchPtr, -1, nil)
+                    }
 
                     if sqlite3_step(statement) != SQLITE_DONE {
                         let errmsg = String(cString: sqlite3_errmsg(self.db))

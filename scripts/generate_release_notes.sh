@@ -27,16 +27,37 @@ done
 
 DATE_STR=$(date +"%d/%m/%Y")
 
-# Detect commit range
-PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-if [[ -n "$PREV_TAG" && "$PREV_TAG" != "$VERSION" ]]; then
+# Detect commit range - use ONLY commits since last semantic version tag
+# Filter out initial/setup tags to avoid including entire history
+PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -2)
+TAG_ARRAY=($PREV_TAG)
+
+if [[ ${#TAG_ARRAY[@]} -ge 2 && "${TAG_ARRAY[1]}" != "$VERSION" ]]; then
+  # Use second most recent tag (skip current if it exists)
+  PREV_TAG="${TAG_ARRAY[1]}"
   COMMIT_RANGE="${PREV_TAG}..HEAD"
+  echo "==> Using commit range: $PREV_TAG..HEAD"
+elif [[ ${#TAG_ARRAY[@]} -eq 1 && "${TAG_ARRAY[0]}" != "$VERSION" ]]; then
+  # Only one tag exists and it's not the current version
+  PREV_TAG="${TAG_ARRAY[0]}"
+  COMMIT_RANGE="${PREV_TAG}..HEAD"
+  echo "==> Using commit range: $PREV_TAG..HEAD"
 else
-  COMMIT_RANGE="HEAD"
+  # No previous releases - show only recent commits (last 30 days max)
+  COMMIT_RANGE="--since='30 days ago'"
+  echo "==> No previous release tags found, using recent commits only"
 fi
 
-# Extract commits
-RAW_LOG=$(git log "$COMMIT_RANGE" --pretty=format:"%h|%s" 2>/dev/null || echo "")
+# Extract ONLY macOS-related commits (filter by paths)
+RAW_LOG=$(git log "$COMMIT_RANGE" --pretty=format:"%h|%s" \
+  -- macos/skey-app/ port/ scripts/ .github/workflows/build-and-release-macos.yml \
+  2>/dev/null || echo "")
+
+# Skip if no relevant commits
+if [[ -z "$RAW_LOG" ]]; then
+  echo "==> No macOS-related commits found in range $COMMIT_RANGE"
+  exit 0
+fi
 
 FEAT_LIST=""
 FIX_LIST=""

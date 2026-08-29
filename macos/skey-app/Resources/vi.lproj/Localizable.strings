@@ -2,8 +2,8 @@
 
 "app.title" = "SKey";
 "app.action.quit" = "Thoát SKey";
-"tooltip.vietnamese" = "SKey: Tiếng Việt (Click để chuyển sang Anh, chuột phải xem menu)";
-"tooltip.english" = "SKey: Tiếng Anh (Click để chuyển sang Việt, chuột phải xem menu)";
+"tooltip.vietnamese" = "SKey: Tiếng Việt (Nhấn để chuyển Anh, chuột phải xem menu)";
+"tooltip.english" = "SKey: Tiếng Anh (Nhấn để chuyển Việt, chuột phải xem menu)";
 
 /* Common */
 "common.save" = "Lưu";
@@ -21,31 +21,31 @@
 "keyboard.options.spell_check" = "Kiểm tra chính tả";
 "keyboard.options.free_marking" = "Bỏ dấu tự do";
 "keyboard.options.modern_style" = "Đặt dấu kiểu mới (oà, uỳ)";
-"keyboard.options.smart_switch" = "Chuyển tiếng Anh trong Terminal/IDE";
+"keyboard.options.smart_switch" = "Tự động tiếng Anh trong Terminal/IDE";
 "keyboard.options.advanced" = "Tùy chọn nâng cao";
-"keyboard.advanced.quick_telex" = "Gõ nhanh Telex (cc->ch, gg->gi, uu->ươ)";
-"keyboard.advanced.quick_start_consonant" = "Gõ nhanh phụ âm đầu (f->ph, j->gi, w->qu)";
-"keyboard.advanced.quick_end_consonant" = "Gõ nhanh phụ âm cuối (g->ng, h->nh, k->ch)";
-"keyboard.advanced.upper_case_first" = "Tự động viết hoa đầu câu";
-"keyboard.advanced.swallowed_restore" = "Khôi phục phím bị nuốt từ tiếng Anh";
+"keyboard.advanced.quick_telex" = "Gõ tắt Telex (cc→ch, gg→gi, uu→ươ)";
+"keyboard.advanced.quick_start_consonant" = "Gõ tắt phụ âm đầu (f→ph, j→gi, w→qu)";
+"keyboard.advanced.quick_end_consonant" = "Gõ tắt phụ âm cuối (g→ng, h→nh, k→ch)";
+"keyboard.advanced.upper_case_first" = "Tự viết hoa đầu câu";
+"keyboard.advanced.swallowed_restore" = "Khôi phục phím bị nuốt";
 
 /* Clipboard Menu & Popup */
 "clipboard.menu.title" = "Lịch sử Clipboard";
 "clipboard.status.empty" = "Chưa có lịch sử copy";
 "clipboard.action.clear_all" = "Xóa toàn bộ lịch sử";
-"clipboard.search.placeholder" = "Tìm kiếm lịch sử clipboard...";
-"clipboard.empty" = "Lịch sử clipboard trống";
-"clipboard.noMatches" = "Không tìm thấy kết quả phù hợp";
+"clipboard.search.placeholder" = "Tìm kiếm lịch sử...";
+"clipboard.empty" = "Chưa có lịch sử";
+"clipboard.noMatches" = "Không tìm thấy kết quả";
 "clipboard.paste" = "Dán";
-"clipboard.pasteAsPlainText" = "Dán dạng văn bản thuần";
+"clipboard.pasteAsPlainText" = "Dán văn bản thuần";
 "clipboard.pin" = "Ghim";
 "clipboard.unpin" = "Bỏ ghim";
 "clipboard.delete" = "Xóa";
 "clipboard.clear" = "Xóa danh sách";
 "clipboard.clearAll" = "Xóa tất cả (kể cả ghim)";
-"clipboard.clear.confirmMessage" = "Bạn có chắc chắn muốn xóa tất cả các mục chưa ghim trong lịch sử?";
-"clipboard.clearAll.confirmMessage" = "Bạn có chắc chắn muốn xóa TOÀN BỘ lịch sử clipboard (kể cả các mục đã ghim)?";
-"clipboard.clear.dontAskAgain" = "Không hỏi lại lần sau";
+"clipboard.clear.confirmMessage" = "Xóa tất cả mục chưa ghim?";
+"clipboard.clearAll.confirmMessage" = "Xóa TOÀN BỘ lịch sử (kể cả mục đã ghim)?";
+"clipboard.clear.dontAskAgain" = "Không hỏi lại";
 "clipboard.cancel" = "Hủy";
 "clipboard.clear.confirm" = "Xóa";
 "clipboard.clearAll.confirm" = "Xóa tất cả";
@@ -75,13 +75,13 @@
 
 /* Permissions & Tools */
 "permissions.menu.title" = "Cấp quyền hệ thống (Bắt buộc)";
-"permissions.action.input_monitoring" = "Mở cài đặt Theo dõi đầu vào (Input Monitoring)...";
-"permissions.action.accessibility" = "Mở cài đặt Trợ năng (Accessibility)...";
+"permissions.action.input_monitoring" = "Cài đặt Theo dõi đầu vào";
+"permissions.action.accessibility" = "Cài đặt Trợ năng";
 
-"tools.menu.title" = "Công cụ & Quyền";
-"tools.action.cleaner" = "Lau màn hình & Vệ sinh phím...";
-"tools.action.open_log" = "Mở file nhật ký (/tmp/skey.log)...";
-"tools.action.clear_log" = "Xóa sạch bộ đệm nhật ký";
+"tools.menu.title" = "Công cụ";
+"tools.action.cleaner" = "Vệ sinh phím";
+"tools.action.open_log" = "Xem nhật ký";
+"tools.action.clear_log" = "Xóa nhật ký";
 
 /* Screen & Keyboard Cleaner */
 "cleaner.title" = "Lau màn hình & Vệ sinh phím";
@@ -615,5 +615,4 @@
 "about.checkUpdateError" = "Lỗi kiểm tra: %@";
 "about.checkUpdateLastCheck" = "Kiểm tra lần cuối: %@";
 "about.checkUpdateChangelog" = "Nội dung cập nhật:";
-
 

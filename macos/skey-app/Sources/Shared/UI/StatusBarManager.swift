@@ -38,16 +38,16 @@ public final class StatusBarManager: NSObject {
     }
 
     @objc private func languageDidChange() {
-        rebuildMenu()
+        // Only update icon and tooltip, don't rebuild entire menu
         updateStatusIcon(isVietnamese: AppSettings.shared.keyboard.isVietnamese)
     }
 
-    // MARK: - Elegant & Grouped Menu Builder
+    // MARK: - Modern & Compact Menu Builder with SF Symbols Icons
 
     public func rebuildMenu() {
         menu = NSMenu()
 
-        // 1. Group: Keyboard Features (Tiếng Việt, Kiểu gõ, Bảng mã, Tùy chọn)
+        // 1. Group: Keyboard Features (from registered features)
         for feature in features {
             let featureItems = feature.buildMenuItems()
             guard !featureItems.isEmpty else { continue }
@@ -57,29 +57,35 @@ public final class StatusBarManager: NSObject {
             menu.addItem(NSMenuItem.separator())
         }
 
-        // 2. Group: Snippets / Macro Shortcut Item
+        // 2. Group: Quick Actions
         let snippetsItem = NSMenuItem(
             title: L10n("settings.tab.snippets"),
             action: #selector(openSnippetsSettings),
             keyEquivalent: ""
         )
+        if let image = NSImage(systemSymbolName: "pencil.and.outline", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            snippetsItem.image = image
+        }
         snippetsItem.target = self
         menu.addItem(snippetsItem)
 
         menu.addItem(NSMenuItem.separator())
 
-        // 3. Group: Settings & Tools Submenu
+        // 3. Group: Settings & Tools
         let settingsItem = NSMenuItem(
             title: L10n(.clipboardSettings),
             action: #selector(openSettings),
             keyEquivalent: ","
         )
+        if let image = NSImage(systemSymbolName: "gearshape.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            settingsItem.image = image
+        }
         settingsItem.target = self
         menu.addItem(settingsItem)
 
-        let toolsSubmenu = NSMenu()
-
-        // Language in Tools
+        // Language selector (moved to main menu)
         let langMenu = NSMenu()
         for lang in AppLanguage.allCases {
             let langItem = NSMenuItem(
@@ -87,23 +93,37 @@ public final class StatusBarManager: NSObject {
                 action: #selector(selectLanguage(_:)),
                 keyEquivalent: ""
             )
+            if let image = NSImage(systemSymbolName: lang == .vietnamese ? "flag.circle.fill" : "globe.asia.australia.fill", accessibilityDescription: nil) {
+                image.size = NSSize(width: 16, height: 16)
+                langItem.image = image
+            }
             langItem.target = self
             langItem.representedObject = lang
             langItem.state = (LocalizationService.shared.currentLanguage == lang) ? NSControl.StateValue.on : NSControl.StateValue.off
             langMenu.addItem(langItem)
         }
         let langSubmenuItem = NSMenuItem(title: L10n(.languageMenu), action: nil, keyEquivalent: "")
+        if let image = NSImage(systemSymbolName: "globe", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            langSubmenuItem.image = image
+        }
         langSubmenuItem.submenu = langMenu
-        toolsSubmenu.addItem(langSubmenuItem)
+        menu.addItem(langSubmenuItem)
 
-        toolsSubmenu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem.separator())
 
-        // Permissions
+        let toolsSubmenu = NSMenu()
+
+        // Permissions with icons
         let openInputMonItem = NSMenuItem(
             title: L10n(.inputMonitoringSetting),
             action: #selector(openInputMonitoringSettings),
             keyEquivalent: ""
         )
+        if let image = NSImage(systemSymbolName: "keyboard.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            openInputMonItem.image = image
+        }
         openInputMonItem.target = self
         toolsSubmenu.addItem(openInputMonItem)
 
@@ -112,29 +132,41 @@ public final class StatusBarManager: NSObject {
             action: #selector(openAccessibilitySettings),
             keyEquivalent: ""
         )
+        if let image = NSImage(systemSymbolName: "accessibility.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            openAXItem.image = image
+        }
         openAXItem.target = self
         toolsSubmenu.addItem(openAXItem)
 
         toolsSubmenu.addItem(NSMenuItem.separator())
 
-        // Screen & Keyboard Cleaner
+        // Cleaner with icon
         let cleanerItem = NSMenuItem(
             title: L10n("tools.action.cleaner"),
             action: #selector(startKeyboardCleaner),
             keyEquivalent: ""
         )
+        if let image = NSImage(systemSymbolName: "trash.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            cleanerItem.image = image
+        }
         cleanerItem.target = self
         toolsSubmenu.addItem(cleanerItem)
 
         #if DEBUG
         toolsSubmenu.addItem(NSMenuItem.separator())
 
-        // Logs (Dev Only)
+        // Logs (Dev Only) with icons
         let openLogItem = NSMenuItem(
             title: L10n(.openLogFile),
             action: #selector(openLogFile),
             keyEquivalent: ""
         )
+        if let image = NSImage(systemSymbolName: "doc.text.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            openLogItem.image = image
+        }
         openLogItem.target = self
         toolsSubmenu.addItem(openLogItem)
 
@@ -143,18 +175,30 @@ public final class StatusBarManager: NSObject {
             action: #selector(clearLogs),
             keyEquivalent: ""
         )
+        if let image = NSImage(systemSymbolName: "eraser.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            clearLogItem.image = image
+        }
         clearLogItem.target = self
         toolsSubmenu.addItem(clearLogItem)
         #endif
 
         let toolsItem = NSMenuItem(title: L10n("tools.menu.title"), action: nil, keyEquivalent: "")
+        if let image = NSImage(systemSymbolName: "wrench.and.screwdriver.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            toolsItem.image = image
+        }
         toolsItem.submenu = toolsSubmenu
         menu.addItem(toolsItem)
 
         menu.addItem(NSMenuItem.separator())
 
-        // 4. Group: Quit SKey
+        // 4. Group: Quit with icon
         let quitItem = NSMenuItem(title: L10n(.quitApp), action: #selector(quitApp), keyEquivalent: "q")
+        if let image = NSImage(systemSymbolName: "xmark.circle.fill", accessibilityDescription: nil) {
+            image.size = NSSize(width: 16, height: 16)
+            quitItem.image = image
+        }
         quitItem.target = self
         menu.addItem(quitItem)
     }
@@ -198,6 +242,7 @@ public final class StatusBarManager: NSObject {
         guard let event = NSApp.currentEvent else { return }
 
         if event.type == .rightMouseUp || event.modifierFlags.contains(.control) {
+            // Rebuild menu on right-click to refresh dynamic content (language state, etc.)
             rebuildMenu()
             menu.popUp(
                 positioning: nil,

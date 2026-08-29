@@ -84,22 +84,25 @@ public final class TypingPipeline {
         let keyCode = CGKeyCode(event.getIntegerValueField(.keyboardEventKeycode))
 
         // Stage 5: Handle Customizable Hotkey combinations
-        let langShortcut = shortcutSettings.languageToggleShortcut
-        if !langShortcut.isModifierOnly && langShortcut.matches(keyCode: keyCode, flags: flags) {
-            if type == .keyDown {
-                onToggleLanguage()
+        // Helper to check shortcut match and execute action on keyDown
+        func checkShortcut(_ shortcut: KeyShortcut, action: @escaping () -> Void) -> InterceptorResult? {
+            if shortcut.matches(keyCode: keyCode, flags: flags) {
+                if type == .keyDown {
+                    action()
+                }
+                return .swallowed
             }
-            return .swallowed
+            return nil
+        }
+        
+        let langShortcut = shortcutSettings.languageToggleShortcut
+        if !langShortcut.isModifierOnly, let result = checkShortcut(langShortcut, action: onToggleLanguage) {
+            return result
         }
 
         let cbShortcut = shortcutSettings.clipboardShortcut
-        if cbShortcut.matches(keyCode: keyCode, flags: flags) {
-            if type == .keyDown {
-                DispatchQueue.main.async {
-                    ClipboardFeature.shared.togglePopup()
-                }
-            }
-            return .swallowed
+        if let result = checkShortcut(cbShortcut, action: { ClipboardFeature.shared.togglePopup() }) {
+            return result
         }
 
         if shortcutSettings.cleanerEnabled {
@@ -115,23 +118,14 @@ public final class TypingPipeline {
         }
 
         let aiShortcut = shortcutSettings.aiShortcut
-        if aiShortcut.matches(keyCode: keyCode, flags: flags) {
-            if type == .keyDown {
-                DispatchQueue.main.async {
-                    SettingsWindowController.shared.showSettings(tab: .ai)
-                }
-            }
-            return .swallowed
+        if let result = checkShortcut(aiShortcut, action: { SettingsWindowController.shared.showSettings(tab: .ai) }) {
+            return result
         }
 
-        // Quick Translate Shortcut (⌥T - Option + T)
-        if keyCode == KeyConstants.kVK_ANSI_T && flags.contains(.maskAlternate) && !flags.contains(.maskCommand) && !flags.contains(.maskControl) {
-            if type == .keyDown {
-                DispatchQueue.main.async {
-                    TranslationHUDController.shared.toggleHUD()
-                }
-            }
-            return .swallowed
+        // Quick Translate Shortcut (T - Option + T)
+        let translateShortcut = KeyShortcut(keyCode: UInt16(KeyConstants.kVK_ANSI_T), modifiers: .option)
+        if let result = checkShortcut(translateShortcut, action: { TranslationHUDController.shared.toggleHUD() }) {
+            return result
         }
 
         let isCommand = flags.contains(.maskCommand)

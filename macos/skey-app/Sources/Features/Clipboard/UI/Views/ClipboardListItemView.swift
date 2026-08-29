@@ -26,16 +26,12 @@ public struct ClipboardListItemView: View, Equatable {
     @State private var isHovered = false
 
     public static func == (lhs: ClipboardListItemView, rhs: ClipboardListItemView) -> Bool {
+        // Only compare identity and dynamic state - exclude cached/computed properties
+        // This allows SwiftUI to skip re-renders when only cache-dependent props change
         lhs.item.id == rhs.item.id &&
-        lhs.item.isPinned == rhs.item.isPinned &&
-        lhs.item.copyCount == rhs.item.copyCount &&
         lhs.isSelected == rhs.isSelected &&
         lhs.index == rhs.index &&
         lhs.selectionAppearance == rhs.selectionAppearance &&
-        lhs.attributedTitle == rhs.attributedTitle &&
-        lhs.appIcon == rhs.appIcon &&
-        lhs.thumbnail == rhs.thumbnail &&
-        lhs.colorSwatchImage == rhs.colorSwatchImage &&
         lhs.stackPosition == rhs.stackPosition &&
         lhs.showApplicationIcons == rhs.showApplicationIcons &&
         lhs.imageThumbnailHeight == rhs.imageThumbnailHeight

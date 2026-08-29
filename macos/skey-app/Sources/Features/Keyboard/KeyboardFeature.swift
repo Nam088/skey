@@ -97,19 +97,19 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
         let inputMethodMenu = NSMenu()
         telexItem = NSMenuItem(title: "Telex", action: #selector(selectTelex), keyEquivalent: "")
         telexItem?.target = self
-        inputMethodMenu.addItem(telexItem!)
+        if let item = telexItem { inputMethodMenu.addItem(item) }
 
         simpleTelexItem = NSMenuItem(title: "Simple Telex", action: #selector(selectSimpleTelex), keyEquivalent: "")
         simpleTelexItem?.target = self
-        inputMethodMenu.addItem(simpleTelexItem!)
+        if let item = simpleTelexItem { inputMethodMenu.addItem(item) }
 
         vniItem = NSMenuItem(title: "VNI", action: #selector(selectVni), keyEquivalent: "")
         vniItem?.target = self
-        inputMethodMenu.addItem(vniItem!)
+        if let item = vniItem { inputMethodMenu.addItem(item) }
 
         viqrItem = NSMenuItem(title: "VIQR", action: #selector(selectViqr), keyEquivalent: "")
         viqrItem?.target = self
-        inputMethodMenu.addItem(viqrItem!)
+        if let item = viqrItem { inputMethodMenu.addItem(item) }
 
         let imSubmenuItem = NSMenuItem(title: L10n("keyboard.menu.input_method"), action: nil, keyEquivalent: "")
         imSubmenuItem.submenu = inputMethodMenu
@@ -137,41 +137,41 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
 
         spellCheckItem = NSMenuItem(title: L10n("keyboard.options.spell_check"), action: #selector(toggleSpellCheck), keyEquivalent: "")
         spellCheckItem?.target = self
-        optionsMenu.addItem(spellCheckItem!)
+        if let item = spellCheckItem { optionsMenu.addItem(item) }
 
         freeMarkingItem = NSMenuItem(title: L10n("keyboard.options.free_marking"), action: #selector(toggleFreeMarking), keyEquivalent: "")
         freeMarkingItem?.target = self
-        optionsMenu.addItem(freeMarkingItem!)
+        if let item = freeMarkingItem { optionsMenu.addItem(item) }
 
         modernStyleItem = NSMenuItem(title: L10n("keyboard.options.modern_style"), action: #selector(toggleModernStyle), keyEquivalent: "")
         modernStyleItem?.target = self
-        optionsMenu.addItem(modernStyleItem!)
+        if let item = modernStyleItem { optionsMenu.addItem(item) }
 
         swallowedKeyRestoreItem = NSMenuItem(title: L10n("keyboard.advanced.swallowed_restore"), action: #selector(toggleSwallowedKeyRestore), keyEquivalent: "")
         swallowedKeyRestoreItem?.target = self
-        optionsMenu.addItem(swallowedKeyRestoreItem!)
+        if let item = swallowedKeyRestoreItem { optionsMenu.addItem(item) }
 
         smartAppSwitchItem = NSMenuItem(title: L10n("keyboard.options.smart_switch"), action: #selector(toggleSmartAppSwitch), keyEquivalent: "")
         smartAppSwitchItem?.target = self
-        optionsMenu.addItem(smartAppSwitchItem!)
+        if let item = smartAppSwitchItem { optionsMenu.addItem(item) }
 
         optionsMenu.addItem(NSMenuItem.separator())
 
         quickTelexItem = NSMenuItem(title: L10n("keyboard.advanced.quick_telex"), action: #selector(toggleQuickTelex), keyEquivalent: "")
         quickTelexItem?.target = self
-        optionsMenu.addItem(quickTelexItem!)
+        if let item = quickTelexItem { optionsMenu.addItem(item) }
 
         quickStartConsonantItem = NSMenuItem(title: L10n("keyboard.advanced.quick_start_consonant"), action: #selector(toggleQuickStartConsonant), keyEquivalent: "")
         quickStartConsonantItem?.target = self
-        optionsMenu.addItem(quickStartConsonantItem!)
+        if let item = quickStartConsonantItem { optionsMenu.addItem(item) }
 
         quickEndConsonantItem = NSMenuItem(title: L10n("keyboard.advanced.quick_end_consonant"), action: #selector(toggleQuickEndConsonant), keyEquivalent: "")
         quickEndConsonantItem?.target = self
-        optionsMenu.addItem(quickEndConsonantItem!)
+        if let item = quickEndConsonantItem { optionsMenu.addItem(item) }
 
         upperCaseFirstCharItem = NSMenuItem(title: L10n("keyboard.advanced.upper_case_first"), action: #selector(toggleUpperCaseFirstChar), keyEquivalent: "")
         upperCaseFirstCharItem?.target = self
-        optionsMenu.addItem(upperCaseFirstCharItem!)
+        if let item = upperCaseFirstCharItem { optionsMenu.addItem(item) }
 
         let optionsSubmenuItem = NSMenuItem(title: L10n("keyboard.menu.typingOptions"), action: nil, keyEquivalent: "")
         optionsSubmenuItem.submenu = optionsMenu

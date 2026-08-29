@@ -50,8 +50,11 @@ public struct ClipboardHistoryContentView: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .onAppear {
-            searchFieldFocused = true
             viewModel.onCloseForAction = onClose
+            // Delay focus to avoid competing with window entrance animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                searchFieldFocused = true
+            }
         }
     }
 

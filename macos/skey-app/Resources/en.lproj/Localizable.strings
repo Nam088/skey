@@ -2,8 +2,8 @@
 
 "app.title" = "SKey";
 "app.action.quit" = "Quit SKey";
-"tooltip.vietnamese" = "SKey: Vietnamese (Click to switch to English, right-click for menu)";
-"tooltip.english" = "SKey: English (Click to switch to Vietnamese, right-click for menu)";
+"tooltip.vietnamese" = "SKey: Vietnamese (Nhấn để chuyển to English, right-click for menu)";
+"tooltip.english" = "SKey: English (Nhấn để chuyển to Vietnamese, right-click for menu)";
 
 /* Common */
 "common.save" = "Save";
@@ -21,21 +21,21 @@
 "keyboard.options.spell_check" = "Spell Check";
 "keyboard.options.free_marking" = "Free Tone Placement";
 "keyboard.options.modern_style" = "Modern Style (oà, uỳ)";
-"keyboard.options.smart_switch" = "Auto Switch in Terminal/IDE";
+"keyboard.options.smart_switch" = "Auto English in Terminal/IDE";
 "keyboard.options.advanced" = "Advanced Options";
-"keyboard.advanced.quick_telex" = "Quick Telex (cc->ch, gg->gi, uu->ươ)";
-"keyboard.advanced.quick_start_consonant" = "Quick Initial Consonants (f->ph, j->gi, w->qu)";
-"keyboard.advanced.quick_end_consonant" = "Quick Final Consonants (g->ng, h->nh, k->ch)";
+"keyboard.advanced.quick_telex" = "Telex Shortcuts (cc→ch, gg→gi, uu→ươ)";
+"keyboard.advanced.quick_start_consonant" = "Initial Consonants (f→ph, j→gi, w→qu)";
+"keyboard.advanced.quick_end_consonant" = "Final Consonants (g→ng, h→nh, k→ch)";
 "keyboard.advanced.upper_case_first" = "Auto Capitalize First Letter";
-"keyboard.advanced.swallowed_restore" = "Restore Swallowed English Keys";
+"keyboard.advanced.swallowed_restore" = "Restore Swallowed Keys";
 
 /* Clipboard Menu & Popup */
 "clipboard.menu.title" = "Clipboard History";
 "clipboard.status.empty" = "No copy history yet";
 "clipboard.action.clear_all" = "Clear All History";
-"clipboard.search.placeholder" = "Search clipboard history...";
-"clipboard.empty" = "No clipboard history yet";
-"clipboard.noMatches" = "No matching results found";
+"clipboard.search.placeholder" = "Search history...";
+"clipboard.empty" = "No history yet";
+"clipboard.noMatches" = "No results found";
 "clipboard.paste" = "Paste";
 "clipboard.pasteAsPlainText" = "Paste as Plain Text";
 "clipboard.pin" = "Pin";
@@ -43,8 +43,8 @@
 "clipboard.delete" = "Delete";
 "clipboard.clear" = "Clear List";
 "clipboard.clearAll" = "Clear All (Including Pinned)";
-"clipboard.clear.confirmMessage" = "Are you sure you want to clear all unpinned items?";
-"clipboard.clearAll.confirmMessage" = "Are you sure you want to clear ALL clipboard history (including pinned)?";
+"clipboard.clear.confirmMessage" = "Clear all unpinned items?";
+"clipboard.clearAll.confirmMessage" = "Clear ALL history (including pinned)?";
 "clipboard.clear.dontAskAgain" = "Don't ask again";
 "clipboard.cancel" = "Cancel";
 "clipboard.clear.confirm" = "Clear";
@@ -75,13 +75,13 @@
 
 /* Permissions & Tools */
 "permissions.menu.title" = "System Permissions (Required)";
-"permissions.action.input_monitoring" = "Open Input Monitoring Settings...";
-"permissions.action.accessibility" = "Open Accessibility Settings...";
+"permissions.action.input_monitoring" = "Input Monitoring Settings";
+"permissions.action.accessibility" = "Accessibility Settings";
 
-"tools.menu.title" = "Tools & Permissions";
-"tools.action.cleaner" = "Screen & Keyboard Cleaner...";
-"tools.action.open_log" = "Open Log File (/tmp/skey.log)...";
-"tools.action.clear_log" = "Clear Log Buffer";
+"tools.menu.title" = "Tools";
+"tools.action.cleaner" = "Keyboard Cleaner";
+"tools.action.open_log" = "View Logs";
+"tools.action.clear_log" = "Clear Logs";
 
 /* Screen & Keyboard Cleaner */
 "cleaner.title" = "Screen & Keyboard Cleaner";
@@ -615,5 +615,4 @@
 "about.checkUpdateError" = "Update check failed: %@";
 "about.checkUpdateLastCheck" = "Last checked: %@";
 "about.checkUpdateChangelog" = "Release Highlights:";
-
 
