@@ -51,15 +51,15 @@ tell application "Finder"
         set current view of container window to icon view
         set toolbar visible of container window to false
         set statusbar visible of container window to false
-        set the bounds of container window to {400, 150, 1000, 530}
+        set the bounds of container window to {350, 180, 950, 560}
         
         set viewOptions to the icon view options of container window
         set arrangement of viewOptions to not arranged
         set icon size of viewOptions to 96
         set background picture of viewOptions to file ".background:background.png"
         
-        set position of item "SKey.app" of container window to {150, 200}
-        set position of item "Applications" of container window to {450, 200}
+        set position of item "SKey.app" of container window to {140, 215}
+        set position of item "Applications" of container window to {460, 215}
         
         close
         open

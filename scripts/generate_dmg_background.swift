@@ -3,9 +3,104 @@ import Cocoa
 let width: CGFloat = 600
 let height: CGFloat = 380
 
-let rep = NSBitmapImageRep(
+let image = NSImage(size: NSSize(width: width, height: height))
+image.lockFocus()
+
+guard let context = NSGraphicsContext.current?.cgContext else {
+    fatalError("Could not obtain graphics context")
+}
+
+// 1. Crisp Edge-to-Edge Minimalist Background (#FFFFFF to #F8F9FA)
+let colorSpace = CGColorSpaceCreateDeviceRGB()
+let bgColors = [
+    NSColor(white: 1.0, alpha: 1.0).cgColor,
+    NSColor(red: 0.97, green: 0.98, blue: 0.99, alpha: 1.0).cgColor
+] as CFArray
+let bgGradient = CGGradient(colorsSpace: colorSpace, colors: bgColors, locations: [0.0, 1.0])!
+context.drawLinearGradient(bgGradient, start: CGPoint(x: 0, y: height), end: CGPoint(x: 0, y: 0), options: [])
+
+// 2. Headline: "Gõ Nhanh Hơn. Mượt Mà Hơn." (Modern Bold Sans-serif with Emerald & Blue Accents)
+let titleFont = NSFont.systemFont(ofSize: 26, weight: .bold)
+
+let part1Attrs: [NSAttributedString.Key: Any] = [
+    .font: titleFont,
+    .foregroundColor: NSColor(red: 0.11, green: 0.11, blue: 0.13, alpha: 1.0)
+]
+let part2Attrs: [NSAttributedString.Key: Any] = [
+    .font: titleFont,
+    .foregroundColor: NSColor(red: 0.0, green: 0.62, blue: 0.38, alpha: 1.0) // Emerald Green
+]
+let part3Attrs: [NSAttributedString.Key: Any] = [
+    .font: titleFont,
+    .foregroundColor: NSColor(red: 0.11, green: 0.11, blue: 0.13, alpha: 1.0)
+]
+let part4Attrs: [NSAttributedString.Key: Any] = [
+    .font: titleFont,
+    .foregroundColor: NSColor(red: 0.0, green: 0.48, blue: 1.0, alpha: 1.0) // Royal Blue
+]
+
+let title = NSMutableAttributedString()
+title.append(NSAttributedString(string: "Gõ ", attributes: part1Attrs))
+title.append(NSAttributedString(string: "Nhanh Hơn. ", attributes: part2Attrs))
+title.append(NSAttributedString(string: "Mượt Mà ", attributes: part3Attrs))
+title.append(NSAttributedString(string: "Hơn.", attributes: part4Attrs))
+
+let titleSize = title.size()
+let titleOrigin = NSPoint(x: (width - titleSize.width) / 2.0, y: height - 70)
+title.draw(at: titleOrigin)
+
+// 3. Subtitle: Clean Apple-style explanation
+let subtitleParagraphStyle = NSMutableParagraphStyle()
+subtitleParagraphStyle.alignment = .center
+
+let subtitleAttrs: [NSAttributedString.Key: Any] = [
+    .font: NSFont.systemFont(ofSize: 13, weight: .regular),
+    .foregroundColor: NSColor(red: 0.45, green: 0.47, blue: 0.52, alpha: 1.0),
+    .paragraphStyle: subtitleParagraphStyle
+]
+let subtitleText = "Bộ gõ tiếng Việt thế hệ mới, mượt mà và an toàn cho macOS." as NSString
+let subtitleSize = subtitleText.size(withAttributes: subtitleAttrs)
+subtitleText.draw(
+    in: CGRect(x: (width - subtitleSize.width) / 2.0, y: height - 100, width: subtitleSize.width, height: subtitleSize.height),
+    withAttributes: subtitleAttrs
+)
+
+// 4. Clean Chevron Arrows (› › ›) exactly centered between the two icons
+// In Cocoa coordinates (bottom-left = 0,0), icon Y=215 in Finder corresponds to Y = 380 - 215 = 165
+let chevronY: CGFloat = 165
+let chevrons = [
+    CGPoint(x: 282, y: chevronY),
+    CGPoint(x: 298, y: chevronY),
+    CGPoint(x: 314, y: chevronY)
+]
+
+for (index, point) in chevrons.enumerated() {
+    let alpha: CGFloat = 0.22 + CGFloat(index) * 0.28 // 0.22, 0.50, 0.78
+    let path = CGMutablePath()
+    let size: CGFloat = 8
+    path.move(to: CGPoint(x: point.x - size, y: point.y + size))
+    path.addLine(to: CGPoint(x: point.x, y: point.y))
+    path.addLine(to: CGPoint(x: point.x - size, y: point.y - size))
+
+    context.addPath(path)
+    context.setStrokeColor(NSColor(red: 0.0, green: 0.48, blue: 1.0, alpha: alpha).cgColor)
+    context.setLineWidth(3.0)
+    context.setLineCap(.round)
+    context.setLineJoin(.round)
+    context.strokePath()
+}
+
+image.unlockFocus()
+
+// Output 2x Retina PNG (1200 x 760)
+guard let tiffData = image.tiffRepresentation,
+      let rep = NSBitmapImageRep(data: tiffData) else {
+    fatalError("Failed to convert image to bitmap representation")
+}
+
+let retinaRep = NSBitmapImageRep(
     bitmapDataPlanes: nil,
-    pixelsWide: Int(width * 2), // Retina 2x
+    pixelsWide: Int(width * 2),
     pixelsHigh: Int(height * 2),
     bitsPerSample: 8,
     samplesPerPixel: 4,
@@ -15,70 +110,16 @@ let rep = NSBitmapImageRep(
     bytesPerRow: 0,
     bitsPerPixel: 0
 )!
+retinaRep.size = NSSize(width: width, height: height)
 
 NSGraphicsContext.saveGraphicsState()
-NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-let context = NSGraphicsContext.current!.cgContext
-context.scaleBy(x: 2, y: 2)
-
-// Background Dark Gradient
-let colorSpace = CGColorSpaceCreateDeviceRGB()
-let gradientColors = [
-    NSColor(red: 0.10, green: 0.11, blue: 0.14, alpha: 1.0).cgColor,
-    NSColor(red: 0.06, green: 0.07, blue: 0.09, alpha: 1.0).cgColor
-] as CFArray
-
-let gradient = CGGradient(colorsSpace: colorSpace, colors: gradientColors, locations: [0.0, 1.0])!
-context.drawLinearGradient(gradient, start: CGPoint(x: 0, y: height), end: CGPoint(x: 0, y: 0), options: [])
-
-// Inner Border
-let innerRect = CGRect(x: 10, y: 10, width: width - 20, height: height - 20)
-let path = CGPath(roundedRect: innerRect, cornerWidth: 16, cornerHeight: 16, transform: nil)
-context.addPath(path)
-context.setStrokeColor(NSColor(white: 1.0, alpha: 0.08).cgColor)
-context.setLineWidth(1.5)
-context.strokePath()
-
-// Title & Instruction
-let titleAttrs: [NSAttributedString.Key: Any] = [
-    .font: NSFont.systemFont(ofSize: 18, weight: .semibold),
-    .foregroundColor: NSColor.white
-]
-let subtitleAttrs: [NSAttributedString.Key: Any] = [
-    .font: NSFont.systemFont(ofSize: 12, weight: .regular),
-    .foregroundColor: NSColor(white: 1.0, alpha: 0.6)
-]
-
-let titleString = "Cai dat SKey cho macOS" as NSString
-let subtitleString = "Keo bieu tuong SKey vao thu muc Applications de hoan tat cai dat" as NSString
-
-let titleSize = titleString.size(withAttributes: titleAttrs)
-let subtitleSize = subtitleString.size(withAttributes: subtitleAttrs)
-
-titleString.draw(at: NSPoint(x: (width - titleSize.width) / 2, y: height - 55), withAttributes: titleAttrs)
-subtitleString.draw(at: NSPoint(x: (width - subtitleSize.width) / 2, y: height - 80), withAttributes: subtitleAttrs)
-
-// Center Direction Arrow
-let arrowY: CGFloat = 190
-let arrowPath = CGMutablePath()
-arrowPath.move(to: CGPoint(x: 260, y: arrowY))
-arrowPath.addLine(to: CGPoint(x: 340, y: arrowY))
-
-// Arrow head
-arrowPath.addLine(to: CGPoint(x: 325, y: arrowY + 12))
-arrowPath.move(to: CGPoint(x: 340, y: arrowY))
-arrowPath.addLine(to: CGPoint(x: 325, y: arrowY - 12))
-
-context.addPath(arrowPath)
-context.setStrokeColor(NSColor(red: 10/255.0, green: 132/255.0, blue: 255/255.0, alpha: 0.6).cgColor)
-context.setLineWidth(3.0)
-context.setLineCap(.round)
-context.setLineJoin(.round)
-context.strokePath()
-
+if let nsCtx = NSGraphicsContext(bitmapImageRep: retinaRep) {
+    NSGraphicsContext.current = nsCtx
+    image.draw(in: NSRect(x: 0, y: 0, width: width, height: height))
+}
 NSGraphicsContext.restoreGraphicsState()
 
-if let pngData = rep.representation(using: .png, properties: [:]) {
+if let pngData = retinaRep.representation(using: .png, properties: [:]) {
     try? FileManager.default.createDirectory(atPath: "dist/.background", withIntermediateDirectories: true)
     let url = URL(fileURLWithPath: "dist/.background/background.png")
     try? pngData.write(to: url)
