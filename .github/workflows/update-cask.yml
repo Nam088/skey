@@ -77,3 +77,21 @@ jobs:
           git add Casks/skey.rb
           git commit -m "chore: bump Homebrew Cask to ${{ steps.asset.outputs.tag }} [skip ci]"
           git push
+
+      - name: Sync to Nam088/homebrew-tap
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.asset.outputs.tag }}
+        run: |
+          git clone "https://x-access-token:${TAP_TOKEN}@github.com/Nam088/homebrew-tap.git" /tmp/tap-sync 2>/dev/null || exit 0
+          mkdir -p /tmp/tap-sync/Casks
+          cp Casks/skey.rb /tmp/tap-sync/Casks/skey.rb
+          cd /tmp/tap-sync
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet Casks/skey.rb; then
+            git add Casks/skey.rb
+            git commit -m "chore: bump skey cask to $TAG"
+            git push origin main 2>/dev/null || echo "Note: Push to homebrew-tap skipped (requires repo permissions or HOMEBREW_TAP_TOKEN secret)"
+          fi
+
