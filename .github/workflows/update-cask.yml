@@ -10,9 +10,7 @@ permissions:
 
 jobs:
   update-cask:
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'v')
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +23,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.workflow_run.head_branch }}
         run: |
+          TAG=$(gh release view --repo ${{ github.repository }} --json tagName --jq '.tagName')
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           VERSION="${TAG#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
