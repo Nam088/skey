@@ -98,7 +98,9 @@ public final class EventTapManager {
         runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
 
         startDedicatedThread(tap: tap)
-        skeyLog("EventTap started successfully", category: .keyboard)
+        
+        // No watchdog timer needed - callback detects tap-disabled events instantly
+        skeyLog("EventTap started successfully (instant detection mode)", category: .keyboard)
         return true
     }
 
@@ -170,11 +172,21 @@ public final class EventTapManager {
     // MARK: - Event handling
 
     private func handleEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        // Recover from tap-disabled
+        // Handle tap-disabled events IMMEDIATELY - pass through to prevent freeze
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-            eventTap.map { CGEvent.tapEnable(tap: $0, enable: true) }
-            skeyLog("Event tap re-enabled")
-            return .passRetained(event)
+            skeyLog("Event tap disabled (type: \(type)) - quitting app", category: .keyboard)
+            
+            // CRITICAL: Pass through ALL events FIRST before anything else
+            // This ensures keyboard works immediately without delay
+            let retainedEvent = Unmanaged.passRetained(event)
+            
+            // Quit app INSTANTLY using exit() - no graceful shutdown delay
+            // User must restart after re-granting permissions
+            DispatchQueue.global(qos: .background).async {
+                exit(0)
+            }
+            
+            return retainedEvent
         }
 
         // Delegate event evaluation to pipeline

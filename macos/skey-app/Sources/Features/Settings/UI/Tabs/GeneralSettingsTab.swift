@@ -31,6 +31,10 @@ public struct GeneralSettingsTab: View {
                     basicSection
                 case 1:
                     permissionsSection
+                        .onAppear {
+                            // Refresh permission status when tab appears
+                            PermissionsService.shared.refreshPermissions()
+                        }
                 case 2:
                     logsSection
                 default:
@@ -90,28 +94,63 @@ public struct GeneralSettingsTab: View {
 
     // MARK: - 2. Quyền hệ thống (Permissions)
 
+    @ObservedObject private var permissions = PermissionsService.shared
+
     private var permissionsSection: some View {
         SettingsGroup(title: L10n("general.section.permissions")) {
             SettingsRow(
                 title: L10n("general.option.ax"),
-                subtitle: L10n("general.option.axDesc")
+                subtitle: permissionStatusText(granted: permissions.hasAccessibilityPermission)
             ) {
-                Button(L10n("general.action.openSettings")) {
-                    PermissionsService.shared.openAccessibilitySettings()
+                HStack(spacing: 8) {
+                    permissionBadge(granted: permissions.hasAccessibilityPermission)
+                    Button(L10n("general.action.openSettings")) {
+                        PermissionsService.shared.openAccessibilitySettings()
+                        // Refresh after delay (user might grant permission in System Settings)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            PermissionsService.shared.refreshPermissions()
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
             }
 
             SettingsRow(
                 title: L10n("general.option.im"),
-                subtitle: L10n("general.option.imDesc"),
+                subtitle: permissionStatusText(granted: permissions.hasInputMonitoringPermission),
                 showDivider: false
             ) {
-                Button(L10n("general.action.openSettings")) {
-                    PermissionsService.shared.openInputMonitoringSettings()
+                HStack(spacing: 8) {
+                    permissionBadge(granted: permissions.hasInputMonitoringPermission)
+                    Button(L10n("general.action.openSettings")) {
+                        PermissionsService.shared.openInputMonitoringSettings()
+                        // Refresh after delay (user might grant permission in System Settings)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            PermissionsService.shared.refreshPermissions()
+                        }
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
             }
+        }
+    }
+
+    // MARK: - Permission Status Helpers
+
+    private func permissionStatusText(granted: Bool) -> String {
+        granted ? L10n("permissions.status.granted") : L10n("permissions.status.required")
+    }
+
+    @ViewBuilder
+    private func permissionBadge(granted: Bool) -> some View {
+        if granted {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(.green)
+                .font(.system(size: 16))
+        } else {
+            Image(systemName: "xmark.circle.fill")
+                .foregroundColor(.red)
+                .font(.system(size: 16))
         }
     }
 
