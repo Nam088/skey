@@ -5,7 +5,7 @@ let package = Package(
     name: "SKey",
     defaultLocalization: "vi",
     platforms: [
-        .macOS(.v14)
+        .macOS(.v26)
     ],
     products: [
         .executable(name: "SKey", targets: ["SKey"])
