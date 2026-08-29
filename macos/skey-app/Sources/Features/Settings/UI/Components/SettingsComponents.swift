@@ -52,11 +52,11 @@ public struct SubTabBar: View {
                     .background {
                         if isSelected {
                             RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .fill(Color(NSColor.controlBackgroundColor))
-                                .shadow(color: Color.black.opacity(0.12), radius: 2.5, x: 0, y: 1)
+                                .fill(.regularMaterial)
+                                .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1.5)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                        .stroke(Color(NSColor.separatorColor).opacity(0.4), lineWidth: 0.5)
+                                        .stroke(Color.white.opacity(0.18), lineWidth: 0.5)
                                 )
                                 .matchedGeometryEffect(id: "activeSubTabPill", in: pillNamespace)
                         }
@@ -70,16 +70,16 @@ public struct SubTabBar: View {
         .padding(4)
         .background(
             RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .fill(Color(NSColor.quaternaryLabelColor).opacity(0.24))
+                .fill(Color(NSColor.quaternaryLabelColor).opacity(0.2))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .stroke(Color(NSColor.separatorColor).opacity(0.3), lineWidth: 0.5)
+                .stroke(Color(NSColor.separatorColor).opacity(0.25), lineWidth: 0.5)
         )
     }
 }
 
-// MARK: - Reusable Settings Group Container (Spacious Card)
+// MARK: - Reusable Settings Group Container (Modern macOS Glass Card)
 
 public struct SettingsGroup<Content: View>: View {
     public let title: String?
@@ -103,13 +103,16 @@ public struct SettingsGroup<Content: View>: View {
             VStack(spacing: 0) {
                 content
             }
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.75))
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(Color(NSColor.separatorColor).opacity(0.4), lineWidth: 0.5)
+                    .stroke(Color(NSColor.separatorColor).opacity(0.35), lineWidth: 0.6)
             )
-            .shadow(color: Color.black.opacity(0.025), radius: 4, x: 0, y: 1.5)
+            .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 2)
         }
     }
 }

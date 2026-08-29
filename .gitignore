@@ -48,3 +48,5 @@ macos/skey-app/scripts/spotlight_tester
 /tmp/cross_app_test_bin
 dist/
 macos/skey-app/dist/
+.build/
+macos/skey-app/.build/

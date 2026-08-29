@@ -1,0 +1,4 @@
+module CSKey {
+    header "skey.h"
+    export *
+}

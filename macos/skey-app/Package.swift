@@ -1,0 +1,51 @@
+// swift-tools-version: 5.9
+import PackageDescription
+
+let package = Package(
+    name: "SKey",
+    defaultLocalization: "vi",
+    platforms: [
+        .macOS(.v14)
+    ],
+    products: [
+        .executable(name: "SKey", targets: ["SKey"])
+    ],
+    targets: [
+        .target(
+            name: "CSKey",
+            path: "Sources/CSKey",
+            publicHeadersPath: "include"
+        ),
+        .executableTarget(
+            name: "SKey",
+            dependencies: ["CSKey"],
+            path: "Sources",
+            exclude: [
+                "CSKey"
+            ],
+            resources: [
+                .process("../Resources")
+            ],
+            cSettings: [
+                .headerSearchPath("CSKey/include")
+            ],
+            swiftSettings: [
+                .unsafeFlags([
+                    "-import-objc-header", "Support/BridgingHeader.h"
+                ])
+            ],
+            linkerSettings: [
+                .unsafeFlags([
+                    "-L../../port/target/release",
+                    "-lskey"
+                ]),
+                .linkedFramework("Cocoa"),
+                .linkedFramework("ApplicationServices"),
+                .linkedFramework("Carbon"),
+                .linkedFramework("SwiftUI"),
+                .linkedFramework("CryptoKit"),
+                .linkedLibrary("sqlite3")
+            ]
+        )
+    ]
+)
