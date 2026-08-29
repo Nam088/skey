@@ -1,0 +1,1 @@
+Builds can be driven through the provided autotools artifacts (`Makefile.am`/`Makefile.in`) or via the included Visual Studio project files (`byteio.vcproj`, `byteio.dsp`). The library relies on a precompiled header setup via `prehdr.h`/`prehdr.cpp` for MSVC builds.

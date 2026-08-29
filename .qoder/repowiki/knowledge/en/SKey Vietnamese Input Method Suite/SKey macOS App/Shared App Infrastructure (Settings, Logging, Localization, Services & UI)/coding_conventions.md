@@ -1,0 +1,6 @@
+- Cross-cutting services expose a `public static let shared = ...` singleton with a private initializer to enforce single-instance access (e.g. `SKeyLogger`, `AppSettings`, `SettingsStorage`, `LocalizationService`, `PermissionsService`, `StatusBarManager`).
+- Settings are modeled as typed `ObservableObject` modules registered in `AppSettings` and backed by a shared `SettingsStorage` instance, keeping hot-path reads in memory while persisting asynchronously to `UserDefaults`.
+- User-facing strings go through `LocalizationService.shared.string(for:)` or the `L10n()` helper using a strongly-typed `StringKey` enum rather than raw string literals, with Vietnamese as the fallback bundle.
+- Logging uses the `SKeyLog.debug/info/warning/error` convenience functions that funnel into `SKeyLogger.shared.log(...)`, with debug-level logs stripped in non-DEBUG builds and file I/O gated behind `isDebugMode`.
+- Platform capabilities are exposed via small focused service classes (permissions, launch-at-login, text transform, update checking) that wrap low-level Cocoa/Carbon APIs behind simple synchronous methods.
+- Keyboard shortcuts are represented as value types (`KeyShortcut`, `ShortcutModifiers OptionSet`) with built-in presets and `matches(keyCode:flags:)` / `matchesModifiers(flags:)` predicates instead of ad-hoc flag comparisons.

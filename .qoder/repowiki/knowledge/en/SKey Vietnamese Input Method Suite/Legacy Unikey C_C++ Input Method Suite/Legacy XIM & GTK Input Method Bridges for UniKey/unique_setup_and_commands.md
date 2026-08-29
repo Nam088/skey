@@ -1,0 +1,1 @@
+Build artifacts are driven by GNU Autotools (`make -f Makefile.am` produces `Makefile.in`); the XIM side ships `install.sh` plus `install.sed`/`uninstall.sed` for post-install scriptlet generation, and the GTK side registers itself through `gtk.immodules` listing the compiled `.la` module under the `unikey` context id.

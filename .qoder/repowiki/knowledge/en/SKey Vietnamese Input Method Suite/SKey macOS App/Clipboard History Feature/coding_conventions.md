@@ -1,0 +1,3 @@
+- Cross-thread communication uses Swift `Task` with explicit `MainActor.run` / `MainActor.assumeIsolated` to marshal UI work onto the main thread.
+- Feature state is gated by `AppSettings.shared.clipboard.isEnabled` before starting monitors or showing UI.
+- Long-running background work (pasteboard monitoring, payload loading) is dispatched off the main thread and marshals results back to MainActor for UI updates.

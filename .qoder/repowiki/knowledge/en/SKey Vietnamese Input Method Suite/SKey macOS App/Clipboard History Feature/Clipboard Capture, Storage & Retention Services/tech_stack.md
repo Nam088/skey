@@ -1,0 +1,1 @@
+Swift actors + Sendable concurrency; native SQLite via direct `sqlite3_open_v2` calls with WAL journal mode and FULLMUTEX; AppKit `NSPasteboard` polling; CryptoKit SHA-256 for content hashing; Unicode normalization via `vietnameseFold` for diacritic-insensitive search.

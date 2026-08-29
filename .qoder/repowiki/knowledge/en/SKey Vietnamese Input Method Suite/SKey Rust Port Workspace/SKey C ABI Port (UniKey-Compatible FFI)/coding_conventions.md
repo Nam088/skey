@@ -1,0 +1,6 @@
+- Every exported C symbol is declared with `#[no_mangle] pub extern "C" fn ...` and uses `std::os::raw::{c_char, c_int, c_uint}` for primitive FFI types.
+- Process-wide mutable state is accessed through a `Global<T>` wrapper around `UnsafeCell<T>` with a manual `unsafe impl Sync` rather than raw `static mut`, keeping references out of `static mut` while preserving C symbol layout.
+- Context-based functions take a `*mut UnikeyEngine` and validate it with a `handle!` macro that returns early or a sentinel value when the pointer is null, instead of panicking.
+- `UnikeyOptions` is defined as `#[repr(C)]` with field names matching the original C struct exactly, and set/get functions map each C field one-to-one to the corresponding `skey_core::Options` boolean field.
+- New toggle-style options are exposed as paired `SetXxx`/`GetXxx` C functions plus a `unikey_engine_set_xxx` context variant, deliberately kept outside `UnikeyOptions` to preserve ABI stability.
+- Legacy and context APIs share implementation via thin `skey_*` alias functions that forward to the canonical `unikey_*` implementations, so there is a single source of truth for behavior.

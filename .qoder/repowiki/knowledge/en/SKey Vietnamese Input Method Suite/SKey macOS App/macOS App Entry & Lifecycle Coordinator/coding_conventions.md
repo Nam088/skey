@@ -1,0 +1,4 @@
+- Cross-cutting services are exposed as Swift singletons accessed via a `shared` static property (e.g. `AppCoordinator.shared`, `StatusBarManager.shared`, `SettingsWindowController.shared`, `PermissionsService.shared`).
+- Feature lifecycle is modeled as a `Feature` protocol with `start()`/`stop()` methods, and all features are registered centrally in `AppCoordinator`'s initializer so they can be started/stopped uniformly.
+- User-facing strings are localized through a `L10n(...)` helper rather than hardcoded literals in UI construction.
+- Lifecycle hooks log transitions using a `skeyLog(...)` utility at application launch, termination, and coordinator start/stop points.

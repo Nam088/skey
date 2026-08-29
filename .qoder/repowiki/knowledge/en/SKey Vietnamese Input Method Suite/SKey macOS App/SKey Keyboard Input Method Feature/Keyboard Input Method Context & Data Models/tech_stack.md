@@ -1,0 +1,1 @@
+macOS Accessibility API (`ApplicationServices` AXUIElement, `kAXSelectedTextRangeAttribute`, `kAXStringForRangeParameterizedAttribute`), Carbon (`CGWindowListCopyWindowInfo`), CoreGraphics, and Foundation; relies on a shared `SKeyEngine` for Telex/VNI filtering.

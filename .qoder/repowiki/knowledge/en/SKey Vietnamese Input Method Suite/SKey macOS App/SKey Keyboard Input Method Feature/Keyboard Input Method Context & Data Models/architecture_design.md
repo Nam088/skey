@@ -1,0 +1,7 @@
+Two sibling sub-packages with a clear one-way dependency: `Models/` holds pure value types (`ExcludedApp`, `MacroItem`) used elsewhere in the app, while `Context/` builds on them to perform live input injection.
+
+- `AccessibilityContextReader.swift` is the system boundary: a singleton (`shared`) wrapping macOS Accessibility (AX) and Carbon APIs to resolve the focused UI element, read its selected range, detect Spotlight, and either call `replaceTextViaAX` directly or fall back to `KeyEventSender.shared.inject`. It validates roles via `kAXRoleAttribute` and uses `CFRange`/`AXValue` with `CFGetTypeID` checks for crash safety.
+- `VietnameseDecomposer.swift` is a zero-allocation enum that maps pre-composed Vietnamese Unicode scalars to raw keystroke codes via an inline switch table, emitting base keys plus a trailing tone mark.
+- `ContextRecomposer.swift` orchestrates the hot path: it reads the preceding word via `AccessibilityContextReader`, runs it through `VietnameseDecomposer`, re-filters through a scratch `SKeyEngine` instance configured with the current input method (Telex/VNI), and atomically replaces the full word in the target app. It also exposes skip logic based on `AppFocusObserver.category` and trigger-key sets per input method.
+
+Dependency direction: `ContextRecomposer` → `AccessibilityContextReader` + `VietnameseDecomposer`; `Models/` has no inward dependencies on `Context/`. Cross-cutting services (`AppFocusObserver`, `AppSettings`, `KeyEventSender`, `SKeyEngine`) are consumed as singletons from outside this module.

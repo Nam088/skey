@@ -1,0 +1,12 @@
+schema_version: 1
+module_path: rust_port/testing_and_tools
+title: Differential Testing, Benchmarks & Code Generation for the Rust Port
+scope:
+    - port/difftest/
+    - port/bench/
+    - port/oracle/
+    - port/tablegen/
+source_files: []
+depends_on: []
+related_to:
+    - path: legacy_cxx/ukengine_core

@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: macos_app
+title: SKey macOS App
+scope:
+    - macos/skey-app/
+source_files: []
+depends_on: []
+related_to: []

@@ -1,0 +1,1 @@
+Build produces three artifact types simultaneously (`cdylib`, `staticlib`, `rlib`) via the `[lib] crate-type` array in `Cargo.toml`, so consumers can link either dynamically as `libskey.so` or statically by pulling in `skey-core` directly.

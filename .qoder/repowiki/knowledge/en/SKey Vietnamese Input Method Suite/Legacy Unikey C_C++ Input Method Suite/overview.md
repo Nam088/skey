@@ -1,0 +1,1 @@
+Aggregates the legacy C/C++ components of UniKey — a Vietnamese input engine, charset conversion, XIM/GTK bridges, and an X11 GUI — into a single autotools build tree.

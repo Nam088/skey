@@ -1,0 +1,1 @@
+Rust 2021 edition, `no_std` (with optional `alloc` feature), `serde` optional derive for configuration serialization, and `serde_json` dev-dependency for round-trip tests.

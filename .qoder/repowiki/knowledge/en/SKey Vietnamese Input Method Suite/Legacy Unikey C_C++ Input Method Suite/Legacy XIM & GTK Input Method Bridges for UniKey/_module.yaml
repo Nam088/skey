@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: legacy_cxx/xim_bridge
+title: Legacy XIM & GTK Input Method Bridges for UniKey
+scope:
+    - src/xim/
+    - src/unikey-gtk/
+source_files: []
+depends_on: []
+related_to:
+    - path: macos_app/keyboard_input_method

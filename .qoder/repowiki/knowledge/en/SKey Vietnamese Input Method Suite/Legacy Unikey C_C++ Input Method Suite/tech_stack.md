@@ -1,0 +1,1 @@
+GNU Autotools (autoconf/automake) with conditional `COND_UNIKEY_GTK`; mixed C and C++ sources; X11/Xlib and GTK+ for UI layers; Win32 project files (`.dsp`, `.vcproj`) coexist alongside Unix Makefiles for cross-platform builds.

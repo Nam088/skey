@@ -1,0 +1,1 @@
+None — the module is compiled as part of the macOS app target; no standalone build scripts or env vars are required.

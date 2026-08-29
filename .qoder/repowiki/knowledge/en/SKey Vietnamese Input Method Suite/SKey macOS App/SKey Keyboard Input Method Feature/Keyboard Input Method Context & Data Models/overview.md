@@ -1,0 +1,1 @@
+Provides the focused-app context reader, Vietnamese character decomposer, and word recomposition engine that injects typed text into the active UI element, plus lightweight data models for excluded apps and macro shortcuts.

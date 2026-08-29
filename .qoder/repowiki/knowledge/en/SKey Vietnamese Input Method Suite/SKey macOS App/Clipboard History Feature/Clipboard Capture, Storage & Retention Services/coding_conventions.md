@@ -1,0 +1,6 @@
+- Cross-cutting persistence and storage concerns are exposed as `Sendable` protocols (`ClipboardRepository`, `PayloadStoring`) so implementations can be swapped at runtime (e.g., SQLite vs in-memory).
+- All I/O-bound repository methods wrap synchronous C/FS calls inside a private `DispatchQueue` and expose them as async functions via `withCheckedThrowingContinuation`.
+- Clipboard content is classified by priority order — files first, then rich text, plain text, images — and each branch produces a `CapturedClipboardContent` with a SHA-256 hash of the raw bytes used for deduplication.
+- Search queries are normalized through `ClipboardItem.vietnameseFold` before matching against the stored `normalizedSearchText` column to support diacritic-insensitive lookups.
+- Retention decisions follow a fixed pipeline in `ClipboardRetentionPolicy`: concealed pasteboard types → bundle exclusion rules → ignored text regex → duplicate hash → payload size threshold → default retain.
+- Mutable state guarded by the `ClipboardStore` actor is kept in a local `cachedItems` array that is updated alongside every repository mutation and used to short-circuit reads when the cache is loaded.

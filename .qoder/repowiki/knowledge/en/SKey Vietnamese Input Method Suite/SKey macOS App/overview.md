@@ -1,0 +1,1 @@
+macOS application that integrates a Vietnamese keyboard input method, clipboard history, translator HUD, settings panel, and cleaner into a single AppKit/SwiftUI bundle coordinated by an AppCoordinator.

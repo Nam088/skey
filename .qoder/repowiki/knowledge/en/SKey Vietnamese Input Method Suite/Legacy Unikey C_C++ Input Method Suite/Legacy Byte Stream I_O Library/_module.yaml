@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: legacy_cxx/byteio_utils
+title: Legacy Byte Stream I/O Library
+scope:
+    - src/byteio/
+source_files: []
+depends_on: []
+related_to: []

@@ -1,0 +1,1 @@
+Monitors macOS pasteboard for new content, persists clipboard items to SQLite with optional payload files, and enforces retention policies with Vietnamese-aware search ranking.

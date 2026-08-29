@@ -1,0 +1,284 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: en-US
+branch: main
+nodes_managed: true
+exported_at: "2026-08-29T07:12:13Z"
+modules:
+    "":
+        dir_name: SKey Vietnamese Input Method Suite
+        title: SKey Vietnamese Input Method Suite
+        scope:
+            - .gitignore
+            - README.md
+            - REPORT.md
+        source_files: []
+        children:
+            - legacy_cxx
+            - macos_app
+            - rust_port
+        depends_on: []
+        related_to: []
+    legacy_cxx:
+        dir_name: Legacy Unikey C_C++ Input Method Suite
+        title: Legacy Unikey C/C++ Input Method Suite
+        scope:
+            - src/
+        source_files: []
+        children:
+            - legacy_cxx/byteio_utils
+            - legacy_cxx/gui_layer
+            - legacy_cxx/imdkit_i18n
+            - legacy_cxx/ukengine_core
+            - legacy_cxx/vnconv_charset
+            - legacy_cxx/xim_bridge
+        depends_on: []
+        related_to: []
+    legacy_cxx/byteio_utils:
+        dir_name: Legacy Byte Stream I_O Library
+        title: Legacy Byte Stream I/O Library
+        scope:
+            - src/byteio/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    legacy_cxx/gui_layer:
+        dir_name: Legacy X11 GUI & C++ Engine Interface
+        title: Legacy X11 GUI & C++ Engine Interface
+        scope:
+            - src/gui/
+            - src/ukinterface/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    legacy_cxx/imdkit_i18n:
+        dir_name: X Input Method (XIM) Client Library (IMdkit)
+        title: X Input Method (XIM) Client Library (IMdkit)
+        scope:
+            - src/IMdkit/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    legacy_cxx/ukengine_core:
+        dir_name: Unikey Vietnamese Input Engine Core
+        title: Unikey Vietnamese Input Engine Core
+        scope:
+            - src/ukengine/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: rust_port/testing_and_tools
+    legacy_cxx/vnconv_charset:
+        dir_name: Vietnamese Charset Conversion Library (vnconv)
+        title: Vietnamese Charset Conversion Library (vnconv)
+        scope:
+            - src/vnconv/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    legacy_cxx/xim_bridge:
+        dir_name: Legacy XIM & GTK Input Method Bridges for UniKey
+        title: Legacy XIM & GTK Input Method Bridges for UniKey
+        scope:
+            - src/xim/
+            - src/unikey-gtk/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/keyboard_input_method
+    macos_app:
+        dir_name: SKey macOS App
+        title: SKey macOS App
+        scope:
+            - macos/skey-app/
+        source_files: []
+        children:
+            - macos_app/app_entry
+            - macos_app/clipboard_feature
+            - macos_app/keyboard_input_method
+            - macos_app/resources_and_build
+            - macos_app/settings_feature
+            - macos_app/shared_infrastructure
+            - macos_app/translator_feature
+        depends_on: []
+        related_to: []
+    macos_app/app_entry:
+        dir_name: macOS App Entry & Lifecycle Coordinator
+        title: macOS App Entry & Lifecycle Coordinator
+        scope:
+            - macos/skey-app/Sources/App/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    macos_app/clipboard_feature:
+        dir_name: Clipboard History Feature
+        title: Clipboard History Feature
+        scope:
+            - macos/skey-app/Sources/Features/Clipboard/
+        source_files: []
+        children:
+            - macos_app/clipboard_feature/clipboard_services
+            - macos_app/clipboard_feature/clipboard_ui
+        depends_on: []
+        related_to:
+            - path: macos_app/settings_feature
+    macos_app/clipboard_feature/clipboard_services:
+        dir_name: Clipboard Capture, Storage & Retention Services
+        title: Clipboard Capture, Storage & Retention Services
+        scope:
+            - macos/skey-app/Sources/Features/Clipboard/Services/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/clipboard_feature/clipboard_ui
+    macos_app/clipboard_feature/clipboard_ui:
+        dir_name: Clipboard History Popup UI
+        title: Clipboard History Popup UI
+        scope:
+            - macos/skey-app/Sources/Features/Clipboard/UI/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/clipboard_feature/clipboard_services
+    macos_app/keyboard_input_method:
+        dir_name: SKey Keyboard Input Method Feature
+        title: SKey Keyboard Input Method Feature
+        scope:
+            - macos/skey-app/Sources/Features/Keyboard/
+        source_files: []
+        children:
+            - macos_app/keyboard_input_method/context_and_models
+            - macos_app/keyboard_input_method/engine
+            - macos_app/keyboard_input_method/event_handling
+        depends_on: []
+        related_to:
+            - path: legacy_cxx/xim_bridge
+            - path: macos_app/shared_infrastructure
+    macos_app/keyboard_input_method/context_and_models:
+        dir_name: Keyboard Input Method Context & Data Models
+        title: Keyboard Input Method Context & Data Models
+        scope:
+            - macos/skey-app/Sources/Features/Keyboard/Context/
+            - macos/skey-app/Sources/Features/Keyboard/Models/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/keyboard_input_method/engine
+    macos_app/keyboard_input_method/engine:
+        dir_name: Vietnamese Keyboard Input Method Engine
+        title: Vietnamese Keyboard Input Method Engine
+        scope:
+            - macos/skey-app/Sources/Features/Keyboard/Engine/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/keyboard_input_method/context_and_models
+            - path: macos_app/keyboard_input_method/event_handling
+            - path: rust_port/skey_capi
+    macos_app/keyboard_input_method/event_handling:
+        dir_name: Keyboard Event Interception & Typing Pipeline
+        title: Keyboard Event Interception & Typing Pipeline
+        scope:
+            - macos/skey-app/Sources/Features/Keyboard/EventHandling/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/keyboard_input_method/engine
+    macos_app/resources_and_build:
+        dir_name: SKey macOS App Resources, Build Manifest & Test Harness Scripts
+        title: SKey macOS App Resources, Build Manifest & Test Harness Scripts
+        scope:
+            - macos/skey-app/Resources/
+            - macos/skey-app/scripts/
+            - macos/skey-app/Package.swift
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    macos_app/settings_feature:
+        dir_name: Settings Feature (SKey Preferences Window)
+        title: Settings Feature (SKey Preferences Window)
+        scope:
+            - macos/skey-app/Sources/Features/Settings/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/clipboard_feature
+            - path: macos_app/translator_feature
+    macos_app/shared_infrastructure:
+        dir_name: Shared App Infrastructure (Settings, Logging, Localization, Services & UI)
+        title: Shared App Infrastructure (Settings, Logging, Localization, Services & UI)
+        scope:
+            - macos/skey-app/Sources/Shared/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/keyboard_input_method
+    macos_app/translator_feature:
+        dir_name: Floating Translator HUD Feature
+        title: Floating Translator HUD Feature
+        scope:
+            - macos/skey-app/Sources/Features/Translator/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/settings_feature
+    rust_port:
+        dir_name: SKey Rust Port Workspace
+        title: SKey Rust Port Workspace
+        scope:
+            - port/
+        source_files: []
+        children:
+            - rust_port/skey_capi
+            - rust_port/skey_core
+            - rust_port/testing_and_tools
+        depends_on: []
+        related_to: []
+    rust_port/skey_capi:
+        dir_name: SKey C ABI Port (UniKey-Compatible FFI)
+        title: SKey C ABI Port (UniKey-Compatible FFI)
+        scope:
+            - port/skey-capi/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: macos_app/keyboard_input_method/engine
+    rust_port/skey_core:
+        dir_name: SKey Vietnamese Input Method Core Engine
+        title: SKey Vietnamese Input Method Core Engine
+        scope:
+            - port/skey-core/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
+    rust_port/testing_and_tools:
+        dir_name: Differential Testing, Benchmarks & Code Generation for the Rust Port
+        title: Differential Testing, Benchmarks & Code Generation for the Rust Port
+        scope:
+            - port/difftest/
+            - port/bench/
+            - port/oracle/
+            - port/tablegen/
+        source_files: []
+        children: []
+        depends_on: []
+        related_to:
+            - path: legacy_cxx/ukengine_core

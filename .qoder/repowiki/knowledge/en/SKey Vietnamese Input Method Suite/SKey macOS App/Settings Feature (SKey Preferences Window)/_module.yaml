@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: macos_app/settings_feature
+title: Settings Feature (SKey Preferences Window)
+scope:
+    - macos/skey-app/Sources/Features/Settings/
+source_files: []
+depends_on: []
+related_to:
+    - path: macos_app/clipboard_feature
+    - path: macos_app/translator_feature

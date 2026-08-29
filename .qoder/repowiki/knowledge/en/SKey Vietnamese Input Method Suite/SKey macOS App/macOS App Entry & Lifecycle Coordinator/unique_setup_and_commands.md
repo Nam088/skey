@@ -1,0 +1,1 @@
+Launch accepts `--settings` or `-s` command-line flags to immediately open the settings window; otherwise waits 6 seconds after launch to perform a silent update check if enabled in `AppSettings`.

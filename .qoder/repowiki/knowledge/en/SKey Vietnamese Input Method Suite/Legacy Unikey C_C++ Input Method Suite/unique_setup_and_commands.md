@@ -1,0 +1,1 @@
+Build the full suite from `src/` via the top-level `configure`/`make` flow; the optional GTK IM module is enabled only when `--enable-unikey-gtk` (or equivalent) sets `COND_UNIKEY_GTK`, which adds `unikey-gtk` to `SUBDIRS`.

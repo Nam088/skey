@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: macos_app/clipboard_feature/clipboard_services
+title: Clipboard Capture, Storage & Retention Services
+scope:
+    - macos/skey-app/Sources/Features/Clipboard/Services/
+source_files: []
+depends_on: []
+related_to:
+    - path: macos_app/clipboard_feature/clipboard_ui

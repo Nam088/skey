@@ -1,0 +1,5 @@
+- Cross-platform DLL visibility is controlled by `DllInterface`/`DllExport`/`DllImport` macros that expand to `__declspec` on `_WIN32` and are no-ops elsewhere.
+- Shared-state structures (e.g. `UkSharedMem`) are deliberately pointer-free so they can reside in process-shared memory across processes.
+- Input-method dispatch is implemented as lookup tables of `UkKeyMapping` entries (one per supported method: Telex, VNI, VIQR, MsVi, SimpleTelex) rather than branching logic.
+- Vietnamese lexical units are represented by enums (`VnLexiName`, `VowelSeq`, `ConSeq`) instead of strings, keeping tokenization compact and fast.
+- Per-process engine state is kept separate from globally shared fields inside `UkEngine`, with a `m_pCtrl` pointer to the shared `UkSharedMem` passed in via `setCtrlInfo`.

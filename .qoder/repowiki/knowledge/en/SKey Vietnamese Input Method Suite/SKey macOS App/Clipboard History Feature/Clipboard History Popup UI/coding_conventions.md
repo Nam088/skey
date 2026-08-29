@@ -1,0 +1,6 @@
+- ViewModel state is exposed as `@Published` properties and mutated through dedicated action methods grouped in separate `+Actions`, `+Display`, `+Navigation` extension files rather than one monolithic class.
+- All UI state mutation runs on `@MainActor`; long-running work (store queries, payload loading, event streaming) is dispatched into `Task`s that check `Task.isCancelled` before applying results.
+- Keyboard handling is centralized in a static `handleKeyDown(_:viewModel:onClose:)` switch over `event.keyCode` combined with modifier-flag checks, returning `Bool` to indicate whether the event was consumed.
+- Layout dimensions are never hard-coded in views; they are read from the shared `ClipboardPopupUI` constant enum (e.g. `menuWidth`, `itemHeight`, `minimumSlideoutWidth`).
+- Heavy resources (images, app icons, color swatches, attributed strings) are cached in typed `NSCache` instances on the ViewModel and cleared on delete/clear operations.
+- Cross-layer communication uses callback closures injected at construction (`onResize`, `onSelect`, `onCloseForAction`, `openPreferencesHandler`) instead of direct imports between controllers and other subsystems.

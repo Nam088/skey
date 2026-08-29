@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: macos_app/shared_infrastructure
+title: Shared App Infrastructure (Settings, Logging, Localization, Services & UI)
+scope:
+    - macos/skey-app/Sources/Shared/
+source_files: []
+depends_on: []
+related_to:
+    - path: macos_app/keyboard_input_method

@@ -1,0 +1,1 @@
+SwiftUI-based floating popup that displays the macOS clipboard history, supports search, pinning, multi-select paste stacks, and a live preview panel.

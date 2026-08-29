@@ -1,0 +1,1 @@
+Provides legacy XIM server and GTK IM module implementations that bridge the core UniKey Vietnamese input engine to X11/Xlib applications and GTK+ text widgets.

@@ -1,0 +1,2 @@
+- Behavioral correctness of the Rust port is validated by running the same inputs through the C++ reference engine and comparing outputs via the `difftest` harness.
+- Cross-language boundaries between Rust and native code go through an explicit C ABI layer (`skey-capi` producing `libskey.a`) rather than direct FFI calls from Swift.

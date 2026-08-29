@@ -1,0 +1,1 @@
+Swift + SwiftUI for the popup UI, AppKit NSStatusBar integration for the menu, SQLite via the repository layer for persistence, and CoreGraphics CGEvent injection to trigger system paste.

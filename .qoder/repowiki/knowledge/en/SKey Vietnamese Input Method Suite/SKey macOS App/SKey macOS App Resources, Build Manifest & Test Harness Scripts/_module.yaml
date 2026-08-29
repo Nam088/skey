@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: macos_app/resources_and_build
+title: SKey macOS App Resources, Build Manifest & Test Harness Scripts
+scope:
+    - macos/skey-app/Resources/
+    - macos/skey-app/scripts/
+    - macos/skey-app/Package.swift
+source_files: []
+depends_on: []
+related_to: []

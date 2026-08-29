@@ -1,0 +1,11 @@
+schema_version: 1
+module_path: macos_app/keyboard_input_method/engine
+title: Vietnamese Keyboard Input Method Engine
+scope:
+    - macos/skey-app/Sources/Features/Keyboard/Engine/
+source_files: []
+depends_on: []
+related_to:
+    - path: macos_app/keyboard_input_method/context_and_models
+    - path: macos_app/keyboard_input_method/event_handling
+    - path: rust_port/skey_capi

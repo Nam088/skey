@@ -1,0 +1,4 @@
+- Singleton accessors are exposed via a `public static let shared` property paired with a `private init()` to enforce single-instance usage across the keyboard pipeline.
+- Hot-path performance is expressed with `@inline(__always)` methods and pre-reserved capacity buffers (e.g., `reserveCapacity`) to avoid heap allocations during character processing.
+- Unsafe C bridge calls are guarded by explicit `CFGetTypeID` / `AXValueGetTypeID` checks before force-casting returned `AnyObject` values, ensuring crash-proof interaction with the Accessibility framework.
+- Data model structs in `Models/` conform to SwiftUI `Identifiable` plus `Codable`, `Equatable`, `Hashable`, and `Sendable` to support persistence, comparison, and concurrency-safe sharing.

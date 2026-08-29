@@ -1,0 +1,1 @@
+Built with GNU Autotools: `./configure` must resolve X11 flags (`@X_CFLAGS@`, `@X_LIBS@`, `@X_PRE_LIBS@`) before `make` can compile the `unikey` binary in `src/gui/` and the `libukint.la` library in `src/ukinterface/`.

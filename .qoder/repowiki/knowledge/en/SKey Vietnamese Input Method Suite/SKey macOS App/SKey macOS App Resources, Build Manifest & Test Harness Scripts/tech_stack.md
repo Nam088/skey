@@ -1,0 +1,1 @@
+Swift Package Manager (tools-version 5.9) building a macOS-only executable; bundles a vendored C module `CSKey` and links a prebuilt Rust static library `liblskey.a` from `port/target/release`; uses Apple frameworks Cocoa, ApplicationServices, Carbon, SwiftUI, CryptoKit and sqlite3; icon generation relies on AppKit + `/usr/bin/iconutil`.

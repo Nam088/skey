@@ -1,0 +1,1 @@
+SQLite database is auto-created at `~/Library/Application Support/com.nam088.skey/clipboard.sqlite3` with WAL mode enabled; payload files are written atomically to `~/Library/Application Support/com.nam088.skey/ClipboardPayloads/` as UUID-named files.

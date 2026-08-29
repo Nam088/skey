@@ -1,0 +1,1 @@
+Cargo workspace that bundles the SKey core engine, its UniKey-compatible C ABI, a CLI tool, and differential testing harnesses against the original C++ UniKey implementation.

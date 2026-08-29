@@ -1,0 +1,6 @@
+- Each supported encoding is implemented as a subclass of `VnCharset` overriding `nextInput`/`putChar` (and optionally `startInput`/`startOutput`/`elementSize`), keeping per-encoding parsing and serialization isolated.
+- Encoding identifiers are grouped into contiguous ranges with helper macros `IS_SINGLE_BYTE_CHARSET(x)` and `IS_DOUBLE_BYTE_CHARSET(x)` derived from `CONV_TOTAL_SINGLE_CHARSETS`/`CONV_TOTAL_DOUBLE_CHARSETS`.
+- Cross-platform DLL export visibility is controlled uniformly by the `DllInterface` macro, which expands to `__declspec(dllexport/dllimport)` under `_WIN32` and to nothing on POSIX.
+- Global converter behavior is centralized in a single `VnConvOptions` struct accessed via `VnConvSet/Get/ResetOptions`, and consumed inside the conversion loop rather than passed per-call.
+- Character data is normalized to a shared internal `StdVnChar` space (offset by `VnStdCharOffset`) so any two encodings can be converted by round-tripping through this canonical form.
+- Source files use a uniform header guard style and include `vnconv.h` first to pick up charset constants and `DllInterface` definitions before other local headers.

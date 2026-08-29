@@ -1,0 +1,5 @@
+- Each public header guards its contents with an `#ifndef __UNIKEY_*_H` / `#define` include guard.
+- Engine interaction follows a fixed lifecycle: initialize with `UnikeySetup`, configure via setters (`UnikeySetInputMethod`, `UnikeySetOutputCharset`, `UnikeySetOptions`), process each key through `UnikeyFilter`, and terminate with `UnikeyCleanup`.
+- Per-key processing returns results through module-level global variables (`UnikeyBufChars`, `UnikeyBackspaces`, `UnikeyAnsiBuf`, `UnikeyOutput`) rather than function return values.
+- Charset and input-method identifiers are expressed as plain `enum` constants prefixed with `UNIKEY_` (e.g. `UNIKEY_UTF8`, `UNIKEY_TELEX_INPUT`) and converted between internal and external representations via paired `*ToSync*` / `SyncTo*` functions.
+- The C++ wrapper isolates the core engine behind an `extern "C"` block in `unikey.h` so C callers (the GUI) can link against it without C++ name mangling.

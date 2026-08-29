@@ -1,0 +1,1 @@
+Swift + AppKit (`NSApplication`, `NSMenu`, `NSMenuItem`, `DistributedNotificationCenter`); uses a singleton-based coordinator pattern rather than SwiftUI scene lifecycle.

@@ -1,0 +1,1 @@
+Swift/UIKit/AppKit with Combine for preference reactivity; CoreGraphics EventTap for low-level key capture; macOS Accessibility API for injecting composed text into third-party apps; Rust backend invoked through `SKeyEngine` for Vietnamese typing rules.

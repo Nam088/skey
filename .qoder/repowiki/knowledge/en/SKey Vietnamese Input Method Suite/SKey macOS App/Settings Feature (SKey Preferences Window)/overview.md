@@ -1,0 +1,1 @@
+Provides the SKey macOS preferences window with a tabbed, searchable settings UI for keyboard, clipboard, snippets, tools, AI, general, and about sections.

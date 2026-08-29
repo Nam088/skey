@@ -1,0 +1,1 @@
+Requires macOS Accessibility permission (`AXIsProcessTrusted()`) before `start()` can create a HID-level event tap; if the tap times out or is disabled by user input, the manager auto-re-enables it. The tap thread runs at `.userInteractive` quality-of-service and must be stopped via `stop()` to terminate its `CFRunLoop` cleanly.

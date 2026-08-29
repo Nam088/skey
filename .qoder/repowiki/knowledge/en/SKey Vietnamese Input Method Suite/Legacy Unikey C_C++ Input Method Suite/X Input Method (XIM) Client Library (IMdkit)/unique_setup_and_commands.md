@@ -1,0 +1,1 @@
+Build via the parent project's autotools configuration; the module itself declares no installable targets (`noinst_LTLIBRARIES= libIMdkit.la`) and is compiled with `@X_CFLAGS@` so it must be built within the enclosing X11-enabled build tree. A standalone sample IM server lives under `doc/Xi18n_sample/` with its own `Imakefile`/`Makefile.pu` for testing.

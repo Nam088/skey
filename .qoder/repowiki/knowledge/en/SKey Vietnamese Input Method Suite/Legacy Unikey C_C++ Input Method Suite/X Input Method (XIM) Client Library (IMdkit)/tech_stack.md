@@ -1,0 +1,1 @@
+C library built with GNU Autotools (`Makefile.am` producing `libIMdkit.la`), linking against Xlib/X11 and the X transport abstraction (`Xtrans`); implements the Fujitsu/Sun Microsystems XIM (X Input Method) wire protocol v0.0.

@@ -1,0 +1,1 @@
+C with X11 (`-lX11`, `@X_CFLAGS@`/`@X_LIBS@` autoconf variables) for the GUI; C++ wrapper exposing a C ABI over the core `libUnikey` engine; autotools build via `Makefile.am`.

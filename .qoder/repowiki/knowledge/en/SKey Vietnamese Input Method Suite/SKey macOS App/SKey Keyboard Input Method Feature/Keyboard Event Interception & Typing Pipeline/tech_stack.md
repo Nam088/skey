@@ -1,0 +1,1 @@
+CoreGraphics `CGEventTap` for global keyboard interception, Carbon HIToolbox virtual key codes, `os_unfair_lock` for lock-free language-state synchronization, and `mach_absolute_time()` timestamps on synthetic events; Spotlight integration uses AppleScript/Accessibility AX replacement instead of CGEvent synthesis.

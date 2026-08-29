@@ -1,0 +1,1 @@
+Rust 2021 edition crate producing a C ABI (`extern "C"`, `#[no_mangle]`) via `cdylib`; depends on `skey-core` with `default-features = false` and `alloc` feature to keep the port minimal and embeddable.

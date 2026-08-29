@@ -1,0 +1,1 @@
+SwiftUI + AppKit hybrid: a native `NSPanel` floating window hosts a SwiftUI view via `NSHostingView`. Networking uses `URLSession` with async/await against Google Translate Mobile HTML, DeepL v2 REST, Google Gemini 2.0 Flash `generateContent`, and Groq OpenAI-compatible `/chat/completions` endpoints.

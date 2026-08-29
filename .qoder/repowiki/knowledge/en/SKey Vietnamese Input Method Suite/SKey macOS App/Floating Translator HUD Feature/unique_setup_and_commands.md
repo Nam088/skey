@@ -1,0 +1,1 @@
+Each non-free engine (Gemini, DeepL, Groq) requires an API key stored in `AppSettings.shared.translator.engines`; DeepL supports both paid (`api.deepl.com`) and free (`api-free.deepl.com`) endpoints detected by a `:fx` suffix on the key. The HUD listens for ESC (keyCode 53) via `NSEvent.addLocalMonitorForEvents` to dismiss itself.

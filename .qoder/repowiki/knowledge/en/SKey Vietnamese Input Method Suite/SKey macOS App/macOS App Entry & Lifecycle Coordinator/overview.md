@@ -1,0 +1,1 @@
+Bootstraps the SKey macOS app by initializing NSApplication, wiring the main menu, and coordinating feature lifecycle through a singleton AppCoordinator.

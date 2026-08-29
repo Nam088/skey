@@ -1,0 +1,1 @@
+SwiftUI + AppKit hybrid using `NSPanel` (borderless, non-activating, full-size content view) to host SwiftUI via `NSHostingView`; Combine publishers drive preview visibility; `NSThread`/`Task` concurrency for store event streaming and async search/preload; `NSCache` for image/icon/swatch caching.

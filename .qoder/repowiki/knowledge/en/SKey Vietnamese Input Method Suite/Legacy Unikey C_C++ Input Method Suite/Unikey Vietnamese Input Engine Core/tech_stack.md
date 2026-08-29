@@ -1,0 +1,1 @@
+C++ compiled as a libtool static library (`libUnikey.la`) via GNU Autotools; Windows DLL export/import via `__declspec(dllimport|dllexport)` guarded by `UNIKEYHOOK`; depends on `../vnconv` (Vietnamese character conversion) and `../byteio`.

@@ -1,0 +1,1 @@
+Tooling that drives both the original C++ UniKey engine and the Rust port against shared stdin protocols to diff behavior, benchmark performance, and generate Rust tables from the C++ source.

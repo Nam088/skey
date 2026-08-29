@@ -1,0 +1,1 @@
+A no_std, unsafe-code-free Rust port of the UniKey core that converts keystrokes into typed Vietnamese text via Telex/VNI/VIQR input methods and phonetic rules.

@@ -1,0 +1,1 @@
+Holds the SKey macOS app's Xcode bundle resources (icons, localized strings, Info.plist), the Swift Package manifest wiring the executable to native code and frameworks, and standalone Swift/shell test harnesses for input recomposition, translation engines, Spotlight, and Yandex features.

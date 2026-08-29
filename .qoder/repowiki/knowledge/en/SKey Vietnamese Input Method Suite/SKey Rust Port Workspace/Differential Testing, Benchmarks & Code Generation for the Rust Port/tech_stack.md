@@ -1,0 +1,1 @@
+Rust binary built via Cargo (`edition = 2021`, depends on local `skey-core`); C++ harnesses using `<chrono>` and the original UniKey C API (`unikey.h`, `ukengine.h`); Python 3 scripts drive subprocess orchestration; `dump.cpp` links directly into the original engine's object symbols to emit byte-exact Rust tables.

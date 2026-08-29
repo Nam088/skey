@@ -1,0 +1,1 @@
+A C++ static library providing abstract byte input/output streams over memory buffers and stdio FILE handles, with little-endian multi-byte read/write helpers and optional bookmarking.

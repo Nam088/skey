@@ -1,0 +1,1 @@
+Core C++ library implementing the Vietnamese input method engine, key-to-event classification, macro table management, and user keymap loading for UniKey.

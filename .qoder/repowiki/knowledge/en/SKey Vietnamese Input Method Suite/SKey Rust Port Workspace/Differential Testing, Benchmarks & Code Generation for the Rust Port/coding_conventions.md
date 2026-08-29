@@ -1,0 +1,5 @@
+- The Rust `difftest` binary mirrors the C++ oracle's stdin protocol command-for-command (`K <code>`, `B`, `R`, `S`, `C shift caps`, `L path`, `U path`, `T`, `Z`, `-`) so both processes can be driven by the same script and compared line-by-line.
+- Python harness scripts spawn both the oracle and Rust binaries with identical option vectors and compare stdout, reporting the offending sequence number and divergent lines rather than just printing a diff.
+- Benchmark programs in `bench/` and `difftest/src/main.rs` share the exact same corpus format, two-pass warm-up, and round-count loop so measured ns/key values are comparable across languages.
+- Generated Rust sources in `port/tablegen/` are marked `@generated` and produced by linking against the original C++ engine or parsing its headers, ensuring the Rust tables stay in lockstep with the C++ definitions.
+- Option matrices are enumerated as nested loops over input method, charset, and boolean flags (freeMarking, modernStyle, spellCheck, autoRestore) and applied uniformly across exhaustive short sequences, length-4 exhaustives, and random longer sequences.

@@ -1,0 +1,5 @@
+- Stream interfaces expose typed accessors for 1-, 2-, and 4-byte values (`getNext`/`getNextW`/`getNextDW`, `putB`/`putW`) rather than generic byte arrays.
+- Multi-byte integer serialization is implemented as explicit little-endian byte-by-byte read/write sequences instead of using platform-specific endianness functions.
+- Each stream class stores an error/bad-state flag (`m_bad` for outputs, `m_eos` for inputs) and short-circuits subsequent operations once an error occurs.
+- Optional bookmarking is supported per-stream via `bookmark()`/`gotoBookmark()` pairs, with a `m_didBookmark` guard so callers must explicitly mark a position before seeking back.
+- Concrete streams are constructed with either an owned buffer/file or an externally supplied one via separate `open()`/`attach()` entry points, tracked by an `m_own` flag to decide ownership on close.

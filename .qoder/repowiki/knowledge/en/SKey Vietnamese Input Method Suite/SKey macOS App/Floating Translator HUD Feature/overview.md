@@ -1,0 +1,1 @@
+Provides a floating macOS HUD panel that translates selected text through a cascading chain of pluggable translation engines (Google, Apple, Gemini, DeepL, Groq) with UI for language selection and result display.

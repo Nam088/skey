@@ -1,0 +1,1 @@
+Provides the legacy X11-based UniKey GUI application and a thin C++ wrapper that bridges the core engine to the XIM/X11 input method layer.

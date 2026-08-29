@@ -1,0 +1,1 @@
+Rust workspace using Cargo resolver 2 with LTO enabled in release profile; C++11 compilation of the original UniKey sources for the reference oracle; Python3 scripts driving differential sweeps; optional serde feature and wasm32-unknown-unknown target supported by skey-core.

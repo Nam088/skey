@@ -1,0 +1,1 @@
+SwiftUI + AppKit (`NSWindowController`, `NSVisualEffectView`, `NSHostingView`) for the native macOS preferences window; Combine `ObservableObject` for reactive navigation state; SF Symbols for icons; localized strings via a custom `L10n(...)` helper.

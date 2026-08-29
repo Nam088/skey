@@ -1,0 +1,5 @@
+- Hot-path engine state is protected by `os_unfair_lock` rather than higher-level locks, applied around every mutation or access of shared mutable fields.
+- Configuration changes go through small typed setter methods that mutate a local `SKeyOptions` struct via a `setOption { ... }` closure and write it back with `skey_engine_set_options`.
+- Processing results are returned as value structs (`ProcessResult`, `MacroMatchResult`) with a static `.unhandled` sentinel instead of using Optionals or throwing errors.
+- The Rust engine pointer is accessed exclusively through a private `withEngine` helper that acquires the lock and guards against a nil pointer before invoking the body closure.
+- Public types are grouped under `// MARK:` comments separating enums, structs, lifecycle, configuration, and processing sections within each file.

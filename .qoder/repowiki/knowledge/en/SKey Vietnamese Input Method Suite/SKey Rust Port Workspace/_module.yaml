@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: rust_port
+title: SKey Rust Port Workspace
+scope:
+    - port/
+source_files: []
+depends_on: []
+related_to: []

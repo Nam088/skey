@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: ""
+title: SKey Vietnamese Input Method Suite
+scope:
+    - .gitignore
+    - README.md
+    - REPORT.md
+source_files: []
+depends_on: []
+related_to: []

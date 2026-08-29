@@ -1,0 +1,1 @@
+Provides the core Vietnamese typing engine for the SKey macOS input method, wrapping a Rust backend with macro expansion and input-method switching.

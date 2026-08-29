@@ -1,0 +1,1 @@
+Build via the autotools artifacts `Makefile.am`/`Makefile.in` (configure/make) or via the included Visual Studio project files; on Windows the code uses `_tempnam` + `rename`/`system("mv ...")` to safely overwrite input/output files when they refer to the same path.

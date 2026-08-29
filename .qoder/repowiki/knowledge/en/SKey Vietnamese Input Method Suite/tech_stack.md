@@ -1,0 +1,1 @@
+Rust (Cargo workspace with `no_std` core) + C ABI (`libskey.a`) consumed by both the macOS Swift app and the C++ reference engine; autotools for the legacy C/C++ tree; AppKit/SwiftUI for the native macOS bundle.

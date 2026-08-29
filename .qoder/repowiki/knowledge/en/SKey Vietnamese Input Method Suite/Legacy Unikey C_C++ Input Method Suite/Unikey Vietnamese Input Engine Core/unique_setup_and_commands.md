@@ -1,0 +1,1 @@
+Built through the parent autotools tree; compile flags include `-I../vnconv -I../byteio` and link against `../vnconv/libvnconv.la`. A Visual Studio project `ukengine.vcproj` is also provided for native Windows builds.

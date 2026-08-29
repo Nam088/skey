@@ -1,0 +1,1 @@
+Plain C++ with precompiled headers (`stdafx.{h,cpp}`); build system supports GNU Make (`Makefile.am`/`Makefile.in`) and legacy Visual Studio project files (`vnconv.vcproj`, `vnconv.vcproj.vs8`, `vnconv.dsp`).

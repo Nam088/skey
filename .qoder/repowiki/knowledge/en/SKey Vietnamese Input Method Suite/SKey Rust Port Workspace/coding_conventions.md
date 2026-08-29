@@ -1,0 +1,4 @@
+- Differential correctness is enforced by compiling the original C++ UniKey sources into an `oracle/oracle` binary and comparing its output against the Rust port across every test driver in `difftest/`.
+- New phonetic tables and constants are not hand-edited but regenerated from the C++ source via `tablegen/dump` and `tablegen/gen_lexi.py`, then copied into `skey-core/src/phonetics/`.
+- Cross-language compatibility is validated by linking the C++ oracle against the Rust-built `libskey.a` (with `-DRUST_BACKEND`) so the same harness exercises both implementations over the UniKey C ABI.
+- Portability targets (no allocator, WebAssembly, serde feature) are exercised declaratively in the Makefile's `portability` target rather than ad-hoc scripts.

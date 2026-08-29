@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: macos_app/keyboard_input_method
+title: SKey Keyboard Input Method Feature
+scope:
+    - macos/skey-app/Sources/Features/Keyboard/
+source_files: []
+depends_on: []
+related_to:
+    - path: legacy_cxx/xim_bridge
+    - path: macos_app/shared_infrastructure

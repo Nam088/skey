@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: rust_port/skey_capi
+title: SKey C ABI Port (UniKey-Compatible FFI)
+scope:
+    - port/skey-capi/
+source_files: []
+depends_on: []
+related_to:
+    - path: macos_app/keyboard_input_method/engine

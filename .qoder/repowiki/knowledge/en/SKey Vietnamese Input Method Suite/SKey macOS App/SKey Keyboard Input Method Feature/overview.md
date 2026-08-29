@@ -1,0 +1,1 @@
+Orchestrates a macOS input method that intercepts keyboard events, applies Vietnamese typing rules via a Rust-backed engine, and injects composed text into the focused application.

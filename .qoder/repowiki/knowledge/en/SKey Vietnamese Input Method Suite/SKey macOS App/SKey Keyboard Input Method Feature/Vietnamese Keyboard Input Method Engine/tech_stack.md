@@ -1,0 +1,1 @@
+Swift wrapper over a Rust-based Vietnamese typing engine exposed via C FFI (`skey_engine_create/free/filter/backspace/output`, `SKeyOptions`, `SKeyEdit`). Uses `os_unfair_lock` for low-latency synchronization and `withUnsafeTemporaryAllocation` for stack-allocated UTF-8 buffers to eliminate heap allocations on the hot path.

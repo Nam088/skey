@@ -1,0 +1,6 @@
+- Engine capabilities are declared as a single `TranslationEngineType` enum with computed properties (displayName, subtitle, icon, badgeColor, isFreeNoKeyRequired) so UI and service logic stay in sync without parallel switch statements.
+- Translation requests are implemented as one private async method per engine inside `TranslationService`, each returning a plain `String` and throwing `URLError` variants on failure, keeping error handling uniform across engines.
+- The service implements a priority-cascade pattern: iterate enabled engines in order, catch per-engine errors, record the last error, and finally attempt Google NMT as a universal fallback before rethrowing.
+- UI state is held as `@State` properties on the SwiftUI view while cross-cutting configuration is observed via `@ObservedObject var translatorSettings = AppSettings.shared.translator`, separating transient UI state from persisted settings.
+- Singletons are exposed as `public static let shared` on controller/service classes (`TranslationService`, `TranslationHUDController`) rather than global variables, providing a single point of access for the feature's facade.
+- All user-facing strings go through the `L10n(...)` localization helper instead of inline literals, applied consistently across engine labels, HUD messages, and button titles.

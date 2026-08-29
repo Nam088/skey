@@ -1,0 +1,3 @@
+- Each subdirectory is an autonomous autotools package with its own `Makefile.am`/`Makefile.in`, built in a strict bottom-up order defined by the parent `SUBDIRS` list.
+- Cross-process synchronization between the GUI/XIM daemon and the engine is implemented by duplicating a small `uksync.{c,h}` pair into every consumer directory rather than sharing a common library.
+- C++ engine code is exposed to C callers (XIM, GUI, GTK) through a thin C-style header wrapper (`ukinterface/unikey.h`) so legacy C components can link against the C++ core without ABI concerns.

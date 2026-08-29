@@ -1,0 +1,6 @@
+- Every public-facing type that may be serialised by front ends derives `serde::Serialize` / `serde::Deserialize` behind a `#[cfg_attr(feature = "serde", ...)]` attribute rather than unconditionally.
+- Engine state fields are split into two groups — persistent state (buffer, keys, current, options, charset, input) and per-keystroke scratch state (out, out_size, backs, change_pos, flags) — and reset at the start of each `key()` call.
+- Buffer access goes through inline `b(i)` / `bm(i)` helpers that assert indices against `MAX_UK_ENGINE`, keeping all array indexing bounds-checked inside debug builds.
+- Small packed bitfields on `WordInfo` (form, tone, caps) are accessed exclusively via `set_*` / getter methods that enforce value ranges with `debug_assert!`, preserving the original's 7-bit payload layout.
+- Optional heap-backed functionality (macro table, keymap parser, macros module) is gated uniformly with `#[cfg(feature = "alloc")]` so the no-alloc build compiles without those symbols.
+- Event dispatch uses a single `match ev.ev_type` over the `ROOF_*`, `HOOK_*`, `TONE*`, `TELEX_W`, `MAP_CHAR`, `ESC_CHAR`, `NORMAL` constants defined in `input/mod.rs`, keeping the event taxonomy in one place.

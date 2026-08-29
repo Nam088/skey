@@ -1,0 +1,1 @@
+Plain C++ compiled as a static library; uses only `<stdio.h>` for file I/O and raw pointer arithmetic for binary serialization. Build system supports both autotools (`Makefile.am`/`Makefile.in`) and legacy Microsoft Visual C++ projects (`byteio.dsp`, `byteio.vcproj`).

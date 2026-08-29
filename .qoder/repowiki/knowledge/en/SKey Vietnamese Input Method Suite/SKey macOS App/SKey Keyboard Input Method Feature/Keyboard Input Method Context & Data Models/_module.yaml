@@ -1,0 +1,10 @@
+schema_version: 1
+module_path: macos_app/keyboard_input_method/context_and_models
+title: Keyboard Input Method Context & Data Models
+scope:
+    - macos/skey-app/Sources/Features/Keyboard/Context/
+    - macos/skey-app/Sources/Features/Keyboard/Models/
+source_files: []
+depends_on: []
+related_to:
+    - path: macos_app/keyboard_input_method/engine

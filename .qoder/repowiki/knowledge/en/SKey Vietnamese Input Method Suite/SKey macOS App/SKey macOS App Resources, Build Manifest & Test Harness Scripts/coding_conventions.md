@@ -1,0 +1,5 @@
+- Each test harness is a standalone Swift file declaring an `@main` struct and directly instantiating `SKeyEngine` / `VietnameseDecomposer` to drive assertions, rather than using XCTest.
+- Shell runner scripts follow a fixed pattern: `set -euo pipefail`, resolve `SCRIPT_DIR`, compile the paired `.swift` tester with `swiftc -parse-as-library` to `/tmp/<name>_bin`, execute it, then `tail -n 25 /tmp/skey.log` to surface logs.
+- Localized UI text is maintained in parallel `*.lproj/Localizable.strings` files per language (vi, en) alongside a single `Localizable.xcstrings` catalog, keeping legacy and modern formats synchronized.
+- Bundle metadata in `Info.plist` centralizes app identity (`CFBundleIdentifier com.nam088.skey`, `APPL` package type, `LSUIElement=true`) and permission prompts (`NSAccessibilityUsageDescription`, `NSInputMonitoringUsageDescription`) rather than scattering them across Swift code.
+- Vector logos are kept as multiple SVG variants under `Resources/assets/` and consumed programmatically (e.g. by `generate_app_icon.swift`) instead of being baked in as raster images.

@@ -1,0 +1,1 @@
+C++ static library that converts text between Vietnamese encodings (TCVN3, VISCII, VIQR, VNI, WinCP1258, Unicode/UTF-8) via a unified VnCharset interface and C-exported API.

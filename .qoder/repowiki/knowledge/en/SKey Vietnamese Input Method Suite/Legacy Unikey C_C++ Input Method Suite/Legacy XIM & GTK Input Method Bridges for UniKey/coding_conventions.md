@@ -1,0 +1,5 @@
+- Both front-ends declare a global `UkXimOpt GlobalOpt` along with `ConfigFile`/`MacroFile` pointers to share configuration state across the XIM server and GTK IM module.
+- Cross-front-end synchronization is performed via X root-window atoms (`AIMCharset`, `AIMUsing`, `AIMMethod`, `AGUIVisible`, `AGUIPosX`, `AGUIPosY`) accessed through `UkSetPropValue`/`UkGetPropValue` in `uksync.*` rather than direct IPC.
+- Input-style switching between UniKey-native and sync modes goes through the bidirectional converters `UnikeyToSyncMethod`/`SyncToUnikeyMethod` instead of ad-hoc enum mapping.
+- Trigger-key handling is expressed as static arrays of key/modifier pairs (`Trigger_Keys[]` in `xim.c`, `ShortcutList[]` in `gtkimcontextvn.c`) indexed by an enum of action names, keeping key bindings declarative.
+- Each source file begins with the standard LGPL header and a `HAVE_CONFIG_H` guard pulling in `config.h` for feature macros, indicating autotools-driven feature detection.

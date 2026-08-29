@@ -1,0 +1,1 @@
+Rust crate that exposes the original UniKey C ABI for the SKey Vietnamese typing engine, providing both legacy global-state and new context-based multi-instance interfaces.

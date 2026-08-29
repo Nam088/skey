@@ -1,0 +1,6 @@
+- Wire-format structs and packet opcodes are declared as `#define` constants in `XimProto.h` (e.g. `XIM_CONNECT`, `XIM_CREATE_IC`, error codes) and referenced uniformly across protocol-handling files.
+- All XIM packet serialization/deserialization goes through the `FrameMgr` API (`FrameMgrInit`, `FrameMgrGetToken`, `FrameMgrSetSize`, `FrameMgrFree`) paired with per-message `extern XimFrameRec ..._fr[]` templates defined in `i18nPtHdr.c`.
+- Byte-order negotiation is handled per-client by storing a `byte_order` flag on `Xi18nClient` and passing `_Xi18nNeedSwap(...)` to FrameMgr calls rather than swapping fields inline.
+- Transport I/O is abstracted behind `TransRead`/`TransWrite` callbacks registered in `i18nTr.c`, keeping protocol logic decoupled from socket/pipe details.
+- Each functional area pairs a `.c` source with a small sibling header (e.g. `i18nIc.c`/`i18nIc.h`, `i18nClbk.c`/`i18nClbk.h`, `i18nPtHdr.c`/`i18nPtHdr.h`, `i18nUtil.c`/`i18nUtil.h`) exposing only the symbols needed by other IMdkit modules.
+- Memory allocated for attribute values during parsing is heap-allocated (`malloc`/`memmove` into a buffer) and ownership is transferred to the caller via the `value` pointer in `XICAttribute`/`XIMAttribute`.

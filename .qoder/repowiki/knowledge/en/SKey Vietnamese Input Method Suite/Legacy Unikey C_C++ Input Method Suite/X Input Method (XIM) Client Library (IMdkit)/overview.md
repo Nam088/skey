@@ -1,0 +1,1 @@
+Legacy C implementation of the X Input Method client library that connects X clients to XIM servers over transports, handling protocol framing, input context management, and attribute serialization.

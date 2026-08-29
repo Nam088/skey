@@ -1,0 +1,1 @@
+C/C++ XIM server using Sun IMdkit (`IMdkit.h`, `Xi18n.h`) over Xlib (`X11/Xlib.h`, `X11/Xutil.h`, `X11/keysym.h`); GTK+ IM module using `gdk/gdkkeysyms.h`, `gdk/gdkx.h`, and `gtk/gtkimmodule.h`; autotools build via `Makefile.am`/`Makefile.in` with `config.h` feature detection.

@@ -1,0 +1,8 @@
+schema_version: 1
+module_path: macos_app/app_entry
+title: macOS App Entry & Lifecycle Coordinator
+scope:
+    - macos/skey-app/Sources/App/
+source_files: []
+depends_on: []
+related_to: []
