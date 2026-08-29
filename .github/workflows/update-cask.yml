@@ -46,24 +46,7 @@ jobs:
           TAG: ${{ steps.asset.outputs.tag }}
         run: |
           sed -i -e "s/^  version \".*\"/  version \"$VERSION\"/" Casks/skey.rb
-
-          export NEW_BLOCK=$(cat <<EOF
-            # CASK_ARCH_URLS_START
-            on_arm do
-              sha256 "$SHA256"
-
-              url "https://github.com/${{ github.repository }}/releases/download/$TAG/SKey-Installer.dmg"
-            end
-            on_intel do
-              sha256 "$SHA256"
-
-              url "https://github.com/${{ github.repository }}/releases/download/$TAG/SKey-Installer.dmg"
-            end
-            # CASK_ARCH_URLS_END
-          EOF
-          )
-
-          perl -0777 -pi -e 's/  # CASK_ARCH_URLS_START.*?# CASK_ARCH_URLS_END/$ENV{NEW_BLOCK}/s' Casks/skey.rb
+          sed -i -e "s/^  sha256 \".*\"/  sha256 \"$SHA256\"/" Casks/skey.rb
           cat Casks/skey.rb
 
       - name: Commit and Push Cask Update
