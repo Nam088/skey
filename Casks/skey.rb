@@ -1,16 +1,16 @@
 cask "skey" do
-  version "1.0.6"
+  version "1.0.7"
 
   # CASK_ARCH_URLS_START
   on_arm do
-    sha256 "9a9f007431be5cd7c3fd17a522ada651e22f29544325970d8b9f41b207710046"
+    sha256 "f58f456c202c012a0a252ede866af503180f8cf0af13bf58bfa64f630bc79f23"
 
-    url "https://github.com/Nam088/skey/releases/download/v1.0.6/SKey-Installer.dmg"
+    url "https://github.com/Nam088/skey/releases/download/v1.0.7/SKey-Installer.dmg"
   end
   on_intel do
-    sha256 "9a9f007431be5cd7c3fd17a522ada651e22f29544325970d8b9f41b207710046"
+    sha256 "f58f456c202c012a0a252ede866af503180f8cf0af13bf58bfa64f630bc79f23"
 
-    url "https://github.com/Nam088/skey/releases/download/v1.0.6/SKey-Installer.dmg"
+    url "https://github.com/Nam088/skey/releases/download/v1.0.7/SKey-Installer.dmg"
   end
   # CASK_ARCH_URLS_END
 
