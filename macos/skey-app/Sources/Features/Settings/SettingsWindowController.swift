@@ -21,8 +21,23 @@ public final class SettingsWindowController: NSWindowController {
         window.isReleasedWhenClosed = false
         window.minSize = NSSize(width: 800, height: 560)
 
-        let rootView = SettingsDashboardView()
-        window.contentView = NSHostingView(rootView: rootView)
+        let visualEffectView = NSVisualEffectView()
+        visualEffectView.material = .sidebar
+        visualEffectView.blendingMode = .behindWindow
+        visualEffectView.state = .active
+
+        let hostingView = NSHostingView(rootView: SettingsDashboardView())
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        visualEffectView.addSubview(hostingView)
+
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: visualEffectView.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: visualEffectView.bottomAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: visualEffectView.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: visualEffectView.trailingAnchor)
+        ])
+
+        window.contentView = visualEffectView
 
         super.init(window: window)
     }
