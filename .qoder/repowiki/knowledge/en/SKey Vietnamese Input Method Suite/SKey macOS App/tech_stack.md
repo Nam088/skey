@@ -1,1 +1,0 @@
-Swift Package Manager for the executable; AppKit + SwiftUI for UI; SQLite for clipboard persistence; Rust-backed engine exposed via C bridge (`CSKey`) for Vietnamese typing recomposition; Xcode `.app` bundle packaging.

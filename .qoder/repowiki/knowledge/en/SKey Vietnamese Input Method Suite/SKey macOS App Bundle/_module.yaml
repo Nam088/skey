@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: macos_app
-title: SKey macOS App
+title: SKey macOS App Bundle
 scope:
     - macos/skey-app/
 source_files: []

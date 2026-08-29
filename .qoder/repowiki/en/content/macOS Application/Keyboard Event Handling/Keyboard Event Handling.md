@@ -13,7 +13,17 @@
 - [ContextRecomposer.swift](file://macos/skey-app/Sources/Features/Keyboard/Context/ContextRecomposer.swift)
 - [AppFocusObserver.swift](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift)
 - [InputMethod.swift](file://macos/skey-app/Sources/Features/Keyboard/Engine/InputMethod.swift)
+- [KeyShortcut.swift](file://macos/skey-app/Sources/Shared/Shortcuts/KeyShortcut.swift)
+- [ShortcutSettings.swift](file://macos/skey-app/Sources/Shared/Settings/Modules/ShortcutSettings.swift)
+- [TranslationHUDController.swift](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Enhanced typing pipeline with improved shortcut matching system through new `checkShortcut` helper function
+- Consolidated shortcut matching logic and action execution across language toggle, clipboard, AI assistant, and quick translate shortcuts
+- Updated quick translate shortcut from just "T" to "Option+T" for better user experience
+- Reduced code duplication in shortcut handling throughout the pipeline
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -41,7 +51,7 @@ The goal is to make the architecture accessible while providing deep technical i
 ## Project Structure
 The keyboard feature is organized around a clear separation of concerns:
 - Event capture and lifecycle management
-- Pipeline-based event processing
+- Pipeline-based event processing with enhanced shortcut matching
 - Engine-backed Vietnamese typing transformation
 - Macro expansion and shortcuts
 - Accessibility-aware context reading and recomposition
@@ -57,11 +67,12 @@ TP --> CR["ContextRecomposer<br/>Word recomposition"]
 TP --> ACR["AccessibilityContextReader<br/>AX queries"]
 TP --> AFO["AppFocusObserver<br/>Active app category"]
 TP --> KS["KeyEventSender<br/>Synthetic event output"]
+TP --> CS["checkShortcut<br/>Enhanced shortcut matching"]
 ```
 
 **Diagram sources**
 - [EventTapManager.swift:15-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L15-L188)
-- [TypingPipeline.swift:6-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L6-L170)
+- [TypingPipeline.swift:6-339](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L6-L339)
 - [KeyConstants.swift:7-192](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/KeyConstants.swift#L7-L192)
 - [MacroEngine.swift:14-111](file://macos/skey-app/Sources/Features/Keyboard/Engine/MacroEngine.swift#L14-L111)
 - [SKeyEngine.swift:4-189](file://macos/skey-app/Sources/Features/Keyboard/Engine/SKeyEngine.swift#L4-L189)
@@ -71,11 +82,11 @@ TP --> KS["KeyEventSender<br/>Synthetic event output"]
 
 **Section sources**
 - [EventTapManager.swift:15-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L15-L188)
-- [TypingPipeline.swift:6-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L6-L170)
+- [TypingPipeline.swift:6-339](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L6-L339)
 
 ## Core Components
 - EventTapManager: Creates and manages the CGEventTap, runs it on a dedicated high-priority thread, and delegates event evaluation to TypingPipeline.
-- TypingPipeline: Implements a multi-stage pipeline that classifies events, handles hotkeys, resets state on navigation/clicks, applies macros, and invokes the typing engine.
+- TypingPipeline: Implements a multi-stage pipeline that classifies events, handles hotkeys with enhanced shortcut matching, resets state on navigation/clicks, applies macros, and invokes the typing engine.
 - KeyInterceptor: Defines the chain-of-responsibility protocol and result types for interceptors.
 - KeyEventSender: Injects synthetic backspaces and Unicode text into the session or HID stream; uses Accessibility API for Spotlight overlay when needed.
 - SKeyEngine: High-performance wrapper around the Rust core engine for Vietnamese typing transformations.
@@ -83,10 +94,11 @@ TP --> KS["KeyEventSender<br/>Synthetic event output"]
 - AccessibilityContextReader: Reads focused UI element state and performs direct text replacement via AX for Spotlight.
 - ContextRecomposer: Reconstructs full words atomically when editing previously typed words.
 - AppFocusObserver: Tracks the active application and categorizes it (web browser, developer tool, etc.) to tailor behavior.
+- KeyShortcut: Enhanced shortcut matching system with modifier-only support and conflict detection.
 
 **Section sources**
 - [EventTapManager.swift:15-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L15-L188)
-- [TypingPipeline.swift:6-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L6-L170)
+- [TypingPipeline.swift:6-339](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L6-L339)
 - [KeyInterceptor.swift:4-21](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/KeyInterceptor.swift#L4-L21)
 - [KeyEventSender.swift:7-127](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/KeyEventSender.swift#L7-L127)
 - [SKeyEngine.swift:4-189](file://macos/skey-app/Sources/Features/Keyboard/Engine/SKeyEngine.swift#L4-L189)
@@ -94,6 +106,7 @@ TP --> KS["KeyEventSender<br/>Synthetic event output"]
 - [AccessibilityContextReader.swift:7-238](file://macos/skey-app/Sources/Features/Keyboard/Context/AccessibilityContextReader.swift#L7-L238)
 - [ContextRecomposer.swift:4-99](file://macos/skey-app/Sources/Features/Keyboard/Context/ContextRecomposer.swift#L4-L99)
 - [AppFocusObserver.swift:6-153](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift#L6-L153)
+- [KeyShortcut.swift:68-159](file://macos/skey-app/Sources/Shared/Shortcuts/KeyShortcut.swift#L68-L159)
 
 ## Architecture Overview
 The system captures low-level keyboard events using CGEventTap, then routes them through a fast pipeline that decides whether to pass them through, swallow them, or transform them. Transformations may include macro expansion, Vietnamese typing, or full-word recomposition. Output is injected back into the system as synthetic events, with special handling for Spotlight via Accessibility APIs.
@@ -103,6 +116,7 @@ sequenceDiagram
 participant OS as "macOS"
 participant ETM as "EventTapManager"
 participant TP as "TypingPipeline"
+participant CS as "checkShortcut"
 participant ME as "MacroEngine"
 participant SE as "SKeyEngine"
 participant CR as "ContextRecomposer"
@@ -110,8 +124,8 @@ participant KES as "KeyEventSender"
 OS->>ETM : CGEventTap callback(type, event)
 ETM->>TP : process(event, type)
 alt Hotkey / Shortcut
-TP->>ME : evaluateMacroOnSpace()
-ME-->>TP : MacroMatchResult
+TP->>CS : checkShortcut(shortcut, action)
+CS-->>TP : InterceptorResult?
 TP->>KES : inject(backspaces, text)
 TP-->>ETM : swallowed
 else Vietnamese typing
@@ -131,7 +145,7 @@ ETM-->>OS : return .passRetained or nil
 
 **Diagram sources**
 - [EventTapManager.swift:81-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L81-L188)
-- [TypingPipeline.swift:31-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L170)
+- [TypingPipeline.swift:31-339](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L339)
 - [MacroEngine.swift:71-111](file://macos/skey-app/Sources/Features/Keyboard/Engine/MacroEngine.swift#L71-L111)
 - [SKeyEngine.swift:133-145](file://macos/skey-app/Sources/Features/Keyboard/Engine/SKeyEngine.swift#L133-L145)
 - [ContextRecomposer.swift:40-99](file://macos/skey-app/Sources/Features/Keyboard/Context/ContextRecomposer.swift#L40-L99)
@@ -165,17 +179,23 @@ Enable --> Done(["started"])
 **Section sources**
 - [EventTapManager.swift:15-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L15-L188)
 
-### TypingPipeline: Chain-of-Responsibility Stages
-The pipeline implements a staged decision flow optimized for minimal allocations and fast paths:
+### TypingPipeline: Enhanced Chain-of-Responsibility Stages with Improved Shortcut Matching
+The pipeline implements a staged decision flow optimized for minimal allocations and fast paths with enhanced shortcut matching:
 - Stage 1: Skip synthetic events marked by SKEY marker.
 - Stage 2: Pass through disabled tap events.
 - Stage 3: Handle mouse clicks to reset buffers and mark caret movement.
 - Stage 4: Handle modifier-only shortcut toggles (e.g., Control+Shift).
-- Stage 5: Match configurable hotkeys (language toggle, clipboard popup, cleaner, AI settings, quick translate).
+- Stage 5: Match configurable hotkeys using enhanced `checkShortcut` helper function.
 - Stage 6: Ignore non-keyboard events; handle keyUp pass-through.
 - Stage 6.5: Bypass excluded apps.
 - Stage 7: English mode with optional macro expansion.
 - Stage 8: Composing engine path for Vietnamese typing.
+
+**Enhanced Shortcut Matching System:**
+The new `checkShortcut` helper function consolidates shortcut matching logic and action execution:
+- Reduces code duplication across language toggle, clipboard, AI assistant, and quick translate shortcuts
+- Provides consistent shortcut matching behavior with proper keyDown filtering
+- Returns optional InterceptorResult for clean error handling
 
 Fast paths:
 - Function/media keys pass through untouched.
@@ -195,7 +215,7 @@ Mouse --> |No| NonKey{"non-keyboard?"}
 NonKey --> |Yes| Pass4["passThrough"]
 NonKey --> |No| Flags{"flagsChanged?"}
 Flags --> |Yes| ModChord["modifier-only chord logic"] --> Pass5["passThrough"]
-Flags --> |No| Hotkeys["hotkey matches?"]
+Flags --> |No| Hotkeys["enhanced shortcut matching"]
 Hotkeys --> |Yes| Swallow["swallowed"]
 Hotkeys --> |No| Mods{"cmd/ctrl/opt?"}
 Mods --> |Yes| Reset2["reset engines<br/>caretMayHaveMoved=false"] --> Pass6["passThrough"]
@@ -209,10 +229,36 @@ Mode --> |No| VNPath["handleKeyDown"] --> End
 ```
 
 **Diagram sources**
-- [TypingPipeline.swift:31-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L170)
+- [TypingPipeline.swift:31-339](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L339)
 
 **Section sources**
-- [TypingPipeline.swift:31-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L170)
+- [TypingPipeline.swift:31-339](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L339)
+
+### Enhanced Shortcut Matching with checkShortcut Helper
+The new `checkShortcut` helper function provides consolidated shortcut matching and action execution:
+
+```swift
+func checkShortcut(_ shortcut: KeyShortcut, action: @escaping () -> Void) -> InterceptorResult? {
+    if shortcut.matches(keyCode: keyCode, flags: flags) {
+        if type == .keyDown {
+            action()
+        }
+        return .swallowed
+    }
+    return nil
+}
+```
+
+This helper is used consistently across:
+- Language toggle shortcuts (configurable via settings)
+- Clipboard popup shortcuts (Option+V by default)
+- AI assistant shortcuts (Option+Space by default)
+- Quick translate shortcuts (now Option+T instead of just T)
+
+**Updated** The quick translate shortcut has been changed from just "T" to "Option+T" for better user experience and to avoid conflicts with regular typing.
+
+**Section sources**
+- [TypingPipeline.swift:87-129](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L87-L129)
 
 ### KeyInterceptor: Protocol and Result Types
 Defines the chain-of-responsibility contract:
@@ -295,6 +341,16 @@ end
 **Section sources**
 - [AppFocusObserver.swift:6-153](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift#L6-L153)
 
+### KeyShortcut: Enhanced Shortcut Matching System
+- Provides comprehensive shortcut matching with modifier support.
+- Supports both regular shortcuts and modifier-only shortcuts (e.g., Control+Shift).
+- Includes built-in presets for common shortcuts and custom configuration support.
+- Features conflict detection to prevent shortcut collisions.
+
+**Section sources**
+- [KeyShortcut.swift:68-159](file://macos/skey-app/Sources/Shared/Shortcuts/KeyShortcut.swift#L68-L159)
+- [ShortcutSettings.swift:20-330](file://macos/skey-app/Sources/Shared/Settings/Modules/ShortcutSettings.swift#L20-L330)
+
 ## Dependency Analysis
 The following diagram shows key dependencies among components involved in keyboard event processing:
 
@@ -309,6 +365,7 @@ CR --> ACR["AccessibilityContextReader"]
 TP --> ACR
 TP --> AFO["AppFocusObserver"]
 TP --> KES["KeyEventSender"]
+TP --> CS["checkShortcut"]
 KES --> ACR
 ```
 
@@ -342,8 +399,8 @@ KES --> ACR
   - Excluded apps bypass processing entirely.
   - Function/media keys pass through without engine interaction.
   - Modifier combinations reset state quickly to avoid unnecessary work.
-
-[No sources needed since this section provides general guidance]
+- Enhanced shortcut matching:
+  - The new `checkShortcut` helper reduces code duplication and improves performance through consistent shortcut matching logic.
 
 ## Troubleshooting Guide
 Common issues and remedies:
@@ -357,6 +414,10 @@ Common issues and remedies:
   - Confirm MacroEngine.reloadMacros() has been called after changes and that the current word buffer contains the expected shortcut.
 - Vietnamese typing not applying:
   - Check SKeyEngine configuration (input method, charset) and ensure filter(character) returns handled=true with expected backspaces/text.
+- Shortcut conflicts:
+  - Use the enhanced shortcut matching system to detect and resolve conflicts between different features.
+- Quick translate not working:
+  - Verify the shortcut is set to Option+T (not just T) and TranslationHUDController.toggleHUD() is properly configured.
 
 **Section sources**
 - [EventTapManager.swift:172-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L172-L188)
@@ -366,26 +427,49 @@ Common issues and remedies:
 - [SKeyEngine.swift:38-61](file://macos/skey-app/Sources/Features/Keyboard/Engine/SKeyEngine.swift#L38-L61)
 
 ## Conclusion
-The SKey keyboard event system combines low-level CoreGraphics EventTap capture with a highly optimized pipeline that applies hotkeys, macros, and Vietnamese typing transformations. It leverages chain-of-responsibility principles, atomic recomposition, and Accessibility APIs to deliver reliable, low-latency behavior across diverse applications, including Spotlight overlays. Careful attention to performance—through stack allocation, fast-path classification, and non-coalesced event delivery—ensures responsive typing experiences.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The SKey keyboard event system combines low-level CoreGraphics EventTap capture with a highly optimized pipeline that applies hotkeys, macros, and Vietnamese typing transformations. The enhanced shortcut matching system through the `checkShortcut` helper function provides consistent, maintainable shortcut handling across all features. It leverages chain-of-responsibility principles, atomic recomposition, and Accessibility APIs to deliver reliable, low-latency behavior across diverse applications, including Spotlight overlays. Careful attention to performance—through stack allocation, fast-path classification, and non-coalesced event delivery—ensures responsive typing experiences.
 
 ## Appendices
 
-### Examples: Custom Key Mappings and Hotkeys
+### Examples: Custom Key Mappings and Enhanced Shortcuts
 - Language toggle shortcut:
   - Configurable via AppSettings.shared.shortcuts.languageToggleShortcut; supports modifier-only chords and standard key combinations.
 - Clipboard popup shortcut:
-  - Triggers ClipboardFeature.shared.togglePopup() on keyDown.
+  - Triggers ClipboardFeature.shared.togglePopup() on keyDown using the enhanced checkShortcut helper.
 - Cleaner shortcut:
   - Starts KeyboardCleanerController.shared.startCleaning() when enabled.
 - AI settings shortcut:
-  - Opens SettingsWindowController.shared.showSettings(tab: .ai).
+  - Opens SettingsWindowController.shared.showSettings(tab: .ai) using enhanced shortcut matching.
 - Quick Translate shortcut:
-  - Option+T toggles TranslationHUDController.shared.toggleHUD().
+  - **Updated**: Now uses Option+T (⌥T) instead of just T to toggle TranslationHUDController.shared.toggleHUD(), providing better user experience and avoiding conflicts with regular typing.
 
 **Section sources**
-- [TypingPipeline.swift:87-135](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L87-L135)
+- [TypingPipeline.swift:87-129](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L87-L129)
+- [ToolsSettingsTab.swift:155-173](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/ToolsSettingsTab.swift#L155-L173)
+
+### Examples: Enhanced Shortcut Matching System
+The new `checkShortcut` helper demonstrates the improved shortcut matching approach:
+
+```swift
+func checkShortcut(_ shortcut: KeyShortcut, action: @escaping () -> Void) -> InterceptorResult? {
+    if shortcut.matches(keyCode: keyCode, flags: flags) {
+        if type == .keyDown {
+            action()
+        }
+        return .swallowed
+    }
+    return nil
+}
+```
+
+This pattern is consistently applied across:
+- Language toggle: `checkShortcut(langShortcut, action: onToggleLanguage)`
+- Clipboard: `checkShortcut(cbShortcut, action: { ClipboardFeature.shared.togglePopup() })`
+- AI assistant: `checkShortcut(aiShortcut, action: { SettingsWindowController.shared.showSettings(tab: .ai) })`
+- Quick translate: `checkShortcut(translateShortcut, action: { TranslationHUDController.shared.toggleHUD() })`
+
+**Section sources**
+- [TypingPipeline.swift:87-129](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L87-L129)
 
 ### Examples: Macro Expansion
 - Define macros in AppSettings.shared.macro.items; reload via MacroEngine.reloadMacros().

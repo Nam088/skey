@@ -3,7 +3,7 @@ schema_version: 1
 locale: en-US
 branch: main
 nodes_managed: true
-exported_at: "2026-08-29T07:12:13Z"
+exported_at: "2026-08-29T08:18:50Z"
 modules:
     "":
         dir_name: SKey Vietnamese Input Method Suite
@@ -93,8 +93,8 @@ modules:
         related_to:
             - path: macos_app/keyboard_input_method
     macos_app:
-        dir_name: SKey macOS App
-        title: SKey macOS App
+        dir_name: SKey macOS App Bundle
+        title: SKey macOS App Bundle
         scope:
             - macos/skey-app/
         source_files: []

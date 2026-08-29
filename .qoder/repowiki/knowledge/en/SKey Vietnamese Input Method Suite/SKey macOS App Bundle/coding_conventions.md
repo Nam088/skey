@@ -1,4 +1,4 @@
-- Each top-level capability is implemented as a Feature module under `Sources/Features/<Name>` exposing a `Feature` conformance so the `AppCoordinator` can register it.
+- Each top-level capability is implemented as a Feature module under `Sources/Features/<Name>` conforming to the shared `Feature` protocol so `AppCoordinator` can discover and start it.
 - Cross-cutting state (settings, logs, language, permissions) is accessed through singletons or services in `Shared/` rather than passed as parameters between features.
 - User-facing text is routed through `LocalizationService` and stored in `Resources/*.lproj/Localizable.strings` plus `Localizable.xcstrings` instead of inline strings.
 - Per-feature configuration is modeled as a typed struct conforming to `SettingsModule` and persisted via `SettingsStorage`.

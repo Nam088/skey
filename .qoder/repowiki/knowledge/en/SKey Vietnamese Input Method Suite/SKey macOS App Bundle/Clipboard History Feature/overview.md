@@ -1,0 +1,1 @@
+Orchestrates macOS pasteboard capture, SQLite-backed persistence, and a SwiftUI floating popup into a single AppKit feature that integrates with the host app's menu and settings.

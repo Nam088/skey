@@ -17,6 +17,14 @@
 - [Package.swift](file://macos/skey-app/Package.swift)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Enhanced release notes generation script with semantic version pattern filtering and intelligent fallback logic
+- Updated Homebrew Cask configuration to version 1.0.14 with architecture-specific SHA256 checksums
+- Improved commit range detection using second most recent tag as baseline
+- Added 30-day window fallback for repositories without previous releases
+- Implemented macOS-specific commit filtering for release notes generation
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -118,13 +126,15 @@ B --> M
 - Build Scripts:
   - build_release.sh compiles Rust static libraries for both architectures, merges them into a universal archive, builds Swift binaries per architecture, merges into a universal executable inside an app bundle, signs the app, creates a DMG, zips the app, and generates checksums
   - create_dmg.sh prepares a staging directory, copies the app bundle and Applications symlink, sets Finder presentation properties, and converts to a compressed DMG
-  - generate_release_notes.sh parses git history between tags to produce categorized release notes
+  - generate_release_notes.sh parses git history between tags to produce categorized release notes with enhanced semantic version filtering and intelligent fallback logic
   - generate_dmg_background.swift draws a branded background image used by the DMG installer
 - Local Build Helpers:
   - macos/skey-app/build.sh builds the Rust library, assembles the app bundle, stamps version metadata, compiles Swift code, signs with a developer certificate, and installs to /Applications
   - macos/skey-app/release.sh packages the built app into a versioned ZIP and prints checksums for manual releases
 - Distribution:
   - Casks/skey.rb defines the Homebrew Cask entry, pointing to the GitHub Release DMG asset and specifying uninstall/zap behavior
+
+**Updated** Enhanced release notes generation with semantic version pattern filtering, intelligent fallback logic using second most recent tag as baseline, 30-day window fallback, and macOS-specific commit filtering.
 
 **Section sources**
 - [build-and-release-macos.yml:40-167](file://.github/workflows/build-and-release-macos.yml#L40-L167)
@@ -217,7 +227,7 @@ Checksums --> End(["Artifacts ready"])
 - C ABI Exposure:
   - The skey-capi crate produces staticlib and cdylib outputs to link with Swift and expose a stable C interface
 - Swift Linking:
-  - The macOS app’s Package.swift configures linker settings to include the Rust static library and required system frameworks
+  - The macOS app's Package.swift configures linker settings to include the Rust static library and required system frameworks
   - Bridging header provides access to Objective-C/Swift interop where needed
 
 ```mermaid
@@ -242,7 +252,7 @@ C --> E["System lib: sqlite3"]
 - CI Flow:
   - Uses ad-hoc signing to enable installation and execution without requiring a paid Apple Developer account during automated builds
 - Local Development:
-  - Uses a trusted developer certificate named “SKeyDev” for signing the app bundle before installing to /Applications
+  - Uses a trusted developer certificate named "SKeyDev" for signing the app bundle before installing to /Applications
 - Notes:
   - Deep signing ensures nested components are signed consistently
   - Ad-hoc signing is sufficient for distribution via DMG when users trust the source; production distribution typically requires a proper Apple Developer certificate and provisioning
@@ -305,6 +315,8 @@ BR->>FS : Generate SHA256SUMS.txt
 - Cask Definition:
   - Declares app name, description, homepage, minimum macOS version, installed app path, uninstall commands, and cleanup entries
 
+**Updated** Homebrew Cask configuration updated to version 1.0.14 with updated SHA256 checksums for both ARM and Intel architectures.
+
 ```mermaid
 sequenceDiagram
 participant CI as "Build & Release Workflow"
@@ -331,9 +343,11 @@ UC->>REPO : Commit and push changes
   - On push to main/master, the workflow computes the next semantic version based on existing tags and commit messages, then creates and pushes a tag
   - For explicit tag pushes, uses the tag as the release version
 - Changelog Generation:
-  - Generates release notes by parsing commit messages between tags, categorizing features, fixes, performance improvements, UI changes, and other updates
+  - Generates release notes by parsing commit messages between tags, categorizing features, fixes, performance improvements, UI changes, and other updates with enhanced semantic version pattern filtering
 - Publishing:
   - Creates a GitHub Release with DMG, ZIP, checksums, and generated release notes
+
+**Updated** Enhanced release notes generation with intelligent fallback logic using second most recent tag as baseline and 30-day window fallback for repositories without previous releases.
 
 ```mermaid
 flowchart TD
@@ -342,7 +356,7 @@ TagPush(["Tag push v*"]) --> UseTag["Use tag as version"]
 AutoTag --> Meta["Determine version and metadata"]
 UseTag --> Meta
 Meta --> Build["Build Universal App"]
-Build --> Notes["Generate Release Notes"]
+Build --> Notes["Generate Release Notes with Enhanced Logic"]
 Notes --> Publish["Create GitHub Release"]
 ```
 
@@ -353,6 +367,41 @@ Notes --> Publish["Create GitHub Release"]
 **Section sources**
 - [build-and-release-macos.yml:69-167](file://.github/workflows/build-and-release-macos.yml#L69-L167)
 - [generate_release_notes.sh:30-132](file://scripts/generate_release_notes.sh#L30-L132)
+
+### Enhanced Release Notes Generation
+- Semantic Version Pattern Filtering:
+  - Filters commit messages using semantic version patterns (^feat, ^fix, ^perf, ^ui) and Vietnamese keywords (thêm, sửa, tối ưu, giao diện)
+  - Categorizes commits into New Features, Bug Fixes, Performance, UI/UX, and Other Improvements sections
+- Intelligent Fallback Logic:
+  - Uses second most recent tag as baseline when current tag exists to avoid including current release commits
+  - Falls back to single tag if only one exists and it's not the current version
+  - Implements 30-day window fallback for repositories without previous releases
+- macOS-Specific Commit Filtering:
+  - Filters commits to only include macOS-related changes in macos/skey-app/, port/, scripts/, and build workflow files
+  - Excludes unrelated repository changes from release notes
+
+```mermaid
+flowchart TD
+Start(["Release Notes Generation"]) --> DetectTags["Detect semantic version tags"]
+DetectTags --> HasMultiple{"Multiple tags?"}
+HasMultiple --> |Yes| UseSecond["Use second most recent tag"]
+HasMultiple --> |No| HasSingle{"Single tag?"}
+HasSingle --> |Yes| UseSingle["Use existing tag"]
+HasSingle --> |No| Fallback["Use 30-day window"]
+UseSecond --> FilterCommits["Filter macOS commits"]
+UseSingle --> FilterCommits
+Fallback --> FilterCommits
+FilterCommits --> Categorize["Categorize commits"]
+Categorize --> Generate["Generate release notes"]
+```
+
+**Diagram sources**
+- [generate_release_notes.sh:30-49](file://scripts/generate_release_notes.sh#L30-L49)
+- [generate_release_notes.sh:51-84](file://scripts/generate_release_notes.sh#L51-L84)
+
+**Section sources**
+- [generate_release_notes.sh:30-49](file://scripts/generate_release_notes.sh#L30-L49)
+- [generate_release_notes.sh:51-84](file://scripts/generate_release_notes.sh#L51-L84)
 
 ### Cross-Compilation Considerations
 - Targets:
@@ -384,7 +433,7 @@ U --> App["SKey.app"]
 
 ### Code Signing Certificate Management
 - Local Development:
-  - Uses a developer certificate named “SKeyDev” for signing the app bundle prior to installation
+  - Uses a developer certificate named "SKeyDev" for signing the app bundle prior to installation
 - CI Environment:
   - Uses ad-hoc signing to allow installation and testing without requiring a paid Apple Developer account
 - Best Practices:
@@ -403,17 +452,20 @@ U --> App["SKey.app"]
 - DMG Creation Failures:
   - Confirm hdiutil and osascript are available; check that SKey.app exists in the expected location before creating the DMG
 - Code Signing Errors:
-  - Locally, ensure the “SKeyDev” certificate exists in the keychain; in CI, ad-hoc signing should succeed without additional configuration
+  - Locally, ensure the "SKeyDev" certificate exists in the keychain; in CI, ad-hoc signing should succeed without additional configuration
 - Version Stamping Issues:
   - If Info.plist version stamping fails, verify PlistBuddy availability and permissions; the scripts continue even if stamping is skipped
 - Cask Update Failures:
   - Ensure the GitHub token has permissions to read releases and write to the repository; verify the DMG asset exists on the tagged release
+- Release Notes Generation Issues:
+  - Ensure git tags exist and follow semantic versioning patterns (vX.Y.Z); verify repository history is accessible for commit range detection
 
 **Section sources**
 - [build_release.sh:13-30](file://scripts/build_release.sh#L13-L30)
 - [create_dmg.sh:21-82](file://scripts/create_dmg.sh#L21-L82)
 - [build.sh:26-31](file://macos/skey-app/build.sh#L26-L31)
 - [update-cask.yml:20-40](file://.github/workflows/update-cask.yml#L20-L40)
+- [generate_release_notes.sh:30-49](file://scripts/generate_release_notes.sh#L30-L49)
 
 ## Dependency Analysis
 - Rust Core Dependencies:
@@ -457,7 +509,7 @@ SwiftApp --> Lib["sqlite3"]
 - DMG Background Generation:
   - Ensure the Swift script can write to the dist/.background directory; check for graphics context availability
 - Release Notes Generation:
-  - Ensure git tags exist and the repository history is accessible; adjust commit message conventions if categories are not recognized
+  - Ensure git tags exist and follow semantic versioning patterns; verify repository history is accessible; adjust commit message conventions if categories are not recognized
 - Cask Updates:
   - Validate GH_TOKEN permissions and network access to GitHub Releases; ensure the DMG asset name matches expectations
 
@@ -469,3 +521,5 @@ SwiftApp --> Lib["sqlite3"]
 
 ## Conclusion
 The build and deployment system integrates Rust and Swift into a cohesive, signed, and distributable macOS application. It automates versioning, artifact generation, release notes, and Homebrew Cask updates through GitHub Actions. By following the documented steps and troubleshooting guidance, developers can reliably build, test, and distribute SKey across different environments while maintaining high performance and consistency.
+
+**Updated** Recent enhancements include improved release notes generation with semantic version pattern filtering and intelligent fallback logic, along with updated Homebrew Cask configuration supporting version 1.0.14 with architecture-specific checksums for both ARM and Intel platforms.

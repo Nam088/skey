@@ -1,0 +1,1 @@
+Swift Package that builds the SKey macOS .app, wiring an input method, clipboard history, translator HUD, settings panel, and cleaner into a single AppKit/SwiftUI bundle coordinated by AppCoordinator.

@@ -1,0 +1,1 @@
+`build.sh` compiles the SKey `.app` from the Swift Package; `release.sh` packages distribution artifacts; `scripts/*.sh` and `scripts/*.swift` run isolated test harnesses for translation engines, Spotlight integration, Yandex recomposition, shortcuts, and app-exclusion behavior.

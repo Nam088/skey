@@ -17,7 +17,17 @@
 - [TranslationHUDController.swift](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift)
 - [AppFocusObserver.swift](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift)
 - [PermissionsService.swift](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift)
+- [LocalizationService.swift](file://macos/skey-app/Sources/Shared/Localization/LocalizationService.swift)
+- [Feature.swift](file://macos/skey-app/Sources/Shared/Core/Feature.swift)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated Menu Bar and Window Management section to reflect the comprehensive redesign with modern compact menu builder using SF Symbols icons
+- Enhanced architecture overview to include the new logical menu grouping structure (keyboard features, quick actions, settings/tools, quit)
+- Added performance optimization details for language change handling that prevents full menu rebuilds
+- Updated localization references to reflect the new menu structure and SF Symbols integration
+- Enhanced dependency analysis to show the new feature-based menu building pattern
 
 ## Table of Contents
 1. Introduction
@@ -31,10 +41,10 @@
 9. Conclusion
 
 ## Introduction
-This document explains the native macOS application layer built with Swift and SwiftUI. It covers the menu bar application architecture, window management patterns, and how the app integrates deeply with macOS accessibility and input monitoring to provide universal typing assistance. It also documents the low-level CoreGraphics EventTap implementation for intercepting and forwarding keyboard events, and details custom UI components such as the clipboard history popup, settings dashboard, and translation HUD. Finally, it addresses macOS-specific considerations including sandboxing, entitlements, code signing, and App Store distribution requirements.
+This document explains the native macOS application layer built with Swift and SwiftUI. It covers the menu bar application architecture, window management patterns, and how the app integrates deeply with macOS accessibility and input monitoring to provide universal typing assistance. The application features a comprehensive redesign of the status bar menu system with modern compact menu builder using SF Symbols icons throughout the interface, reorganized menu structure into logical groups (keyboard features, quick actions, settings/tools, quit), enhanced language selector moved to main menu, and optimized menu rebuild logic for better performance when language changes occur. It also documents the low-level CoreGraphics EventTap implementation for intercepting and forwarding keyboard events, and details custom UI components such as the clipboard history popup, settings dashboard, and translation HUD. Finally, it addresses macOS-specific considerations including sandboxing, entitlements, code signing, and App Store distribution requirements.
 
 ## Project Structure
-The macOS app is organized into feature modules under Sources/Features, shared services and UI under Shared, and an App entry point that initializes the lifecycle and coordinates features. The Resources folder contains localization and the app’s Info.plist configuration.
+The macOS app is organized into feature modules under Sources/Features, shared services and UI under Shared, and an App entry point that initializes the lifecycle and coordinates features. The Resources folder contains localization and the app's Info.plist configuration.
 
 ```mermaid
 graph TB
@@ -51,6 +61,7 @@ J --> K["SettingsDashboardView.swift"]
 C --> L["TranslationHUDController.swift"]
 C --> M["AppFocusObserver.swift"]
 C --> N["PermissionsService.swift"]
+F --> O["LocalizationService.swift"]
 ```
 
 **Diagram sources**
@@ -64,10 +75,11 @@ C --> N["PermissionsService.swift"]
 - [ClipboardPopupController.swift:1-367](file://macos/skey-app/Sources/Features/Clipboard/UI/Controllers/ClipboardPopupController.swift#L1-L367)
 - [SettingsWindowController.swift:1-60](file://macos/skey-app/Sources/Features/Settings/SettingsWindowController.swift#L1-L60)
 - [SettingsDashboardView.swift:1-277](file://macos/skey-app/Sources/Features/Settings/UI/SettingsDashboardView.swift#L1-L277)
-- [StatusBarManager.swift:1-271](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L1-L271)
+- [StatusBarManager.swift:1-316](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L1-L316)
 - [TranslationHUDController.swift:1-130](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift#L1-L130)
 - [AppFocusObserver.swift:1-153](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift#L1-L153)
 - [PermissionsService.swift:1-42](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L1-L42)
+- [LocalizationService.swift:1-164](file://macos/skey-app/Sources/Shared/Localization/LocalizationService.swift#L1-L164)
 
 **Section sources**
 - [main.swift:1-7](file://macos/skey-app/Sources/App/main.swift#L1-L7)
@@ -79,6 +91,11 @@ C --> N["PermissionsService.swift"]
   - AppDelegate builds standard menus, starts AppCoordinator, handles settings open via notifications or arguments, and triggers background update checks.
 - Feature coordination:
   - AppCoordinator registers KeyboardFeature and ClipboardFeature, configures StatusBarManager, wires status icon updates, starts focus observation, syncs launch-at-login, and manages permissions.
+- **Updated** Modern Status Bar Menu System:
+  - StatusBarManager implements a comprehensive redesign with modern compact menu builder using SF Symbols icons throughout the interface.
+  - Menu structure is organized into logical groups: keyboard features (from registered features), quick actions (snippets), settings & tools (with permission shortcuts), and quit.
+  - Language selector has been moved to a dedicated submenu within the main menu for better organization.
+  - Optimized menu rebuild logic prevents full menu reconstruction during language changes, only updating status icon and tooltip for improved performance.
 - Keyboard subsystem:
   - KeyboardFeature builds menu items, applies preferences, toggles language, and implements smart app switch behavior based on active app category.
   - EventTapManager owns a dedicated thread hosting a CoreGraphics EventTap, processes events through TypingPipeline, and exposes language state safely across threads.
@@ -94,10 +111,14 @@ C --> N["PermissionsService.swift"]
 - System integration:
   - AppFocusObserver tracks frontmost app, classifies apps (developer tools, browsers, chat/electron, Spotlight), and enables enhanced accessibility for certain apps.
   - PermissionsService checks and prompts for Accessibility and Input Monitoring permissions.
+- **Enhanced** Localization Service:
+  - Provides centralized language management with notification system for UI updates.
+  - Posts both generic and SKey-specific language change notifications for targeted UI updates.
 
 **Section sources**
 - [AppDelegate.swift:1-75](file://macos/skey-app/Sources/App/AppDelegate.swift#L1-L75)
 - [AppCoordinator.swift:1-77](file://macos/skey-app/Sources/App/AppCoordinator.swift#L1-L77)
+- [StatusBarManager.swift:1-316](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L1-L316)
 - [KeyboardFeature.swift:1-328](file://macos/skey-app/Sources/Features/Keyboard/KeyboardFeature.swift#L1-L328)
 - [EventTapManager.swift:1-196](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L1-L196)
 - [TypingPipeline.swift:1-345](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L1-L345)
@@ -108,9 +129,17 @@ C --> N["PermissionsService.swift"]
 - [TranslationHUDController.swift:1-130](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift#L1-L130)
 - [AppFocusObserver.swift:1-153](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift#L1-L153)
 - [PermissionsService.swift:1-42](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L1-L42)
+- [LocalizationService.swift:1-164](file://macos/skey-app/Sources/Shared/Localization/LocalizationService.swift#L1-L164)
 
 ## Architecture Overview
-The app follows a feature-driven architecture coordinated by AppCoordinator. The menu bar UI is managed by StatusBarManager, which aggregates feature menus and status icons. Low-level keyboard interception uses a dedicated thread with a CoreGraphics EventTap, delegating processing to a high-performance TypingPipeline. UI windows are SwiftUI-backed and hosted in NSWindowController instances. System integration relies on Accessibility and Input Monitoring permissions and dynamic app focus detection.
+The app follows a feature-driven architecture coordinated by AppCoordinator. The menu bar UI is managed by StatusBarManager, which aggregates feature menus and status icons using a modern compact design with SF Symbols. Low-level keyboard interception uses a dedicated thread with a CoreGraphics EventTap, delegating processing to a high-performance TypingPipeline. UI windows are SwiftUI-backed and hosted in NSWindowController instances. System integration relies on Accessibility and Input Monitoring permissions and dynamic app focus detection.
+
+**Updated** The status bar menu system has been comprehensively redesigned with a logical grouping structure:
+- **Keyboard Features Group**: Dynamic menu items from registered features (keyboard and clipboard)
+- **Quick Actions Group**: Snippets management with pencil icon
+- **Settings & Tools Group**: Centralized access to settings, permissions, and utilities with gear and wrench icons
+- **Language Selector**: Moved to a dedicated submenu with globe icon for better organization
+- **Quit Action**: Clean exit option with xmark icon
 
 ```mermaid
 sequenceDiagram
@@ -121,10 +150,12 @@ participant KF as "KeyboardFeature"
 participant CF as "ClipboardFeature"
 participant SW as "SettingsWindowController"
 participant TH as "TranslationHUDController"
+participant SBM as "StatusBarManager"
 OS->>ETM : CGEvent (keyDown/keyUp/flagsChanged)
 ETM->>TP : process(event, type)
 alt Language toggle shortcut
 TP-->>KF : onToggleLanguage()
+KF-->>SBM : updateStatusIcon()
 else Clipboard shortcut
 TP-->>CF : togglePopup()
 else Cleaner/AI shortcut
@@ -142,11 +173,20 @@ ETM-->>OS : forward or drop event
 - [ClipboardFeature.swift:60-72](file://macos/skey-app/Sources/Features/Clipboard/ClipboardFeature.swift#L60-L72)
 - [SettingsWindowController.swift:49-58](file://macos/skey-app/Sources/Features/Settings/SettingsWindowController.swift#L49-L58)
 - [TranslationHUDController.swift:74-105](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift#L74-L105)
+- [StatusBarManager.swift:40-43](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L40-L43)
 
 ## Detailed Component Analysis
 
-### Menu Bar and Window Management
-- Status bar button displays a keycap-style “V” or “E” icon and opens a grouped menu from all features. Left-click toggles language; right-click shows the full menu.
+### **Updated** Menu Bar and Window Management
+- **Modern Compact Menu System**: StatusBarManager implements a comprehensive redesign with SF Symbols icons throughout the interface, providing a clean and intuitive user experience.
+- **Logical Menu Organization**: The menu is structured into four distinct groups:
+  - **Keyboard Features**: Dynamic items from registered features (language toggle, input methods, character sets, typing options)
+  - **Quick Actions**: Snippets management with pencil icon for easy access
+  - **Settings & Tools**: Centralized access to settings (gear icon), permissions (keyboard/accessibility icons), and utilities (wrench icon)
+  - **Language Selector**: Dedicated submenu with globe icon containing all available interface languages
+  - **Quit Action**: Clean exit option with xmark icon
+- **Performance Optimization**: Language changes trigger only status icon and tooltip updates, avoiding expensive full menu rebuilds.
+- Status bar button displays a keycap-style "V" or "E" icon and opens a grouped menu from all features. Left-click toggles language; right-click shows the full menu.
 - Settings window is a non-titled, resizable NSWindow hosting a SwiftUI dashboard with sidebar navigation and search.
 - Translation HUD is a floating, borderless panel with editing shortcuts and ESC-to-close behavior.
 
@@ -157,6 +197,7 @@ class StatusBarManager {
 +rebuildMenu()
 +updateStatusIcon(isVietnamese)
 +onLeftClickToggle()
++languageDidChange() // Optimized handler
 }
 class SettingsWindowController {
 +showSettings(tab)
@@ -165,14 +206,19 @@ class TranslationHUDPanel {
 +toggleHUD(initialText)
 +performKeyEquivalent(event)
 }
+class FeatureProtocol {
++buildMenuItems() -> [NSMenuItem]
+}
 StatusBarManager --> SettingsWindowController : "opens settings"
 StatusBarManager --> TranslationHUDPanel : "invoked via shortcuts"
+StatusBarManager --> FeatureProtocol : "aggregates feature menus"
 ```
 
 **Diagram sources**
 - [StatusBarManager.swift:31-257](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L31-L257)
 - [SettingsWindowController.swift:9-58](file://macos/skey-app/Sources/Features/Settings/SettingsWindowController.swift#L9-L58)
 - [TranslationHUDController.swift:6-54](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift#L6-L54)
+- [Feature.swift:8-32](file://macos/skey-app/Sources/Shared/Core/Feature.swift#L8-L32)
 
 **Section sources**
 - [StatusBarManager.swift:31-257](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L31-L257)
@@ -275,7 +321,7 @@ CF->>CF : copyToPasteboard + trigger system paste
 
 ### Settings Dashboard
 - SettingsWindowController creates a styled NSWindow with a visual effect view and hosts SwiftUI content.
-- SettingsDashboardView provides a sidebar with tabs, search, and detail panes for each feature’s settings.
+- SettingsDashboardView provides a sidebar with tabs, search, and detail panes for each feature's settings.
 
 ```mermaid
 classDiagram
@@ -374,6 +420,7 @@ TP --> SW["SettingsWindowController"]
 TP --> TH["TranslationHUDController"]
 App --> AFO["AppFocusObserver"]
 App --> PS["PermissionsService"]
+SB --> LS["LocalizationService"]
 ```
 
 **Diagram sources**
@@ -381,20 +428,21 @@ App --> PS["PermissionsService"]
 - [KeyboardFeature.swift:35-55](file://macos/skey-app/Sources/Features/Keyboard/KeyboardFeature.swift#L35-L55)
 - [EventTapManager.swift:27-31](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L27-L31)
 - [TypingPipeline.swift:31-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L170)
+- [StatusBarManager.swift:18-23](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L18-L23)
 
 **Section sources**
 - [AppCoordinator.swift:22-50](file://macos/skey-app/Sources/App/AppCoordinator.swift#L22-L50)
 - [TypingPipeline.swift:31-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L170)
 
 ## Performance Considerations
+- **Updated** Menu Rebuild Optimization: Language changes now trigger only status icon and tooltip updates through the `languageDidChange()` method, avoiding expensive full menu reconstruction. This significantly improves responsiveness when users switch interface languages.
 - Dedicated thread and run loop for EventTap minimize main-thread contention and ensure consistent latency.
 - Ultra-fast os_unfair_lock protects language state and avoids heap allocations in hot paths.
 - TypingPipeline uses fast-path classifications for function/media keys, navigation, backspace, and word-break to reduce overhead.
 - Unsafe temporary allocation extracts Unicode characters efficiently without extra allocations.
 - Context recomposition runs only when caret movement is detected, avoiding unnecessary work.
 - Clipboard operations use background tasks and minimal UI updates on the main thread.
-
-[No sources needed since this section provides general guidance]
+- **New** SF Symbols Integration: Using system symbols reduces memory footprint compared to custom images and ensures consistency with macOS design guidelines.
 
 ## Troubleshooting Guide
 - EventTap disabled by timeout or user input:
@@ -405,14 +453,17 @@ App --> PS["PermissionsService"]
   - Ensure AppFocusObserver has access to frontmost app notifications and that the app is classified correctly.
 - Clipboard paste not triggering:
   - Verify that the system paste simulation posts events to the correct tap and that target app regains focus before paste.
+- **New** Menu not updating after language change:
+  - Check that the `languageDidChange()` notification handler is properly subscribed and that only status icon updates are triggered instead of full menu rebuilds.
+- **New** SF Symbols not displaying:
+  - Verify that the system supports the requested SF Symbol names and that proper fallback handling is in place.
 
 **Section sources**
 - [EventTapManager.swift:172-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L172-L188)
 - [PermissionsService.swift:12-40](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L12-L40)
 - [AppFocusObserver.swift:114-151](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift#L114-L151)
 - [ClipboardFeature.swift:104-122](file://macos/skey-app/Sources/Features/Clipboard/ClipboardFeature.swift#L104-L122)
+- [StatusBarManager.swift:40-43](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L40-L43)
 
 ## Conclusion
-The macOS application layer combines a robust, feature-driven architecture with low-level system integration. CoreGraphics EventTap and a carefully optimized TypingPipeline deliver responsive typing assistance, while SwiftUI-based UIs provide a modern, accessible experience. Smart app switching and permission management ensure reliable operation across diverse applications. Proper configuration of Info.plist entries for usage descriptions and system capabilities is essential for distribution, especially on the Mac App Store where sandboxing and entitlements must be aligned with required APIs.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The macOS application layer combines a robust, feature-driven architecture with low-level system integration. The comprehensive redesign of the status bar menu system with modern compact menu builder using SF Symbols icons provides an enhanced user experience with logical menu organization and improved performance. CoreGraphics EventTap and a carefully optimized TypingPipeline deliver responsive typing assistance, while SwiftUI-based UIs provide a modern, accessible experience. Smart app switching and permission management ensure reliable operation across diverse applications. Proper configuration of Info.plist entries for usage descriptions and system capabilities is essential for distribution, especially on the Mac App Store where sandboxing and entitlements must be aligned with required APIs. The optimized menu rebuild logic and SF Symbols integration demonstrate the application's commitment to performance and modern macOS design principles.

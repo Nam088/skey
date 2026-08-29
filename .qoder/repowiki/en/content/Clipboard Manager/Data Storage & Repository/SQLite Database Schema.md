@@ -9,6 +9,13 @@
 - [ClipboardEnums.swift](file://macos/skey-app/Sources/Features/Clipboard/Models/ClipboardEnums.swift)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Updated Performance Considerations section to document withCString optimization
+- Enhanced Data Flow and Mutations section with performance optimization details
+- Added Memory Efficiency improvements section
+- Updated code examples to reflect optimized string binding methods
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -17,12 +24,13 @@
 5. [Detailed Component Analysis](#detailed-component-analysis)
 6. [Dependency Analysis](#dependency-analysis)
 7. [Performance Considerations](#performance-considerations)
-8. [Troubleshooting Guide](#troubleshooting-guide)
-9. [Conclusion](#conclusion)
-10. [Appendices](#appendices)
+8. [Memory Efficiency Improvements](#memory-efficiency-improvements)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Conclusion](#conclusion)
+11. [Appendices](#appendices)
 
 ## Introduction
-This document describes the SQLite database schema used by the clipboard storage system, focusing on the clipboardItem table and its supporting indexes. It explains each field’s purpose, data types, constraints, validation rules, relationships to other components, and how search is implemented using a normalized text field. It also covers database initialization, WAL mode configuration, and concurrent access considerations.
+This document describes the SQLite database schema used by the clipboard storage system, focusing on the clipboardItem table and its supporting indexes. It explains each field's purpose, data types, constraints, validation rules, relationships to other components, and how search is implemented using a normalized text field. It also covers database initialization, WAL mode configuration, concurrent access considerations, and recent performance optimizations for improved memory efficiency.
 
 ## Project Structure
 The clipboard subsystem is implemented in Swift with a repository pattern that abstracts persistence behind an interface. The SQLite implementation lives in a dedicated repository class that creates and manages the clipboardItem table and related indexes. Data models define the in-memory representation and normalization logic for search. A store orchestrates capture, retention, caching, and persistence, while payload storage is delegated to a file-based store.
@@ -53,13 +61,13 @@ Enums["ClipboardContentType (enum)"] --> Repo
 ## Core Components
 - clipboardItem table: stores persisted clipboard entries with metadata, optional full payloads, and search support.
 - Indexes: optimize lookups by content hash and time ordering.
-- Repository layer: handles connection setup, schema creation, queries, and mutations.
+- Repository layer: handles connection setup, schema creation, queries, and mutations with optimized string binding.
 - Model layer: defines ClipboardItem fields and Vietnamese-aware normalization for search.
 - Store layer: coordinates capture decisions, caching, and persistence; integrates with payload storage.
 
 Key responsibilities:
 - Initialization and schema creation are performed when the repository opens the database.
-- Insert uses upsert semantics via INSERT OR REPLACE keyed by id.
+- Insert uses upsert semantics via INSERT OR REPLACE keyed by id with optimized string binding.
 - Search uses LIKE against normalizedSearchText after folding input similarly.
 - Time fields are stored as doubles representing seconds since epoch.
 - Boolean flags are stored as integers (0/1).
@@ -71,7 +79,7 @@ Key responsibilities:
 - [ClipboardItem.swift:5-62](file://macos/skey-app/Sources/Features/Clipboard/Models/ClipboardItem.swift#L5-L62)
 
 ## Architecture Overview
-The clipboard flow involves capturing candidates, deciding whether to retain full or metadata-only, persisting to SQLite, and optionally storing large payloads on disk. Search leverages a pre-normalized text column to enable fast, diacritic-insensitive matching.
+The clipboard flow involves capturing candidates, deciding whether to retain full or metadata-only, persisting to SQLite with optimized string binding, and optionally storing large payloads on disk. Search leverages a pre-normalized text column to enable fast, diacritic-insensitive matching.
 
 ```mermaid
 sequenceDiagram
@@ -86,7 +94,7 @@ Repo->>DB : CREATE INDEX ... (hash, capturedAt)
 App->>FS : write(payloadData?) -> path
 App->>Repo : insert(item with payloadPath)
 Repo->>DB : INSERT OR REPLACE INTO clipboardItem (...)
-Note over Repo,DB : Uses bound parameters for all fields
+Note over Repo,DB : Uses withCString for optimized string binding
 ```
 
 **Diagram sources**
@@ -216,7 +224,7 @@ Init->>DB : CREATE INDEX IF NOT EXISTS idx_clipboard_captured
 - [SQLiteClipboardRepository.swift:69-122](file://macos/skey-app/Sources/Features/Clipboard/Services/SQLiteClipboardRepository.swift#L69-L122)
 
 ### Data Flow and Mutations
-- Insert: binds all fields including normalizedSearchText; uses INSERT OR REPLACE keyed by id.
+- Insert: binds all fields including normalizedSearchText using optimized withCString method; uses INSERT OR REPLACE keyed by id.
 - Fetch: returns all items ordered by capturedAt; supports filtering by normalizedSearchText.
 - Bump to top: updates capturedAt and increments copyCount atomically.
 - Pin toggle: updates isPinned per item.
@@ -282,20 +290,62 @@ Repo --> Enum["ClipboardContentType"]
 - Index on capturedAt optimizes time-ordered queries and recent-first listing.
 - Using normalizedSearchText avoids expensive runtime transformations during search.
 - Serializing all DB operations on a single queue prevents race conditions and simplifies error handling.
+- **Optimized String Binding**: Uses Swift's `withCString` method for efficient C string conversion, eliminating unnecessary NSString bridge allocations and improving memory efficiency for all text-based fields.
 
 [No sources needed since this section provides general guidance]
+
+## Memory Efficiency Improvements
+
+### Optimized String Conversion with withCString
+The SQLiteClipboardRepository now uses Swift's `withCString` method for all text-based field bindings, providing significant memory efficiency improvements:
+
+**Before (NSString bridge allocation):**
+```swift
+sqlite3_bind_text(statement, 1, (itemID.uuidString as NSString).utf8String, -1, nil)
+```
+
+**After (optimized withCString):**
+```swift
+item.id.uuidString.withCString { uuidPtr in
+    _ = sqlite3_bind_text(statement, 1, uuidPtr, -1, nil)
+}
+```
+
+### Fields Optimized for Memory Efficiency
+The following text-based fields now benefit from optimized string conversion:
+
+- **UUID identifiers**: All UUID strings converted using withCString
+- **Content types**: Enum raw values bound directly with withCString
+- **Hash values**: Content hashes efficiently converted to C strings
+- **Preview text**: UI preview strings optimized for memory usage
+- **Source bundle IDs**: Application identifiers converted efficiently
+- **Normalized search text**: Search index strings processed with minimal overhead
+- **Text content**: Optional text fields handled with proper null checking
+- **Payload paths**: File system paths optimized for storage
+
+### Performance Benefits
+- **Reduced Memory Allocations**: Eliminates intermediate NSString objects
+- **Faster String Conversion**: Direct C string pointer access
+- **Lower Memory Pressure**: Fewer temporary objects in high-frequency operations
+- **Improved Throughput**: Better performance for bulk insert operations
+- **Consistent Optimization**: Applied uniformly across all text-based fields
+
+**Section sources**
+- [SQLiteClipboardRepository.swift:81-123](file://macos/skey-app/Sources/Features/Clipboard/Services/SQLiteClipboardRepository.swift#L81-L123)
 
 ## Troubleshooting Guide
 Common issues and mitigations:
 - Initialization errors: check open flags and directory permissions for creating the database under Application Support.
 - Write failures: inspect prepared statement execution and step results; ensure proper binding of all parameters.
 - Search anomalies: verify that both query and stored normalizedSearchText use the same Vietnamese folding process; run backfill to repair missing values.
-- Concurrency problems: confirm operations run on the repository’s serial queue and that WAL mode is active.
+- Concurrency problems: confirm operations run on the repository's serial queue and that WAL mode is active.
+- Memory issues: monitor string conversion patterns and ensure withCString is properly scoped.
 
 Operational tips:
 - Use fetchAllForPolicyEvaluation to retrieve all items for retention pruning.
 - Ensure payload files are deleted alongside DB records to avoid orphaned files.
 - Monitor copyCount and capturedAt changes when bumping items to validate correctness.
+- Profile memory usage during high-volume insert operations to verify optimization effectiveness.
 
 **Section sources**
 - [SQLiteClipboardRepository.swift:21-31](file://macos/skey-app/Sources/Features/Clipboard/Services/SQLiteClipboardRepository.swift#L21-L31)
@@ -304,9 +354,7 @@ Operational tips:
 - [ClipboardStore.swift:165-193](file://macos/skey-app/Sources/Features/Clipboard/Services/ClipboardStore.swift#L165-L193)
 
 ## Conclusion
-The clipboardItem table provides a robust, indexed schema for storing clipboard entries with metadata, optional full payloads, and optimized search capabilities. WAL mode and a serial queue ensure safe concurrent access, while normalizedSearchText enables fast, locale-aware substring searches. The repository pattern cleanly separates persistence concerns from higher-level orchestration in the store layer.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The clipboardItem table provides a robust, indexed schema for storing clipboard entries with metadata, optional full payloads, and optimized search capabilities. Recent performance optimizations using Swift's withCString method significantly improve memory efficiency for all text-based fields. WAL mode and a serial queue ensure safe concurrent access, while normalizedSearchText enables fast, locale-aware substring searches. The repository pattern cleanly separates persistence concerns from higher-level orchestration in the store layer, with enhanced memory management for production deployments.
 
 ## Appendices
 
@@ -326,4 +374,33 @@ The clipboardItem table provides a robust, indexed schema for storing clipboard 
 - copyCount: INTEGER NOT NULL DEFAULT 1 — reuse count
 - normalizedSearchText: TEXT NOT NULL DEFAULT '' — search index
 
-[No sources needed since this section lists fields already analyzed above]
+### String Binding Optimization Examples
+The following fields demonstrate the optimized withCString usage pattern:
+
+**UUID Binding:**
+```swift
+item.id.uuidString.withCString { uuidPtr in
+    _ = sqlite3_bind_text(statement, 1, uuidPtr, -1, nil)
+}
+```
+
+**Content Type Binding:**
+```swift
+item.contentType.rawValue.withCString { typePtr in
+    _ = sqlite3_bind_text(statement, 2, typePtr, -1, nil)
+}
+```
+
+**Optional Text Handling:**
+```swift
+if let text = item.textContent {
+    text.withCString { textPtr in
+        _ = sqlite3_bind_text(statement, 4, textPtr, -1, nil)
+    }
+} else {
+    sqlite3_bind_null(statement, 4)
+}
+```
+
+**Section sources**
+- [SQLiteClipboardRepository.swift:82-123](file://macos/skey-app/Sources/Features/Clipboard/Services/SQLiteClipboardRepository.swift#L82-L123)

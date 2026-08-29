@@ -1,0 +1,1 @@
+Swift Package Manager producing an Xcode `.app` bundle; AppKit + SwiftUI UI; SQLite for clipboard persistence; C bridge (`CSKey`) to a Rust-backed typing engine; Xcode localization files (`.lproj` + `Localizable.xcstrings`).
