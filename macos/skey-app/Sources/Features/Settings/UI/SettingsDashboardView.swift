@@ -219,41 +219,44 @@ public struct SettingsDashboardView: View {
                     .padding(.horizontal, 28)
                     .padding(.bottom, 12)
 
-                // Detail Content Area (Centered Balanced Width with spring transition)
-                HStack(alignment: .top) {
-                    Spacer(minLength: 0)
-                    Group {
-                        switch navState.selectedTab {
-                        case .keyboard:
-                            KeyboardSettingsTab()
-                        case .clipboard:
-                            ClipboardSettingsTab()
-                        case .snippets:
-                            SnippetsSettingsTab()
-                        case .tools:
-                            ToolsSettingsTab()
-                        case .ai:
-                            AISettingsTab()
-                        case .general:
-                            GeneralSettingsTab()
-                        case .about:
-                            AboutSettingsTab()
+                // Detail Content Area (Full-height ScrollView with margin to window edge)
+                ScrollView {
+                    HStack {
+                        Spacer(minLength: 0)
+                        Group {
+                            switch navState.selectedTab {
+                            case .keyboard:
+                                KeyboardSettingsTab()
+                            case .clipboard:
+                                ClipboardSettingsTab()
+                            case .snippets:
+                                SnippetsSettingsTab()
+                            case .tools:
+                                ToolsSettingsTab()
+                            case .ai:
+                                AISettingsTab()
+                            case .general:
+                                GeneralSettingsTab()
+                            case .about:
+                                AboutSettingsTab()
+                            }
                         }
+                        .frame(maxWidth: 520)
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                        .transition(.opacity.combined(with: .scale(scale: 0.995)))
+                        Spacer(minLength: 0)
                     }
-                    .frame(maxWidth: 600, maxHeight: .infinity, alignment: .top)
-                    .toggleStyle(.switch)
-                    .controlSize(.small)
-                    .transition(.opacity.combined(with: .scale(scale: 0.995)))
-                    Spacer(minLength: 0)
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 24)
                 }
-                .padding(.horizontal, 28)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .scrollIndicators(.automatic)
                 .animation(.spring(response: 0.3, dampingFraction: 0.82), value: navState.selectedTab)
             }
-            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .frame(minWidth: 440, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(minWidth: 800, idealWidth: 840, minHeight: 520, idealHeight: 560)
+        .frame(minWidth: 720, idealWidth: 780, minHeight: 520, idealHeight: 580)
     }
 
     // MARK: - Sidebar Header Profile

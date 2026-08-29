@@ -78,24 +78,20 @@ public struct SnippetsSettingsTab: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             SubTabBar(items: subTabs, selectedTab: $navState.snippetsSubTab)
 
-            ScrollView {
-                VStack(spacing: 14) {
-                    switch navState.snippetsSubTab {
-                    case 0:
-                        allInOneMacroSection
-                    case 1:
-                        backupSection
-                    default:
-                        EmptyView()
-                    }
+            VStack(spacing: 14) {
+                switch navState.snippetsSubTab {
+                case 0:
+                    allInOneMacroSection
+                case 1:
+                    backupSection
+                default:
+                    EmptyView()
                 }
-                .padding(.top, 2)
-                .padding(.bottom, 16)
             }
-            .scrollIndicators(.automatic)
+            .padding(.top, 2)
         }
     }
 

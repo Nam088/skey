@@ -23,26 +23,22 @@ public struct KeyboardSettingsTab: View {
     public init() {}
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             SubTabBar(items: subTabs, selectedTab: $navState.keyboardSubTab)
 
-            ScrollView {
-                VStack(spacing: 14) {
-                    switch navState.keyboardSubTab {
-                    case 0:
-                        inputMethodSection
-                    case 1:
-                        typingRulesSection
-                    case 2:
-                        appManagementSection
-                    default:
-                        inputMethodSection
-                    }
+            VStack(spacing: 14) {
+                switch navState.keyboardSubTab {
+                case 0:
+                    inputMethodSection
+                case 1:
+                    typingRulesSection
+                case 2:
+                    appManagementSection
+                default:
+                    inputMethodSection
                 }
-                .padding(.top, 2)
-                .padding(.bottom, 16)
             }
-            .scrollIndicators(.automatic)
+            .padding(.top, 2)
         }
     }
 

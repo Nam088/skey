@@ -8,7 +8,7 @@ public final class SettingsWindowController: NSWindowController {
 
     private init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 880, height: 620),
+            contentRect: NSRect(x: 0, y: 0, width: 800, height: 580),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -19,7 +19,7 @@ public final class SettingsWindowController: NSWindowController {
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isReleasedWhenClosed = false
-        window.minSize = NSSize(width: 800, height: 560)
+        window.minSize = NSSize(width: 720, height: 520)
 
         let visualEffectView = NSVisualEffectView()
         visualEffectView.material = .sidebar

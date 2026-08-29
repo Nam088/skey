@@ -131,26 +131,22 @@ public struct ToolsSettingsTab: View {
     public init() {}
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             SubTabBar(items: subTabs, selectedTab: $navState.toolsSubTab)
 
-            ScrollView {
-                VStack(spacing: 14) {
-                    switch navState.toolsSubTab {
-                    case 0:
-                        translatorSection
-                    case 1:
-                        utilitiesSection
-                    case 2:
-                        converterSection
-                    default:
-                        translatorSection
-                    }
+            VStack(spacing: 14) {
+                switch navState.toolsSubTab {
+                case 0:
+                    translatorSection
+                case 1:
+                    utilitiesSection
+                case 2:
+                    converterSection
+                default:
+                    translatorSection
                 }
-                .padding(.top, 2)
-                .padding(.bottom, 16)
             }
-            .scrollIndicators(.automatic)
+            .padding(.top, 2)
         }
     }
 
@@ -190,7 +186,7 @@ public struct ToolsSettingsTab: View {
                         Text(L10n("lang.fr")).tag("fr")
                         Text(L10n("lang.de")).tag("de")
                     }
-                    .frame(width: 150)
+                    .frame(width: 140)
                 }
             }
 
@@ -202,7 +198,8 @@ public struct ToolsSettingsTab: View {
 
                         if index < translatorSettings.engines.count - 1 {
                             Divider()
-                                .padding(.horizontal, 14)
+                                .opacity(0.4)
+                                .padding(.leading, 16)
                         }
                     }
                 }

@@ -22,26 +22,22 @@ public struct GeneralSettingsTab: View {
     public init() {}
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             SubTabBar(items: subTabs, selectedTab: $navState.generalSubTab)
 
-            ScrollView {
-                VStack(spacing: 14) {
-                    switch navState.generalSubTab {
-                    case 0:
-                        basicSection
-                    case 1:
-                        permissionsSection
-                    case 2:
-                        logsSection
-                    default:
-                        EmptyView()
-                    }
+            VStack(spacing: 14) {
+                switch navState.generalSubTab {
+                case 0:
+                    basicSection
+                case 1:
+                    permissionsSection
+                case 2:
+                    logsSection
+                default:
+                    EmptyView()
                 }
-                .padding(.top, 2)
-                .padding(.bottom, 16)
             }
-            .scrollIndicators(.automatic)
+            .padding(.top, 2)
         }
         .alert(isPresented: $showAlert) {
             Alert(
