@@ -200,24 +200,24 @@ public struct SettingsDashboardView: View {
             VStack(alignment: .leading, spacing: 0) {
                 // Main Header Area (Unified across all tabs)
                 HStack {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text(navState.selectedTab.title)
-                            .font(.system(size: 24, weight: .bold))
+                            .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.primary)
 
                         Text(navState.selectedTab.subtitle)
-                            .font(.system(size: 12.5))
+                            .font(.system(size: 11.5))
                             .foregroundColor(.secondary)
                     }
                     Spacer()
                 }
-                .padding(.horizontal, 34)
-                .padding(.top, 24)
-                .padding(.bottom, 16)
+                .padding(.horizontal, 28)
+                .padding(.top, 18)
+                .padding(.bottom, 12)
 
                 Divider()
-                    .padding(.horizontal, 34)
-                    .padding(.bottom, 16)
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 12)
 
                 // Detail Content Area (Centered Balanced Width with spring transition)
                 HStack {
@@ -240,19 +240,19 @@ public struct SettingsDashboardView: View {
                             AboutSettingsTab()
                         }
                     }
-                    .frame(maxWidth: 640)
+                    .frame(maxWidth: 600)
                     .transition(.opacity.combined(with: .scale(scale: 0.995)))
                     Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 34)
-                .animation(.spring(response: 0.32, dampingFraction: 0.82), value: navState.selectedTab)
+                .padding(.horizontal, 28)
+                .animation(.spring(response: 0.3, dampingFraction: 0.82), value: navState.selectedTab)
 
                 Spacer(minLength: 0)
             }
-            .frame(minWidth: 540, maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(minWidth: 840, idealWidth: 880, minHeight: 580, idealHeight: 620)
+        .frame(minWidth: 800, idealWidth: 840, minHeight: 520, idealHeight: 560)
     }
 
     // MARK: - Sidebar Header Profile

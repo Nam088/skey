@@ -22,11 +22,11 @@ public struct ClipboardSettingsTab: View {
     public init() {}
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
             SubTabBar(items: subTabs, selectedTab: $navState.clipboardSubTab)
 
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 14) {
                     switch navState.clipboardSubTab {
                     case 0:
                         generalSection
@@ -42,9 +42,10 @@ public struct ClipboardSettingsTab: View {
                         EmptyView()
                     }
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 24)
+                .padding(.top, 2)
+                .padding(.bottom, 16)
             }
+            .scrollIndicators(.automatic)
         }
     }
 

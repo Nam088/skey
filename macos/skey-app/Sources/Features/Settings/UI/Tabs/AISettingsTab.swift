@@ -19,11 +19,11 @@ public struct AISettingsTab: View {
     public init() {}
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
             SubTabBar(items: subTabs, selectedTab: $navState.aiSubTab)
 
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 14) {
                     switch navState.aiSubTab {
                     case 0:
                         providerSection
@@ -35,9 +35,10 @@ public struct AISettingsTab: View {
                         EmptyView()
                     }
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 24)
+                .padding(.top, 2)
+                .padding(.bottom, 16)
             }
+            .scrollIndicators(.automatic)
         }
     }
 

@@ -23,11 +23,11 @@ public struct KeyboardSettingsTab: View {
     public init() {}
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
             SubTabBar(items: subTabs, selectedTab: $navState.keyboardSubTab)
 
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 14) {
                     switch navState.keyboardSubTab {
                     case 0:
                         inputMethodSection
@@ -39,9 +39,10 @@ public struct KeyboardSettingsTab: View {
                         inputMethodSection
                     }
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 24)
+                .padding(.top, 2)
+                .padding(.bottom, 16)
             }
+            .scrollIndicators(.automatic)
         }
     }
 

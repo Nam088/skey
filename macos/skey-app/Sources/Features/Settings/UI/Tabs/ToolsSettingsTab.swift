@@ -131,11 +131,11 @@ public struct ToolsSettingsTab: View {
     public init() {}
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
             SubTabBar(items: subTabs, selectedTab: $navState.toolsSubTab)
 
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 14) {
                     switch navState.toolsSubTab {
                     case 0:
                         translatorSection
@@ -147,9 +147,10 @@ public struct ToolsSettingsTab: View {
                         translatorSection
                     }
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 24)
+                .padding(.top, 2)
+                .padding(.bottom, 16)
             }
+            .scrollIndicators(.automatic)
         }
     }
 
