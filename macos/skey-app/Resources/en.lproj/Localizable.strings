@@ -405,7 +405,7 @@
 
 /* Settings: About */
 "about.title" = "SKey";
-"about.version" = "Version 1.0.0 (Native Apple Silicon & Intel)";
+"about.version" = "Version %@ (Native Apple Silicon & Intel)";
 "about.description" = "Ultra-lightweight Vietnamese IME & Smart Clipboard Manager for macOS.";
 "about.author" = "Author";
 "about.opensource" = "Open Source";

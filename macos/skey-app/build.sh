@@ -23,6 +23,13 @@ mkdir -p "$APP_BUNDLE/Contents/Resources"
 
 cp "$SCRIPT_DIR/Resources/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 
+# Dynamically stamp current version from git tag
+CURRENT_TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.12")"
+CURRENT_VERSION="${CURRENT_TAG#v}"
+echo "==> Stamping version $CURRENT_VERSION into Info.plist..."
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $CURRENT_VERSION" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $CURRENT_VERSION" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
+
 # Copy localization resources (.lproj, .xcstrings, etc.)
 if [[ -d "$SCRIPT_DIR/Resources/vi.lproj" ]]; then
     cp -R "$SCRIPT_DIR/Resources/vi.lproj" "$APP_BUNDLE/Contents/Resources/"

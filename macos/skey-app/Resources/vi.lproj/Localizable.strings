@@ -405,7 +405,7 @@
 
 /* Settings: About */
 "about.title" = "SKey";
-"about.version" = "Phiên bản 1.0.0 (Native Apple Silicon & Intel)";
+"about.version" = "Phiên bản %@ (Native Apple Silicon & Intel)";
 "about.description" = "Bộ gõ tiếng Việt siêu nhẹ & Clipboard Manager thông minh cho macOS.";
 "about.author" = "Tác giả";
 "about.opensource" = "Mã nguồn mở";

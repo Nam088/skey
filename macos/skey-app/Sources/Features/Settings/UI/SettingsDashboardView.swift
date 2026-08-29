@@ -243,6 +243,7 @@ public struct SettingsDashboardView: View {
                         }
                         .frame(maxWidth: 520)
                         .toggleStyle(.switch)
+                        .pickerStyle(.menu)
                         .controlSize(.small)
                         .transition(.opacity.combined(with: .scale(scale: 0.995)))
                         Spacer(minLength: 0)
