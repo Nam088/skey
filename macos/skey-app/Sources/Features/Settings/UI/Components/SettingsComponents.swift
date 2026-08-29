@@ -155,13 +155,13 @@ public struct SettingsRow<Control: View>: View {
                 Spacer(minLength: 16)
                 control
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 13)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 9.5)
 
             if showDivider {
                 Divider()
-                    .opacity(0.5)
-                    .padding(.leading, 18)
+                    .opacity(0.4)
+                    .padding(.leading, 16)
             }
         }
     }

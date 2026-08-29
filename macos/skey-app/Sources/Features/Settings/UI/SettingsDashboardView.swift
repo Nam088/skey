@@ -241,6 +241,8 @@ public struct SettingsDashboardView: View {
                         }
                     }
                     .frame(maxWidth: 600)
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
                     .transition(.opacity.combined(with: .scale(scale: 0.995)))
                     Spacer(minLength: 0)
                 }
