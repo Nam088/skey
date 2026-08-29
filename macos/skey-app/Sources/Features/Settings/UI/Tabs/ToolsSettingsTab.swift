@@ -278,86 +278,86 @@ public struct ToolsSettingsTab: View {
     @ViewBuilder
     private func enginePriorityRow(index: Int, engine: TranslationEngineConfig) -> some View {
         let isDragging = draggingEngine?.id == engine.id
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 12) {
-                // Drag Handle
+                // Drag / Reorder Handle
                 Image(systemName: "line.3.horizontal")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.secondary.opacity(0.6))
-                    .frame(width: 16)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.secondary.opacity(0.5))
+                    .frame(width: 14)
 
-                // Priority Number Badge
-                ZStack {
-                    Circle()
-                        .fill(Color.primary.opacity(0.08))
-                        .frame(width: 22, height: 22)
-                    Text("\(index + 1)")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.primary)
-                }
+                // Priority Badge
+                Text("\(index + 1)")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .frame(width: 18, height: 18)
+                    .background(Color(NSColor.quaternaryLabelColor).opacity(0.3))
+                    .clipShape(Circle())
 
                 // Engine Icon
-                ZStack {
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(engine.type.badgeColor.opacity(0.15))
-                        .frame(width: 28, height: 28)
-
-                    Image(systemName: engine.type.icon)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(engine.type.badgeColor)
-                }
+                Image(systemName: engine.type.icon)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(engine.type.badgeColor)
+                    .frame(width: 28, height: 28)
+                    .background(engine.type.badgeColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
 
                 // Title & Subtitle
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1.5) {
                     HStack(spacing: 6) {
                         Text(engine.type.displayName)
                             .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(.primary)
 
                         if engine.type.isFreeNoKeyRequired {
                             Text(L10n("tools.translator.freeBadge"))
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.system(size: 9.5, weight: .semibold))
                                 .foregroundColor(.green)
-                                .padding(.horizontal, 4)
+                                .padding(.horizontal, 5)
                                 .padding(.vertical, 1)
                                 .background(Color.green.opacity(0.12))
-                                .cornerRadius(3)
+                                .cornerRadius(4)
                         }
                     }
 
                     Text(engine.type.subtitle)
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
                 }
 
-                Spacer()
+                Spacer(minLength: 12)
 
-                // Reorder Buttons (Up / Down)
+                // Subtle Up/Down buttons
                 HStack(spacing: 2) {
                     Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
                             translatorSettings.moveEngineUp(at: index)
                         }
                     } label: {
-                        Image(systemName: "arrow.up")
-                            .font(.system(size: 10, weight: .semibold))
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 10, weight: .bold))
+                            .frame(width: 20, height: 20)
+                            .contentShape(Rectangle())
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.plain)
+                    .foregroundColor(index == 0 ? .secondary.opacity(0.3) : .secondary)
                     .disabled(index == 0)
-                    .opacity(index == 0 ? 0.3 : 0.8)
 
                     Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
                             translatorSettings.moveEngineDown(at: index)
                         }
                     } label: {
-                        Image(systemName: "arrow.down")
-                            .font(.system(size: 10, weight: .semibold))
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 10, weight: .bold))
+                            .frame(width: 20, height: 20)
+                            .contentShape(Rectangle())
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.plain)
+                    .foregroundColor(index == translatorSettings.engines.count - 1 ? .secondary.opacity(0.3) : .secondary)
                     .disabled(index == translatorSettings.engines.count - 1)
-                    .opacity(index == translatorSettings.engines.count - 1 ? 0.3 : 0.8)
                 }
-                .padding(.horizontal, 4)
 
                 // Enable Toggle
                 Toggle("", isOn: Binding(
@@ -365,28 +365,29 @@ public struct ToolsSettingsTab: View {
                     set: { translatorSettings.toggleEngine(for: engine.type, isEnabled: $0) }
                 ))
                 .toggleStyle(.switch)
+                .controlSize(.small)
             }
 
             // API Key Input for Non-free engines
             if !engine.type.isFreeNoKeyRequired {
                 HStack(spacing: 8) {
-                    Text(L10n("tools.translator.apiKey"))
-                        .font(.system(size: 11, weight: .medium))
+                    Image(systemName: "key.fill")
+                        .font(.system(size: 10.5))
                         .foregroundColor(.secondary)
-                        .frame(width: 55, alignment: .leading)
 
                     SecureField(L10n("tools.translator.apiKeyPlaceholder"), text: Binding(
                         get: { engine.apiKey },
                         set: { translatorSettings.updateApiKey(for: engine.type, key: $0) }
                     ))
                     .textFieldStyle(.roundedBorder)
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 11))
+                    .controlSize(.small)
                 }
-                .padding(.leading, 78)
-                .padding(.top, 2)
+                .padding(.leading, 62)
+                .padding(.trailing, 4)
             }
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -398,7 +399,7 @@ public struct ToolsSettingsTab: View {
             return NSItemProvider(object: engine.id as NSString)
         }
         .onDrop(
-            of: [UTType.text],
+            of: [.text],
             delegate: EngineDropDelegate(
                 item: engine,
                 translatorSettings: translatorSettings,
