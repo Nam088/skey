@@ -220,7 +220,7 @@ public struct SettingsDashboardView: View {
                     .padding(.bottom, 12)
 
                 // Detail Content Area (Centered Balanced Width with spring transition)
-                HStack {
+                HStack(alignment: .top) {
                     Spacer(minLength: 0)
                     Group {
                         switch navState.selectedTab {
@@ -240,18 +240,17 @@ public struct SettingsDashboardView: View {
                             AboutSettingsTab()
                         }
                     }
-                    .frame(maxWidth: 600)
+                    .frame(maxWidth: 600, maxHeight: .infinity, alignment: .top)
                     .toggleStyle(.switch)
                     .controlSize(.small)
                     .transition(.opacity.combined(with: .scale(scale: 0.995)))
                     Spacer(minLength: 0)
                 }
                 .padding(.horizontal, 28)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .animation(.spring(response: 0.3, dampingFraction: 0.82), value: navState.selectedTab)
-
-                Spacer(minLength: 0)
             }
-            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Color(NSColor.windowBackgroundColor))
         }
         .frame(minWidth: 800, idealWidth: 840, minHeight: 520, idealHeight: 560)
