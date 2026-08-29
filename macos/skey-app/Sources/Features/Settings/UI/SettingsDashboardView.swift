@@ -250,7 +250,7 @@ public struct SettingsDashboardView: View {
                 Spacer(minLength: 0)
             }
             .frame(minWidth: 540, maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(NSColor.windowBackgroundColor).opacity(0.85))
+            .background(Color(NSColor.windowBackgroundColor))
         }
         .frame(minWidth: 840, idealWidth: 880, minHeight: 580, idealHeight: 620)
     }

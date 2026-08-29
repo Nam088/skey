@@ -28,58 +28,37 @@ public struct SubTabBar: View {
     }
 
     public var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: 4) {
             ForEach(items) { item in
                 let isSelected = selectedTab == item.id
                 Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.72)) {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.78)) {
                         selectedTab = item.id
                     }
                 }) {
-                    HStack(spacing: 7) {
+                    HStack(spacing: 6) {
                         Image(systemName: item.icon)
-                            .font(.system(size: 12.5, weight: isSelected ? .semibold : .medium))
+                            .font(.system(size: 12, weight: isSelected ? .semibold : .medium))
                             .foregroundColor(isSelected ? .blue : .secondary)
 
                         Text(item.title)
-                            .font(.system(size: 13, weight: isSelected ? .semibold : .medium))
+                            .font(.system(size: 12.5, weight: isSelected ? .semibold : .medium))
                             .foregroundColor(isSelected ? .primary : .secondary)
                             .lineLimit(1)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 6.5)
                     .padding(.horizontal, 6)
                     .background {
                         if isSelected {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .fill(.ultraThinMaterial)
-                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.white.opacity(0.25),
-                                                Color.white.opacity(0.08)
-                                            ],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                    )
-                                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .strokeBorder(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.white.opacity(0.6),
-                                                Color.white.opacity(0.15)
-                                            ],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        ),
-                                        lineWidth: 0.75
-                                    )
-                            }
-                            .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
-                            .matchedGeometryEffect(id: "activeSubTabPill", in: pillNamespace)
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .fill(Color(NSColor.controlBackgroundColor))
+                                .shadow(color: Color.black.opacity(0.1), radius: 2.5, x: 0, y: 1)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                                )
+                                .matchedGeometryEffect(id: "activeSubTabPill", in: pillNamespace)
                         }
                     }
                     .contentShape(Rectangle())
@@ -88,21 +67,19 @@ public struct SubTabBar: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(4)
+        .padding(3.5)
         .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color(NSColor.windowBackgroundColor).opacity(0.3))
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.15), lineWidth: 0.5)
-            }
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .fill(Color(NSColor.quaternaryLabelColor).opacity(0.18))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .stroke(Color(NSColor.separatorColor).opacity(0.25), lineWidth: 0.5)
         )
     }
 }
 
-// MARK: - Reusable Settings Group Container (macOS Liquid Glass Card)
+// MARK: - Reusable Settings Group Container (Bright Crisp Card)
 
 public struct SettingsGroup<Content: View>: View {
     public let title: String?
@@ -114,49 +91,28 @@ public struct SettingsGroup<Content: View>: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 9) {
+        VStack(alignment: .leading, spacing: 8) {
             if let title = title {
                 Text(title.uppercased())
-                    .font(.system(size: 11.5, weight: .bold))
+                    .font(.system(size: 11, weight: .bold))
                     .foregroundColor(Color(NSColor.secondaryLabelColor))
-                    .tracking(0.6)
-                    .padding(.leading, 8)
+                    .tracking(0.5)
+                    .padding(.leading, 6)
             }
 
             VStack(spacing: 0) {
                 content
             }
             .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.18),
-                                    Color.white.opacity(0.04)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.55),
-                                    Color.white.opacity(0.12)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
-                            lineWidth: 0.75
-                        )
-                }
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(NSColor.controlBackgroundColor))
             )
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 3)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color(NSColor.separatorColor).opacity(0.4), lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
         }
     }
 }
