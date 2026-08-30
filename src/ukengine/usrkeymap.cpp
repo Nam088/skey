@@ -23,6 +23,7 @@
 
 #include "stdafx.h"
 #include <iostream>
+#include <cstring>
 using namespace std;
 
 #include <ctype.h>

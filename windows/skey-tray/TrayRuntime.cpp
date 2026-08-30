@@ -1,6 +1,9 @@
 #include "TrayRuntime.h"
 
 #include <utility>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace skey::windows {
 
