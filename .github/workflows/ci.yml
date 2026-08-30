@@ -79,7 +79,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
 
       - name: build the oracle, the port, and both ABI harnesses
-        run: make oracle rust oracle-rust ctx-harness
+        # The legacy C++ oracle predates transitive standard-library includes;
+        # provide the missing C string declarations without modifying the
+        # reference sources themselves.
+        run: make CXXFLAGS='-O1 -std=c++11 -w -Wno-narrowing -D_tempnam=tempnam -include cstring' oracle rust oracle-rust ctx-harness
 
       - name: the tables still match the C++ binary they came from
         run: |

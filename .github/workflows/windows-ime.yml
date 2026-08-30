@@ -23,19 +23,24 @@ jobs:
     name: Windows portable contracts
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          # The legacy repository contains a macOS-invalid filename. Avoid
-          # materialising it on Windows while retaining every Windows input.
-          sparse-checkout: |
-            .github
-            build-windows
-            installer-windows
-            port/skey-capi/include
-            shared-contracts
-            tests-windows
-            windows
-          sparse-checkout-cone-mode: false
+      - name: Checkout Windows-compatible tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/${{ github.repository }}.git"
+          git fetch --depth=1 origin "${{ github.sha }}"
+          git sparse-checkout init --no-cone
+          cat > .git/info/sparse-checkout <<'EOF'
+          /.github/
+          /build-windows/
+          /installer-windows/
+          /port/skey-capi/include/
+          /shared-contracts/
+          /tests-windows/
+          /windows/
+          EOF
+          git checkout --detach FETCH_HEAD
       - name: Validate schemas and vectors
         shell: bash
         run: python3 build-windows/validate_contracts.py
@@ -63,9 +68,15 @@ jobs:
       run:
         working-directory: port
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: port
-          sparse-checkout-cone-mode: true
+      - name: Checkout Rust tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init .
+          git remote add origin "https://github.com/${{ github.repository }}.git"
+          git fetch --depth=1 origin "${{ github.sha }}"
+          git sparse-checkout init --cone
+          git sparse-checkout set port
+          git checkout --detach FETCH_HEAD
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --workspace --all-targets
