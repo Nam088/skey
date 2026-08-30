@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><root>
+<data name="settings.general.title"><value>Chung</value></data>
+<data name="settings.keyboard.title"><value>Bàn phím</value></data>
+<data name="settings.shortcuts.title"><value>Phím tắt</value></data>
+<data name="settings.appearance.title"><value>Giao diện</value></data>
+<data name="settings.theme.system"><value>Theo hệ thống</value></data>
+<data name="settings.theme.light"><value>Sáng</value></data>
+<data name="settings.theme.dark"><value>Tối</value></data>
+<data name="settings.clipboard.title"><value>Clipboard</value></data><data name="settings.translator.title"><value>Dịch</value></data><data name="settings.cleaner.title"><value>Dọn bàn phím</value></data><data name="settings.about.title"><value>Giới thiệu</value></data>
+<data name="settings.general.enable"><value>Bật bộ gõ tiếng Việt</value></data><data name="settings.general.startup"><value>Khởi động cùng hệ thống</value></data><data name="settings.keyboard.input_method"><value>Kiểu gõ</value></data><data name="settings.keyboard.spell_check"><value>Tự động sửa lỗi</value></data><data name="settings.clipboard.enable"><value>Bật lịch sử clipboard</value></data>
+</root>

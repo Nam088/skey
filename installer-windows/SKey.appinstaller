@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller Uri="https://example.invalid/skey/SKey.appinstaller"
+              Version="0.1.0.0"
+              xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
+  <MainBundle Name="Nam088.SKey" Publisher="CN=Nam088" Version="0.1.0.0"
+              Uri="https://example.invalid/skey/SKey.msix" />
+</AppInstaller>

@@ -1,0 +1,5 @@
+if(WIN32)
+    add_executable(skey-tray WIN32 TrayApp.cpp TrayController.cpp TrayRuntime.cpp TrayIpcHandler.cpp ../Shared/Contracts/IpcCodec.cpp ../Shared/IPC/IpcTransport.cpp)
+    target_include_directories(skey-tray PRIVATE ../)
+    target_link_libraries(skey-tray PRIVATE user32 shell32)
+endif()

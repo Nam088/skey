@@ -1,0 +1,3 @@
+<Page x:Class="SKey.Settings.SnippetsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StackPanel Spacing="12"><TextBlock Text="Snippets" Style="{StaticResource SubtitleTextBlockStyle}"/><Button Content="Add snippet"/><TextBlock Text="No snippets configured" Opacity="0.7"/></StackPanel>
+</Page>

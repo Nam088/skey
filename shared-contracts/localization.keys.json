@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "keys": [
+    "menu.language.vietnamese",
+    "menu.language.english",
+    "settings.general.title",
+    "settings.keyboard.title",
+    "settings.shortcuts.title",
+    "settings.appearance.title",
+    "settings.theme.system",
+    "settings.theme.light",
+    "settings.theme.dark",
+    "settings.about.title",
+    "common.cancel",
+    "common.save"
+  ]
+}

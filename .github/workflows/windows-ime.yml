@@ -1,0 +1,56 @@
+name: Windows IME contract build
+
+on:
+  push:
+    branches: [main, windows-ime]
+    paths:
+      - 'windows/**'
+      - 'shared-contracts/**'
+      - 'tests-windows/**'
+      - 'build-windows/**'
+      - '.github/workflows/windows-ime.yml'
+  pull_request:
+    paths:
+      - 'windows/**'
+      - 'shared-contracts/**'
+      - 'tests-windows/**'
+      - 'build-windows/**'
+      - '.github/workflows/windows-ime.yml'
+  workflow_dispatch:
+
+jobs:
+  contracts:
+    name: Windows portable contracts
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate schemas and vectors
+        shell: bash
+        run: python3 build-windows/validate_contracts.py
+      - name: Validate MSIX manifest
+        shell: bash
+        run: python3 build-windows/validate_package.py
+      - name: Configure
+        run: cmake -S build-windows -B out/windows-contract -DSKEY_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build out/windows-contract --config Release
+      - name: Test
+        run: ctest --test-dir out/windows-contract -C Release --output-on-failure
+      - name: Package staging archive
+        run: cmake --build out/windows-contract --config Release --target skey-package
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: skey-windows-package
+          path: out/windows-contract/installer-windows/skey-windows.zip
+
+  rust:
+    name: Rust core on Windows
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: port
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace --all-targets

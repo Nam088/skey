@@ -1,0 +1,3 @@
+<Page x:Class="SKey.Settings.TranslatorPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StackPanel Spacing="12" Padding="24"><TextBlock Text="Translator" Style="{StaticResource SubtitleTextBlockStyle}"/><TextBox Header="Source" AcceptsReturn="True"/><Button Content="Translate"/><TextBox Header="Result" IsReadOnly="True" AcceptsReturn="True"/></StackPanel>
+</Page>

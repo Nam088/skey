@@ -1,0 +1,3 @@
+<Page x:Class="SKey.Settings.CleanerPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StackPanel Spacing="12" Padding="24"><TextBlock Text="Keyboard cleaner" Style="{StaticResource SubtitleTextBlockStyle}"/><InfoBar Severity="Informational" IsOpen="True" Message="Temporarily disables input transformation"/><ToggleSwitch Header="Enable cleaner"/><Button Content="Clean now"/></StackPanel>
+</Page>

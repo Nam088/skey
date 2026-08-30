@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "charset": "unicode",
+  "vectors": [
+    {"name": "telex-dd", "inputMethod": "telex", "keys": "dd", "expected": "đ"},
+    {"name": "telex-danh", "inputMethod": "telex", "keys": "ddasnh", "expected": "đánh"},
+    {"name": "telex-ke", "inputMethod": "telex", "keys": "ker", "expected": "kẻ"},
+    {"name": "telex-chay", "inputMethod": "telex", "keys": "chayj", "expected": "chạy"},
+    {"name": "telex-di", "inputMethod": "telex", "keys": "ddi", "expected": "đi"},
+    {"name": "telex-tieng", "inputMethod": "telex", "keys": "tieengs", "expected": "tiếng"}
+  ]
+}

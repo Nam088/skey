@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.20)
+project(SKeyWindows LANGUAGES CXX)
+
+option(SKEY_BUILD_TESTS "Build portable Windows contract tests" ON)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(MSVC)
+    add_compile_options(/W4 /WX /permissive-)
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
+if(SKEY_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../windows/Tests ${CMAKE_CURRENT_BINARY_DIR}/contract-tests)
+endif()
+
+if(WIN32)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../windows/skey-ime ${CMAKE_CURRENT_BINARY_DIR}/skey-ime)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../windows/skey-tray ${CMAKE_CURRENT_BINARY_DIR}/skey-tray)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../windows/skey-settings ${CMAKE_CURRENT_BINARY_DIR}/skey-settings)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../installer-windows ${CMAKE_CURRENT_BINARY_DIR}/installer-windows)
+endif()

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         IgnorableNamespaces="uap">
+  <Identity Name="SKey.Windows" Publisher="CN=SKey" Version="0.1.0.0" />
+  <Properties>
+    <DisplayName>SKey</DisplayName>
+    <PublisherDisplayName>SKey</PublisherDisplayName>
+    <Description>SKey Vietnamese input method</Description>
+    <Logo>Assets/Logo.png</Logo>
+  </Properties>
+  <Resources><Resource Language="en-us" /></Resources>
+  <Applications>
+    <Application Id="SKeySettings" Executable="skey-settings.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="SKey Settings" AppListEntry="none" /></Application>
+  </Applications>
+</Package>

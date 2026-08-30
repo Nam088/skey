@@ -1,0 +1,3 @@
+<Page x:Class="SKey.Settings.KeyboardSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <StackPanel Spacing="12"><TextBlock Text="Keyboard" Style="{StaticResource SubtitleTextBlockStyle}"/><ComboBox Header="Input method" SelectedIndex="0"><ComboBoxItem Content="Telex"/><ComboBoxItem Content="VNI"/><ComboBoxItem Content="VIQR"/><ComboBoxItem Content="Simple Telex"/></ComboBox><ToggleSwitch Header="Spell check" IsOn="True"/><ToggleSwitch Header="Free marking" IsOn="True"/></StackPanel>
+</Page>

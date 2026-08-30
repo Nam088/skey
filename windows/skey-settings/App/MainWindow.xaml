@@ -1,0 +1,15 @@
+<Window
+    x:Class="SKey.Settings.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="SKey Settings">
+    <NavigationView x:Name="RootNavigation" IsBackButtonVisible="Collapsed">
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="{x:Bind ViewModel.GeneralTitle}" Tag="general" />
+            <NavigationViewItem Content="{x:Bind ViewModel.KeyboardTitle}" Tag="keyboard" />
+            <NavigationViewItem Content="{x:Bind ViewModel.ShortcutsTitle}" Tag="shortcuts" />
+            <NavigationViewItem Content="{x:Bind ViewModel.AppearanceTitle}" Tag="appearance" />
+        </NavigationView.MenuItems>
+        <Frame x:Name="ContentFrame" />
+    </NavigationView>
+</Window>
