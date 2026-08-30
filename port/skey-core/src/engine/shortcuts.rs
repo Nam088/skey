@@ -388,11 +388,15 @@ impl Engine {
         if start > self.key_current {
             return false;
         }
-        let mut typed: alloc::vec::Vec<u32> = alloc::vec::Vec::new();
-        for i in start..=self.key_current {
-            typed.push(self.keys[i as usize]);
+        // Keep the hot path allocation-free.  The engine's key ring is
+        // bounded by MAX_UK_ENGINE, so a stack scratch buffer is sufficient
+        // for the current word and avoids a Vec allocation on every boundary.
+        let mut typed = [0u32; MAX_UK_ENGINE];
+        let typed_len = (self.key_current - start + 1) as usize;
+        for (n, i) in (start..=self.key_current).enumerate() {
+            typed[n] = self.keys[i as usize];
         }
-        if typed.iter().any(|c| *c > 127) {
+        if typed[..typed_len].iter().any(|c| *c > 127) {
             return false;
         }
 
@@ -405,7 +409,7 @@ impl Engine {
             None
         };
         let coda = if self.options.quick_end_consonant {
-            crate::extensions::quick::coda(typed[typed.len() - 1] as u8)
+            crate::extensions::quick::coda(typed[typed_len - 1] as u8)
         } else {
             None
         };
@@ -421,7 +425,8 @@ impl Engine {
             }
         };
 
-        let build = |use_onset: bool, use_coda: bool| -> Option<alloc::vec::Vec<u32>> {
+        let mut candidate = [0u32; MAX_UK_ENGINE];
+        let build = |use_onset: bool, use_coda: bool, candidate: &mut [u32; MAX_UK_ENGINE]| -> Option<usize> {
             if use_onset && onset.is_none() {
                 return None;
             }
@@ -431,17 +436,26 @@ impl Engine {
             if !use_onset && !use_coda {
                 return None;
             }
-            let mut out: alloc::vec::Vec<u32> = alloc::vec::Vec::new();
-            let last = typed.len() - 1;
-            for (i, c) in typed.iter().enumerate() {
+            // An expansion adds one stroke per enabled side. Keep the
+            // stack scratch bounded; oversized words cannot be replayed by
+            // the fixed-capacity engine anyway.
+            let expansion = use_onset as usize + use_coda as usize;
+            if typed_len + expansion > MAX_UK_ENGINE {
+                return None;
+            }
+            let mut out_len = 0usize;
+            let last = typed_len - 1;
+            for (i, c) in typed[..typed_len].iter().enumerate() {
                 let at_first = i == 0;
                 let at_last = i == last;
                 if at_first && use_onset {
                     let (a, b) = onset.unwrap();
                     // Only the first letter carries the case, so `Fanh`
                     // gives `Phanh` rather than `PHanh`.
-                    out.push(cased(*c, a));
-                    out.push(b as u32);
+                    candidate[out_len] = cased(*c, a);
+                    out_len += 1;
+                    candidate[out_len] = b as u32;
+                    out_len += 1;
                     if at_last && use_coda {
                         // A one letter word cannot be both, and the
                         // candidate list never asks for that.
@@ -451,24 +465,27 @@ impl Engine {
                 }
                 if at_last && use_coda {
                     let (a, b) = coda.unwrap();
-                    out.push(cased(*c, a));
-                    out.push(cased(*c, b));
+                    candidate[out_len] = cased(*c, a);
+                    out_len += 1;
+                    candidate[out_len] = cased(*c, b);
+                    out_len += 1;
                     continue;
                 }
-                out.push(*c);
+                candidate[out_len] = *c;
+                out_len += 1;
             }
-            Some(out)
+            Some(out_len)
         };
 
         for (use_onset, use_coda) in [(true, false), (false, true), (true, true)] {
-            let strokes = match build(use_onset, use_coda) {
+            let candidate_len = match build(use_onset, use_coda, &mut candidate) {
                 Some(v) => v,
                 None => continue,
             };
-            if !self.quick_candidate_is_valid(&strokes) {
+            if !self.quick_candidate_is_valid(&candidate[..candidate_len]) {
                 continue;
             }
-            self.commit_quick_replay(&strokes);
+            self.commit_quick_replay(&candidate[..candidate_len]);
             return true;
         }
         false

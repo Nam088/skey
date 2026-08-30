@@ -17,6 +17,9 @@ public final class ClipboardHistoryViewModel: ObservableObject {
 
     @Published public var selectedItemID: UUID?
     @Published public var scrollTargetID: UUID?
+    /// Changes on each presentation so a reused ScrollView is explicitly
+    /// re-anchored even when the first row is unchanged.
+    @Published public private(set) var scrollResetToken = UUID()
     @Published public var isPreviewOpen: Bool = false
     @Published public var previewPlacement: ClipboardPreviewPlacement = .right
     @Published public var slideoutWidth: CGFloat = ClipboardPopupUI.defaultSlideoutWidth
@@ -112,7 +115,8 @@ public final class ClipboardHistoryViewModel: ObservableObject {
                 items[idx] = item
             }
         }
-        updateDerivedCollections()
+        // `items` has a didSet observer that rebuilds derived collections.
+        // Avoid doing the same O(n) work a second time for every live event.
         if selectedItemID == nil || !items.contains(where: { $0.id == selectedItemID }) {
             selectedItemID = items.first?.id
         }
@@ -198,6 +202,23 @@ public final class ClipboardHistoryViewModel: ObservableObject {
         )
     }
 
+    /// Clears transient presentation state when the popup is shown again.
+    /// Clipboard contents and the current search are intentionally preserved.
+    public func resetPresentationState() {
+        searchTask?.cancel()
+        hoverThrottler.cancel()
+        autoPreviewTask?.cancel()
+        // Re-anchor keyboard/hover state to the first visible row. Keeping a
+        // stale selection here makes a reused ScrollView reopen at the old row.
+        let firstID = displayOrder.first?.id ?? items.first?.id
+        selectedItemID = firstID
+        scrollTargetID = firstID
+        scrollResetToken = UUID()
+        selectedRowSwiftUIFrame = nil
+        isPreviewOpen = false
+        pasteStackSelected = false
+    }
+
     // MARK: - Data Loading & Search
 
     public func load() async {
@@ -224,13 +245,28 @@ public final class ClipboardHistoryViewModel: ObservableObject {
         resize()
 
         preloadTask?.cancel()
-        preloadTask = Task(priority: .background) { [weak self, fetched, store] in
-            for item in fetched.prefix(15) where item.contentType == .image && item.hasFullPayload {
-                guard !Task.isCancelled else { return }
-                if let data = await store.loadPayloadData(for: item), let img = NSImage(data: data) {
-                    guard !Task.isCancelled else { return }
-                    self?.imageCache.setObject(img, forKey: item.id as NSUUID)
+        // Decode thumbnails off the main actor. `Task {}` inherits @MainActor
+        // isolation from this view model, so image decoding there would block
+        // SwiftUI/AppKit rendering despite the background priority hint.
+        preloadTask = Task { [weak self, fetched, store] in
+            let candidates = fetched.prefix(15).filter {
+                $0.contentType == .image && $0.hasFullPayload
+            }
+            let decoded: [(UUID, NSImage)] = await Task.detached(priority: .utility) {
+                var result: [(UUID, NSImage)] = []
+                result.reserveCapacity(candidates.count)
+                for item in candidates {
+                    guard !Task.isCancelled else { break }
+                    guard let data = await store.loadPayloadData(for: item),
+                          let image = NSImage(data: data) else { continue }
+                    result.append((item.id, image))
                 }
+                return result
+            }.value
+
+            guard !Task.isCancelled else { return }
+            for (id, image) in decoded {
+                self?.imageCache.setObject(image, forKey: id as NSUUID)
             }
         }
     }

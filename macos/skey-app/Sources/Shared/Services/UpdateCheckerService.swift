@@ -149,7 +149,12 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
         state = .downloading(progress: 0.0)
 
         let config = URLSessionConfiguration.default
-        let session = URLSession(configuration: config, delegate: self, delegateQueue: .main)
+        // Download callbacks perform archive extraction and filesystem work; keep
+        // them off the main run loop so update installation never freezes the UI.
+        let delegateQueue = OperationQueue()
+        delegateQueue.qualityOfService = .utility
+        delegateQueue.maxConcurrentOperationCount = 1
+        let session = URLSession(configuration: config, delegate: self, delegateQueue: delegateQueue)
         self.downloadSession = session
 
         var request = URLRequest(url: downloadUrl)

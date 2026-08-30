@@ -7,6 +7,14 @@ public struct AboutSettingsTab: View {
     @ObservedObject var loc = LocalizationService.shared
     @ObservedObject var updater = UpdateCheckerService.shared
 
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        formatter.locale = .autoupdatingCurrent
+        return formatter
+    }()
+
     public init() {}
 
     public var body: some View {
@@ -194,9 +202,6 @@ public struct AboutSettingsTab: View {
     }
 
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
+        Self.dateFormatter.string(from: date)
     }
 }

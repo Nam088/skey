@@ -131,22 +131,29 @@ public final class AppFocusObserver {
     }
 
     private func updateFrontmostApp(_ app: NSRunningApplication?) {
-        os_unfair_lock_lock(&lock)
-        defer { os_unfair_lock_unlock(&lock) }
-
         guard let app else {
+            os_unfair_lock_lock(&lock)
             _currentPID = 0; _currentBundleID = nil; _currentCategory = .nativeApp
+            os_unfair_lock_unlock(&lock)
             return
         }
 
-        _currentPID = app.processIdentifier
-        _currentBundleID = app.bundleIdentifier
-        _currentCategory = Self.category(for: app.bundleIdentifier, bundleURL: app.bundleURL)
+        // Classification performs bundle inspection and filesystem I/O. Do it before
+        // taking the state lock so readers are never blocked during app activation.
+        let pid = app.processIdentifier
+        let bundleID = app.bundleIdentifier
+        let category = Self.category(for: bundleID, bundleURL: app.bundleURL)
 
-        if _currentCategory == .webBrowser || _currentCategory == .spotlight {
+        if category == .webBrowser || category == .spotlight {
             let appElem = AXUIElementCreateApplication(app.processIdentifier)
             _ = AXUIElementSetAttributeValue(appElem, "AXManualAccessibility" as CFString, kCFBooleanTrue)
             _ = AXUIElementSetAttributeValue(appElem, "AXEnhancedUserInterface" as CFString, kCFBooleanTrue)
         }
+
+        os_unfair_lock_lock(&lock)
+        _currentPID = pid
+        _currentBundleID = bundleID
+        _currentCategory = category
+        os_unfair_lock_unlock(&lock)
     }
 }

@@ -111,6 +111,10 @@ public final class ClipboardHistoryPopupController: NSObject {
         if !viewModel.searchQuery.isEmpty {
             viewModel.searchQuery = ""
         }
+        // Reset transient row/preview state on every presentation. The panel
+        // is reused between toggles, so SwiftUI's onAppear is not guaranteed
+        // to run again for the hosted root view.
+        viewModel.resetPresentationState()
 
         let initialWidth = ClipboardPopupUI.menuWidth
         let initialHeight = viewModel.desiredHeight

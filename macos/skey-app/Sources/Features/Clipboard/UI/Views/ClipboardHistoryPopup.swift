@@ -51,6 +51,7 @@ public struct ClipboardHistoryContentView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .onAppear {
             viewModel.onCloseForAction = onClose
+            viewModel.resetPresentationState()
             // Delay focus to avoid competing with window entrance animation
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 searchFieldFocused = true
@@ -140,9 +141,28 @@ public struct ClipboardHistoryContentView: View {
                     .padding(.top, ClipboardPopupUI.verticalSeparatorPadding)
                     .padding(.bottom, ClipboardPopupUI.verticalSeparatorPadding)
                 }
+                .onAppear {
+                    // Re-anchor the list at the beginning whenever the popup
+                    // is presented, instead of retaining the previous scroll
+                    // offset from the last presentation.
+                    // Pinned rows are rendered outside this ScrollView. Scrolling
+                    // to a pinned id is a no-op and leaves a reused popup at its
+                    // previous offset, so anchor to the first scrollable row.
+                    if let firstID = viewModel.unpinnedItems.first?.id {
+                        DispatchQueue.main.async {
+                            proxy.scrollTo(firstID, anchor: .top)
+                        }
+                    }
+                }
                 .onChange(of: viewModel.scrollTargetID) { _, targetID in
-                    if let targetID {
-                        proxy.scrollTo(targetID, anchor: .center)
+                    if let targetID, viewModel.unpinnedItems.contains(where: { $0.id == targetID }) {
+                        let anchor: UnitPoint = targetID == viewModel.unpinnedItems.first?.id ? .top : .center
+                        proxy.scrollTo(targetID, anchor: anchor)
+                    }
+                }
+                .onChange(of: viewModel.scrollResetToken) { _, _ in
+                    if let firstID = viewModel.unpinnedItems.first?.id {
+                        proxy.scrollTo(firstID, anchor: .top)
                     }
                 }
             }
@@ -168,16 +188,19 @@ public struct ClipboardHistoryContentView: View {
     private var historyRows: some View {
         let ordered = viewModel.displayOrder
         let indexMap = viewModel.indexMap
+        // Build this once per view update. Calling `contains` on the array for
+        // every row made stack connection checks O(rows × stackSize).
+        let stackedIDs = Set(viewModel.stackedItemIDs)
         return ForEach(viewModel.unpinnedItems) { item in
-            row(for: item, in: ordered, indexMap: indexMap)
+            row(for: item, in: ordered, indexMap: indexMap, stackedIDs: stackedIDs)
         }
     }
 
-    private func row(for item: ClipboardItem, in ordered: [ClipboardItem], indexMap: [UUID: Int]) -> some View {
+    private func row(for item: ClipboardItem, in ordered: [ClipboardItem], indexMap: [UUID: Int], stackedIDs: Set<UUID>) -> some View {
         let index = indexMap[item.id] ?? 0
         let isSelected = viewModel.selectedItemID == item.id
-        let previousSelected = index > 0 && viewModel.stackedItemIDs.contains(ordered[index - 1].id)
-        let nextSelected = index < ordered.count - 1 && viewModel.stackedItemIDs.contains(ordered[index + 1].id)
+        let previousSelected = index > 0 && stackedIDs.contains(ordered[index - 1].id)
+        let nextSelected = index < ordered.count - 1 && stackedIDs.contains(ordered[index + 1].id)
         let selectionAppearance: SelectionAppearance = {
             switch (previousSelected, nextSelected) {
             case (true, false): return .topConnection
@@ -264,9 +287,10 @@ public struct ClipboardHistoryContentView: View {
     private var pinRows: some View {
         let ordered = viewModel.displayOrder
         let indexMap = viewModel.indexMap
+        let stackedIDs = Set(viewModel.stackedItemIDs)
         LazyVStack(spacing: 0) {
             ForEach(viewModel.pinnedItems) { item in
-                row(for: item, in: ordered, indexMap: indexMap)
+                row(for: item, in: ordered, indexMap: indexMap, stackedIDs: stackedIDs)
             }
         }
         .padding(.horizontal, ClipboardPopupUI.horizontalPadding)

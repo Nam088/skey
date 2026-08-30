@@ -5,7 +5,9 @@ let package = Package(
     name: "SKey",
     defaultLocalization: "vi",
     platforms: [
-        .macOS(.v26)
+        // Keep this compatible with the declared Swift tools version (5.9).
+        // macOS 14 is also the deployment target used by the application build.
+        .macOS(.v14)
     ],
     products: [
         .executable(name: "SKey", targets: ["SKey"])
@@ -46,6 +48,11 @@ let package = Package(
                 .linkedFramework("CryptoKit"),
                 .linkedLibrary("sqlite3")
             ]
+        ),
+        .testTarget(
+            name: "SKeyTests",
+            dependencies: ["SKey"],
+            path: "Tests/Unit"
         )
     ]
 )

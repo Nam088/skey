@@ -13,6 +13,9 @@ public final class SettingsStorage: @unchecked Sendable {
 
     private let defaults: UserDefaults
     private let ioQueue = DispatchQueue(label: "com.nam088.skey.settings.io", qos: .utility)
+    private let persistenceDebounce: DispatchTimeInterval = .milliseconds(150)
+    // Accessed only on ioQueue. At most one pending write is retained per key.
+    private var pendingWrites: [String: DispatchWorkItem] = [:]
     private var lock = os_unfair_lock_s()
     private var cache: [String: Any] = [:]
 
@@ -102,14 +105,22 @@ public final class SettingsStorage: @unchecked Sendable {
         cache[key] = value
         os_unfair_lock_unlock(&lock)
 
-        // Asynchronously persist to UserDefaults on background queue without blocking hot path
+        // Coalesce rapid updates (for example slider/text changes) so cfprefsd is
+        // not hit once per keystroke while keeping the in-memory read path immediate.
         let defaults = self.defaults
-        ioQueue.async {
-            if let value {
-                defaults.set(value, forKey: key)
-            } else {
-                defaults.removeObject(forKey: key)
+        ioQueue.async { [weak self] in
+            guard let self else { return }
+            self.pendingWrites[key]?.cancel()
+            let work = DispatchWorkItem {
+                if let value {
+                    defaults.set(value, forKey: key)
+                } else {
+                    defaults.removeObject(forKey: key)
+                }
+                self.pendingWrites[key] = nil
             }
+            self.pendingWrites[key] = work
+            self.ioQueue.asyncAfter(deadline: .now() + self.persistenceDebounce, execute: work)
         }
     }
 

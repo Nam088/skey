@@ -11,6 +11,7 @@ public final class AppCoordinator {
     public let clipboardFeature = ClipboardFeature.shared
 
     private(set) var features: [Feature] = []
+    private var permissionTimer: Timer?
 
     private init() {
         features = [
@@ -51,6 +52,8 @@ public final class AppCoordinator {
 
     public func stop() {
         skeyLog("AppCoordinator stopping...")
+        permissionTimer?.invalidate()
+        permissionTimer = nil
         AppFocusObserver.shared.stopObserving()
         features.forEach { $0.stop() }
     }
@@ -64,9 +67,11 @@ public final class AppCoordinator {
             PermissionsService.shared.openInputMonitoringSettings()
             PermissionsService.shared.openAccessibilitySettings()
 
-            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] timer in
+            permissionTimer?.invalidate()
+            permissionTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] timer in
                 if PermissionsService.shared.checkPermissions(prompt: false) {
                     timer.invalidate()
+                    self?.permissionTimer = nil
                     self?.keyboardFeature.start()
                     skeyLog("Permissions granted dynamically!")
                 }

@@ -12,6 +12,7 @@ public final class ClipboardMonitor: @unchecked Sendable {
     private var timer: Timer?
     private var lastChangeCount: Int
     private var onCapture: (@Sendable (CapturedClipboardContent) -> Void)?
+    private let captureQueue = DispatchQueue(label: "com.nam088.skey.clipboard.capture", qos: .utility)
 
     public init(pollInterval: TimeInterval = 0.5) {
         self.pollInterval = pollInterval
@@ -19,6 +20,7 @@ public final class ClipboardMonitor: @unchecked Sendable {
     }
 
     public func startMonitoring(onCapture: @escaping @Sendable (CapturedClipboardContent) -> Void) {
+        stopMonitoring()
         self.onCapture = onCapture
         self.lastChangeCount = NSPasteboard.general.changeCount
         let timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { [weak self] _ in
@@ -39,8 +41,13 @@ public final class ClipboardMonitor: @unchecked Sendable {
         guard pasteboard.changeCount != lastChangeCount else { return }
         lastChangeCount = pasteboard.changeCount
 
-        guard let captured = Self.capture(from: pasteboard) else { return }
-        onCapture?(captured)
+        // Pasteboard capture may decode RTF/images and hash megabytes of data.
+        // Keep the polling callback short and move expensive work off the main run loop.
+        let callback = onCapture
+        captureQueue.async {
+            guard let captured = Self.capture(from: pasteboard) else { return }
+            callback?(captured)
+        }
     }
 
     public static func capture(from pasteboard: NSPasteboard) -> CapturedClipboardContent? {

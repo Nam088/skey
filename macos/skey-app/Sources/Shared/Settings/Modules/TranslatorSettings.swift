@@ -11,6 +11,7 @@ public final class TranslatorSettings: NSObject, SettingsModule {
         public static let enginesData     = "SKey_Translator_EnginesData"
         public static let targetLanguage  = "SKey_Translator_TargetLanguage"
         public static let autoDetectSource = "SKey_Translator_AutoDetect"
+        public static let preferredEngine = "SKey_Translator_PreferredEngine"
     }
 
     public init(storage: SettingsStorage = .shared) {
@@ -22,7 +23,8 @@ public final class TranslatorSettings: NSObject, SettingsModule {
     public func registerDefaults(in storage: SettingsStorage) {
         storage.registerDefaults([
             Keys.targetLanguage:   "vi",
-            Keys.autoDetectSource: true
+            Keys.autoDetectSource: true,
+            Keys.preferredEngine: TranslationEngineType.google.rawValue
         ])
     }
 
@@ -31,6 +33,7 @@ public final class TranslatorSettings: NSObject, SettingsModule {
         storage.removeObject(forKey: Keys.enginesData)
         storage.removeObject(forKey: Keys.targetLanguage)
         storage.removeObject(forKey: Keys.autoDetectSource)
+        storage.removeObject(forKey: Keys.preferredEngine)
     }
 
     public var engines: [TranslationEngineConfig] {
@@ -63,6 +66,18 @@ public final class TranslatorSettings: NSObject, SettingsModule {
         set {
             objectWillChange.send()
             storage.set(newValue, forKey: Keys.autoDetectSource)
+        }
+    }
+
+    /// Engine selected by the AI settings UI and used as the default translation provider.
+    public var preferredEngine: TranslationEngineType {
+        get {
+            TranslationEngineType(rawValue: storage.string(forKey: Keys.preferredEngine,
+                                                            default: TranslationEngineType.google.rawValue)) ?? .google
+        }
+        set {
+            objectWillChange.send()
+            storage.set(newValue.rawValue, forKey: Keys.preferredEngine)
         }
     }
 

@@ -7,6 +7,7 @@ public actor ClipboardStore {
     private let repository: ClipboardRepository
     private let payloadStore: PayloadStoring
     private let sortOrderProvider: @Sendable () -> ClipboardSortOrder
+    private let pinPlacementProvider: @Sendable () -> ClipboardPinTo
 
     public nonisolated let events: AsyncStream<ClipboardEvent>
     private let eventContinuation: AsyncStream<ClipboardEvent>.Continuation
@@ -19,7 +20,8 @@ public actor ClipboardStore {
         policy: ClipboardRetentionPolicy = ClipboardRetentionPolicy(),
         repository: ClipboardRepository? = nil,
         payloadStore: PayloadStoring = FileSystemPayloadStore(),
-        sortOrderProvider: @escaping @Sendable () -> ClipboardSortOrder = { AppSettings.shared.clipboard.sortOrder }
+        sortOrderProvider: @escaping @Sendable () -> ClipboardSortOrder = { AppSettings.shared.clipboard.sortOrder },
+        pinPlacementProvider: @escaping @Sendable () -> ClipboardPinTo = { AppSettings.shared.clipboard.pinTo }
     ) {
         let repo: ClipboardRepository
         if let injected = repository {
@@ -31,6 +33,7 @@ public actor ClipboardStore {
         self.repository = repo
         self.payloadStore = payloadStore
         self.sortOrderProvider = sortOrderProvider
+        self.pinPlacementProvider = pinPlacementProvider
 
         let (stream, continuation) = AsyncStream.makeStream(of: ClipboardEvent.self)
         self.events = stream
@@ -44,7 +47,7 @@ public actor ClipboardStore {
     }
 
     private func setInitialCache(_ items: [ClipboardItem]) {
-        self.cachedItems = items.sorted { $0.capturedAt > $1.capturedAt }
+        self.cachedItems = Self.applyPinOrder(Self.applySortOrder(sortOrderProvider(), to: items), pinTo: pinPlacementProvider())
         self.isCacheLoaded = true
     }
 
@@ -81,15 +84,24 @@ public actor ClipboardStore {
                 item.capturedAt = Date()
                 item.copyCount += 1
                 cachedItems.insert(item, at: 0)
+                // Bumping changes visible metadata (timestamp/count), so observers
+                // must receive an update even though no new row was inserted.
+                eventContinuation.yield(.updated(item))
             }
 
         case .retainFull, .retainMetadataOnly:
             var payloadPath: String?
             var hasFullPayload = false
+            var payloadSizeBytes = candidate.payloadSizeBytes
             if decision == .retainFull {
-                hasFullPayload = true
                 if let data = candidate.payloadData {
-                    payloadPath = try? payloadStore.write(data)
+                    if let path = try? payloadStore.write(data) {
+                        payloadPath = path
+                        hasFullPayload = true
+                        // The captured byte count can be absent for pasteboard
+                        // providers; persist the authoritative payload size.
+                        payloadSizeBytes = data.count
+                    }
                 }
             }
 
@@ -98,7 +110,7 @@ public actor ClipboardStore {
                 contentHash: candidate.contentHash,
                 textContent: candidate.textContent,
                 payloadPath: payloadPath,
-                payloadSizeBytes: candidate.payloadSizeBytes,
+                payloadSizeBytes: payloadSizeBytes,
                 hasFullPayload: hasFullPayload,
                 previewText: Self.derivePreview(candidate),
                 sourceBundleID: candidate.sourceBundleID,
@@ -116,7 +128,7 @@ public actor ClipboardStore {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty && isCacheLoaded {
             let ordered = Self.applySortOrder(sortOrderProvider(), to: cachedItems)
-            return ordered.sorted { $0.isPinned && !$1.isPinned }
+            return Self.applyPinOrder(ordered, pinTo: pinPlacementProvider())
         }
 
         let normalizedQuery = ClipboardItem.vietnameseFold(trimmed)
@@ -130,7 +142,7 @@ public actor ClipboardStore {
             ? Self.applySortOrder(sortOrderProvider(), to: ranked)
             : ranked
 
-        return ordered.sorted { $0.isPinned && !$1.isPinned }
+        return Self.applyPinOrder(ordered, pinTo: pinPlacementProvider())
     }
 
     private static func applySortOrder(_ order: ClipboardSortOrder, to items: [ClipboardItem]) -> [ClipboardItem] {
@@ -138,10 +150,24 @@ public actor ClipboardStore {
         case .lastCopiedAt:
             return items
         case .firstCopiedAt:
-            return items.sorted { $0.firstCopiedAt > $1.firstCopiedAt }
+            return items.sorted {
+                if $0.firstCopiedAt != $1.firstCopiedAt { return $0.firstCopiedAt > $1.firstCopiedAt }
+                return $0.capturedAt > $1.capturedAt
+            }
         case .numberOfCopies:
-            return items.sorted { $0.copyCount > $1.copyCount }
+            return items.sorted {
+                if $0.copyCount != $1.copyCount { return $0.copyCount > $1.copyCount }
+                return $0.capturedAt > $1.capturedAt
+            }
         }
+    }
+
+    /// Applies pin placement while preserving the order produced by the selected sort.
+    /// Kept pure so ordering regressions can be tested without an actor or AppKit.
+    public static func applyPinOrder(_ items: [ClipboardItem], pinTo: ClipboardPinTo) -> [ClipboardItem] {
+        let pinned = items.filter(\.isPinned)
+        let unpinned = items.filter { !$0.isPinned }
+        return pinTo == .bottom ? unpinned + pinned : pinned + unpinned
     }
 
     public func togglePin(itemID: UUID) async throws {

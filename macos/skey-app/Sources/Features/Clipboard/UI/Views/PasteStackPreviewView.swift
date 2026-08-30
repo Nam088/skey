@@ -12,7 +12,7 @@ public struct PasteStackPreviewView: View {
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 6) {
+            LazyVStack(alignment: .leading, spacing: 6) {
                 ForEach(Array(items.enumerated()), id: \.element.id) { pair in
                     HStack(alignment: .top, spacing: 6) {
                         Text("\(pair.offset + 1)")

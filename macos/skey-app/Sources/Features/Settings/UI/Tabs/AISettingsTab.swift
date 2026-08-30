@@ -5,6 +5,7 @@ import SwiftUI
 
 public struct AISettingsTab: View {
     @ObservedObject var shortcutSettings = AppSettings.shared.shortcuts
+    @ObservedObject var translatorSettings = AppSettings.shared.translator
     @ObservedObject var loc = LocalizationService.shared
     @ObservedObject var navState = SettingsNavigationState.shared
 
@@ -44,10 +45,10 @@ public struct AISettingsTab: View {
                 title: L10n("ai.option.service"),
                 subtitle: L10n("ai.option.serviceDesc")
             ) {
-                Picker("", selection: .constant("OpenAI")) {
-                    Text("OpenAI (ChatGPT)").tag("OpenAI")
-                    Text("Anthropic Claude").tag("Claude")
-                    Text("Ollama (Cục bộ)").tag("Ollama")
+                Picker("", selection: $translatorSettings.preferredEngine) {
+                    ForEach(TranslationEngineType.allCases) { engine in
+                        Text(engine.displayName).tag(engine)
+                    }
                 }
                 .frame(width: 150)
             }
@@ -57,11 +58,20 @@ public struct AISettingsTab: View {
                 subtitle: L10n("ai.option.apiKeyDesc"),
                 showDivider: false
             ) {
-                SecureField("sk-...", text: .constant(""))
+                SecureField("sk-...", text: apiKeyBinding)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 150)
             }
         }
+    }
+
+    private var apiKeyBinding: Binding<String> {
+        Binding(
+            get: {
+                translatorSettings.engines.first(where: { $0.type == translatorSettings.preferredEngine })?.apiKey ?? ""
+            },
+            set: { translatorSettings.updateApiKey(for: translatorSettings.preferredEngine, key: $0) }
+        )
     }
 
     private var promptsSection: some View {

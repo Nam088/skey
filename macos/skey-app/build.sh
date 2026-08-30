@@ -60,7 +60,7 @@ for arg in "$@"; do
     esac
 done
 
-echo "==> 3. Compiling Swift files (Mode: $BUILD_MODE, WMO)..."
+echo "==> 3. Compiling Swift files (Mode: $BUILD_MODE)..."
 cd "$SCRIPT_DIR"
 
 SWIFT_FILES=()
@@ -68,7 +68,12 @@ while IFS= read -r -d '' file; do
     SWIFT_FILES+=("$file")
 done < <(find "$SCRIPT_DIR/Sources" -name "*.swift" -print0)
 
-swiftc -O -wmo \
+SWIFT_OPT_FLAGS=(-O -wmo)
+if [[ "$BUILD_MODE" == "debug" ]]; then
+    SWIFT_OPT_FLAGS=(-Onone)
+fi
+
+swiftc "${SWIFT_OPT_FLAGS[@]}" \
     "${DEBUG_FLAG[@]}" \
     -import-objc-header "$SCRIPT_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/port/skey-capi/include" \

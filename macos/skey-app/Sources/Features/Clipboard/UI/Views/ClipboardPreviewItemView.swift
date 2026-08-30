@@ -51,6 +51,14 @@ public struct ClipboardPreviewItemView: View {
     @ObservedObject public var viewModel: ClipboardHistoryViewModel
     public let item: ClipboardItem
 
+    private static let previewDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        formatter.locale = .autoupdatingCurrent
+        return formatter
+    }()
+
     @State private var fullImage: NSImage?
     @State private var imageFailed = false
 
@@ -388,7 +396,7 @@ public struct ClipboardPreviewItemView: View {
     }
 
     private func formatDate(_ date: Date) -> String {
-        DateFormatter.localizedString(from: date, dateStyle: .medium, timeStyle: .short)
+        Self.previewDateFormatter.string(from: date)
     }
 
     private func isLikelyCode(_ text: String) -> Bool {
