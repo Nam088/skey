@@ -30,17 +30,9 @@ jobs:
           git init .
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
-          git sparse-checkout init --no-cone
-          cat > .git/info/sparse-checkout <<'EOF'
-          /.github/
-          /build-windows/
-          /installer-windows/
-          /port/skey-capi/include/
-          /shared-contracts/
-          /tests-windows/
-          /windows/
-          EOF
-          git checkout --detach FETCH_HEAD
+          # git archive extracts only selected paths and never materialises
+          # the legacy filename that Windows rejects during checkout.
+          git archive FETCH_HEAD .github build-windows installer-windows port/skey-capi/include shared-contracts tests-windows windows | tar -xf -
       - name: Validate schemas and vectors
         shell: bash
         run: python3 build-windows/validate_contracts.py
@@ -64,9 +56,6 @@ jobs:
   rust:
     name: Rust core on Windows
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: port
     steps:
       - name: Checkout Rust tree
         shell: bash
@@ -75,8 +64,7 @@ jobs:
           git init .
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
-          git sparse-checkout init --cone
-          git sparse-checkout set port
-          git checkout --detach FETCH_HEAD
+          git archive FETCH_HEAD port | tar -xf -
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --workspace --all-targets
+        working-directory: port
