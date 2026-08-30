@@ -28,6 +28,7 @@ jobs:
         run: |
           set -euo pipefail
           git init .
+          git config core.protectNTFS false
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
           # git archive extracts only selected paths and never materialises
@@ -62,6 +63,7 @@ jobs:
         run: |
           set -euo pipefail
           git init .
+          git config core.protectNTFS false
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
           git archive FETCH_HEAD port | tar -xf -
