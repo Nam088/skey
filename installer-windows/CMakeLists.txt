@@ -24,7 +24,7 @@ add_custom_command(TARGET skey-package POST_BUILD
             "$<TARGET_FILE:skey-tray>" "${SKEY_PACKAGE_DIR}/skey-tray.exe"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$<TARGET_FILE:skey-ime>" "${SKEY_PACKAGE_DIR}/skey-ime.dll"
-    COMMAND ${CMAKE_COMMAND} -E tar "${CMAKE_CURRENT_BINARY_DIR}/skey-windows.zip" --format=zip --
+    COMMAND ${CMAKE_COMMAND} -E tar cf "${CMAKE_CURRENT_BINARY_DIR}/skey-windows.zip" --format=zip --
             "${SKEY_PACKAGE_DIR}"
     VERBATIM
 )
