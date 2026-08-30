@@ -14,7 +14,14 @@ int main() {
     assert(!cleaner.locked && clipboard.max_items > 0 && keyboard.spell_check);
     service.clear();
     assert(service.items().empty());
-    assert(translator.translate("hello").source == "hello");
+    const auto res = translator.translate("hello");
+    assert(res.source == "hello");
+    (void)cleaner;
+    (void)clipboard;
+    (void)keyboard;
+    (void)service;
+    (void)translator;
+    (void)res;
     assert(static_cast<int>(skey::windows::SettingsTab::about) >= 0);
     return 0;
 }
