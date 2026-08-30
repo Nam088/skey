@@ -24,6 +24,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The legacy repository contains a macOS-invalid filename. Avoid
+          # materialising it on Windows while retaining every Windows input.
+          sparse-checkout: |
+            .github
+            build-windows
+            installer-windows
+            port/skey-capi/include
+            shared-contracts
+            tests-windows
+            windows
+          sparse-checkout-cone-mode: false
       - name: Validate schemas and vectors
         shell: bash
         run: python3 build-windows/validate_contracts.py
@@ -52,5 +64,8 @@ jobs:
         working-directory: port
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: port
+          sparse-checkout-cone-mode: true
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --workspace --all-targets
