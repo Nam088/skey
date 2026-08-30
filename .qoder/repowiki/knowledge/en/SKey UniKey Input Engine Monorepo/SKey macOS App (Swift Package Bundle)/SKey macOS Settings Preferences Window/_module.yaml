@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: macos_app/settings_feature
-title: Settings Feature (SKey Preferences Window)
+title: SKey macOS Settings Preferences Window
 scope:
     - macos/skey-app/Sources/Features/Settings/
 source_files: []

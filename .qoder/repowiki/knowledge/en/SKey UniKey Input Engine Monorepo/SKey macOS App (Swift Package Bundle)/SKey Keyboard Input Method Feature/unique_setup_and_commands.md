@@ -1,0 +1,1 @@
+The feature registers itself with the host app under id `keyboard`; lifecycle is driven by Feature.start() / Feature.stop(), which respectively start/stop the global EventTapManager and load or tear down all engine options.

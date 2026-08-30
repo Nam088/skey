@@ -1,1 +1,0 @@
-Top-level workspace uniting the legacy C++ UniKey reference engine, a safe Rust port with a C ABI, and a native macOS Swift app that consumes the core engine.

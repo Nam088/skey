@@ -1,0 +1,1 @@
+None — the module is consumed by importing it into the app target; the window is shown via `SettingsWindowController.shared.showSettings(tab:)` from elsewhere in the app.

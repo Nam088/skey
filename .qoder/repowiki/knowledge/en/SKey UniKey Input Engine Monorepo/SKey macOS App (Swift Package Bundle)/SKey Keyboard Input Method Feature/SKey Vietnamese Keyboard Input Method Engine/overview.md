@@ -1,0 +1,1 @@
+Swift wrapper around the Rust skey_engine providing Vietnamese typing, macro expansion, and input-method switching for the macOS SKey input method.

@@ -1,1 +1,0 @@
-Captures low-level macOS keyboard events via CoreGraphics EventTap, routes them through a multi-stage composing pipeline, and injects synthetic backspaces/Unicode text into the target application.

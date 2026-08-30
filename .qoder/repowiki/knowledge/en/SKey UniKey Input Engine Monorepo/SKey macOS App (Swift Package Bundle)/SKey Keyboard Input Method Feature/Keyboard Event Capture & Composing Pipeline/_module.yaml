@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: macos_app/keyboard_input_method/event_handling
-title: Keyboard Event Interception & Typing Pipeline
+title: Keyboard Event Capture & Composing Pipeline
 scope:
     - macos/skey-app/Sources/Features/Keyboard/EventHandling/
 source_files: []

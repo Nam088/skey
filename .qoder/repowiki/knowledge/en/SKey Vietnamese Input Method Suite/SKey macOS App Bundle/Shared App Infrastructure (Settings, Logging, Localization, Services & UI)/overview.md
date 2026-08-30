@@ -1,1 +1,0 @@
-Cross-cutting infrastructure for the SKey macOS app providing settings persistence, unified logging, localization, system permissions, status bar UI, and keyboard shortcut primitives shared across features.

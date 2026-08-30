@@ -1,0 +1,3 @@
+- Runtime configuration is applied by calling setter methods on EventTapManager.shared.engine (e.g. setSpellCheck, setModernStyle, setQuickTelex) rather than rebuilding the engine.
+- UI state is kept in sync with AppSettings.shared.keyboard by reading the same source of truth after every toggle action.
+- Cross-cutting concerns (event capture, engine access, language mode) are exposed as singletons on EventTapManager.shared so other layers do not hold references to each other.

@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: ""
-title: SKey Vietnamese Input Method Suite
+title: SKey UniKey Input Engine Monorepo
 scope:
     - .gitignore
     - README.md

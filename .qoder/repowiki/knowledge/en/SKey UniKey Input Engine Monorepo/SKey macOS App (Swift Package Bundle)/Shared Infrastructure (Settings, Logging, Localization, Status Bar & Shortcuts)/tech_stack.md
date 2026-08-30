@@ -1,0 +1,1 @@
+Swift + AppKit/SwiftUI on macOS; uses `os.log` for unified logging, a custom `os_unfair_lock`-backed RAM cache over `UserDefaults` for settings, Carbon `CGEvent`/`KeyConstants` for key code handling, and the Accessibility Framework (`ApplicationServices`) for EventTap/accessibility permission checks.

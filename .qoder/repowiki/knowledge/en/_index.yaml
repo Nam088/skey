@@ -3,11 +3,11 @@ schema_version: 1
 locale: en-US
 branch: main
 nodes_managed: true
-exported_at: "2026-08-29T08:18:50Z"
+exported_at: "2026-08-29T09:41:46Z"
 modules:
     "":
-        dir_name: SKey Vietnamese Input Method Suite
-        title: SKey Vietnamese Input Method Suite
+        dir_name: SKey UniKey Input Engine Monorepo
+        title: SKey UniKey Input Engine Monorepo
         scope:
             - .gitignore
             - README.md
@@ -93,8 +93,8 @@ modules:
         related_to:
             - path: macos_app/keyboard_input_method
     macos_app:
-        dir_name: SKey macOS App Bundle
-        title: SKey macOS App Bundle
+        dir_name: SKey macOS App (Swift Package Bundle)
+        title: SKey macOS App (Swift Package Bundle)
         scope:
             - macos/skey-app/
         source_files: []
@@ -175,8 +175,8 @@ modules:
         related_to:
             - path: macos_app/keyboard_input_method/engine
     macos_app/keyboard_input_method/engine:
-        dir_name: Vietnamese Keyboard Input Method Engine
-        title: Vietnamese Keyboard Input Method Engine
+        dir_name: SKey Vietnamese Keyboard Input Method Engine
+        title: SKey Vietnamese Keyboard Input Method Engine
         scope:
             - macos/skey-app/Sources/Features/Keyboard/Engine/
         source_files: []
@@ -187,8 +187,8 @@ modules:
             - path: macos_app/keyboard_input_method/event_handling
             - path: rust_port/skey_capi
     macos_app/keyboard_input_method/event_handling:
-        dir_name: Keyboard Event Interception & Typing Pipeline
-        title: Keyboard Event Interception & Typing Pipeline
+        dir_name: Keyboard Event Capture & Composing Pipeline
+        title: Keyboard Event Capture & Composing Pipeline
         scope:
             - macos/skey-app/Sources/Features/Keyboard/EventHandling/
         source_files: []
@@ -208,8 +208,8 @@ modules:
         depends_on: []
         related_to: []
     macos_app/settings_feature:
-        dir_name: Settings Feature (SKey Preferences Window)
-        title: Settings Feature (SKey Preferences Window)
+        dir_name: SKey macOS Settings Preferences Window
+        title: SKey macOS Settings Preferences Window
         scope:
             - macos/skey-app/Sources/Features/Settings/
         source_files: []
@@ -219,8 +219,8 @@ modules:
             - path: macos_app/clipboard_feature
             - path: macos_app/translator_feature
     macos_app/shared_infrastructure:
-        dir_name: Shared App Infrastructure (Settings, Logging, Localization, Services & UI)
-        title: Shared App Infrastructure (Settings, Logging, Localization, Services & UI)
+        dir_name: Shared Infrastructure (Settings, Logging, Localization, Status Bar & Shortcuts)
+        title: Shared Infrastructure (Settings, Logging, Localization, Status Bar & Shortcuts)
         scope:
             - macos/skey-app/Sources/Shared/
         source_files: []

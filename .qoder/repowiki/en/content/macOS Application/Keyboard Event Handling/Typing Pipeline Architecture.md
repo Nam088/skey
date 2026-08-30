@@ -9,10 +9,19 @@
 - [SKeyEngine.swift](file://macos/skey-app/Sources/Features/Keyboard/Engine/SKeyEngine.swift)
 - [MacroEngine.swift](file://macos/skey-app/Sources/Features/Keyboard/Engine/MacroEngine.swift)
 - [InputMethod.swift](file://macos/skey-app/Sources/Features/Keyboard/Engine/InputMethod.swift)
-- [ContextRecomposer.swift](file://macos/skey-app/Sources/Features/Keyboard/Context/ContextRecomposer.swift)
-- [VietnameseDecomposer.swift](file://macos/skey-app/Sources/Features/Keyboard/Context/VietnameseDecomposer.swift)
+- [ContextRecomposer.swift](file://macos/skey-app/Sources/Keyboard/Context/ContextRecomposer.swift)
+- [VietnameseDecomposer.swift](file://macos/skey-app/Sources/Keyboard/Context/VietnameseDecomposer.swift)
 - [KeyEventSender.swift](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/KeyEventSender.swift)
+- [ClipboardFeature.swift](file://macos/skey-app/Sources/Features/Clipboard/ClipboardFeature.swift)
+- [TranslationHUDController.swift](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated MainActor isolation section to document proper thread safety for UI-related actions
+- Enhanced hotkey handling documentation with specific examples of UI thread dispatching
+- Added details about ClipboardFeature togglePopup threading considerations
+- Updated performance considerations to reflect current implementation approach
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -26,7 +35,7 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document explains the chain-of-responsibility pattern implementation in the typing pipeline that processes keystrokes with sub-microsecond latency on macOS. It covers how events flow through multiple stages: language detection, input method selection, character composition, macro expansion, and hotkey handling. It also documents the TypingPipeline class architecture, event processing workflow, result handling (.passThrough vs .swallowed), and the KeyInterceptor protocol’s role in filtering and modifying keystrokes before they reach target applications. Examples include custom pipeline stages, hotkey handling, and performance considerations for high-throughput, low-latency processing.
+This document explains the chain-of-responsibility pattern implementation in the typing pipeline that processes keystrokes with sub-microsecond latency on macOS. It covers how events flow through multiple stages: language detection, input method selection, character composition, macro expansion, and hotkey handling. It also documents the TypingPipeline class architecture, event processing workflow, result handling (.passThrough vs .swallowed), and the KeyInterceptor protocol's role in filtering and modifying keystrokes before they reach target applications. Examples include custom pipeline stages, hotkey handling, and performance considerations for high-throughput, low-latency processing.
 
 ## Project Structure
 The typing pipeline is implemented as a small set of focused components:
@@ -207,6 +216,22 @@ Recompose --> |No| PT9["passThrough"]
 
 **Section sources**
 - [TypingPipeline.swift:31-170](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L31-L170)
+
+### MainActor Isolation and UI Thread Safety
+**Updated** The TypingPipeline now implements proper MainActor isolation for all UI-related actions to ensure thread safety when interacting with UI components. All UI operations are dispatched to the main thread using `DispatchQueue.main.async` to prevent race conditions and maintain application stability.
+
+- **Language Toggle Shortcuts**: Direct invocation of `onToggleLanguage()` callback for immediate language switching without UI overhead.
+- **Clipboard Shortcuts**: UI operations wrapped in `DispatchQueue.main.async` to safely call `ClipboardFeature.shared.togglePopup()`.
+- **AI Settings Shortcuts**: UI operations wrapped in `DispatchQueue.main.async` to safely call `SettingsWindowController.shared.showSettings(tab: .ai)`.
+- **Quick Translate Shortcut (Option+T)**: UI operations wrapped in `DispatchQueue.main.async` to safely call `TranslationHUDController.shared.toggleHUD()`.
+- **Keyboard Cleaner Shortcuts**: UI operations wrapped in `DispatchQueue.main.async` to safely call `KeyboardCleanerController.shared.startCleaning()`.
+
+This approach ensures that while the hot path remains optimized for sub-microsecond latency, all UI interactions are performed safely on the main thread where UIKit/AppKit components must be accessed.
+
+**Section sources**
+- [TypingPipeline.swift:87-135](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/Pipeline/TypingPipeline.swift#L87-L135)
+- [ClipboardFeature.swift:60-78](file://macos/skey-app/Sources/Features/Clipboard/ClipboardFeature.swift#L60-L78)
+- [TranslationHUDController.swift:74-80](file://macos/skey-app/Sources/Features/Translator/UI/TranslationHUDController.swift#L74-L80)
 
 ### SKeyEngine and Input Method Selection
 - SKeyEngine wraps the Rust core engine, provides filter and backspace operations, and configures input methods (Telex, VNI, VIQR, Simple Telex).
@@ -403,8 +428,7 @@ CR --> VD["VietnameseDecomposer"]
   - VietnameseDecomposer uses precomputed mappings and O(1) scalar switch.
 - App-specific optimizations:
   - Web browser selection checks only when needed to avoid IPC overhead in native apps and Spotlight.
-
-[No sources needed since this section provides general guidance]
+- **MainActor Isolation Strategy**: UI-related actions are dispatched to the main thread using `DispatchQueue.main.async` to ensure thread safety while maintaining hot path performance. This approach separates UI concerns from the high-frequency event processing pipeline, preventing UI thread contention while ensuring safe access to UI components.
 
 ## Troubleshooting Guide
 - Event tap disabled:
@@ -417,6 +441,7 @@ CR --> VD["VietnameseDecomposer"]
   - Confirm trigger key matches input method; ensure no active selection and app not skipped; verify Accessibility permissions.
 - Hotkeys not triggering:
   - Validate shortcut settings and modifier combinations; ensure flagsChanged handling for modifier-only chords.
+- **UI Thread Issues**: If experiencing UI-related crashes or freezes, verify that all UI operations are properly dispatched to the main thread using `DispatchQueue.main.async` or `MainActor.assumeIsolated` blocks.
 
 **Section sources**
 - [EventTapManager.swift:172-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L172-L188)
@@ -425,6 +450,4 @@ CR --> VD["VietnameseDecomposer"]
 - [ContextRecomposer.swift:19-49](file://macos/skey-app/Sources/Features/Keyboard/Context/ContextRecomposer.swift#L19-L49)
 
 ## Conclusion
-The typing pipeline implements a robust chain-of-responsibility pattern with clear separation of concerns: event capture, filtering, language detection, input method composition, macro expansion, and context-aware recomposition. By leveraging fast classifications, zero-allocation strategies, and precise event injection, it achieves sub-microsecond latency suitable for real-time typing experiences. The design supports extensibility through additional interceptors and configurable hotkeys while maintaining high performance and reliability across diverse applications.
-
-[No sources needed since this section summarizes without analyzing specific files]
+The typing pipeline implements a robust chain-of-responsibility pattern with clear separation of concerns: event capture, filtering, language detection, input method composition, macro expansion, and context-aware recomposition. By leveraging fast classifications, zero-allocation strategies, precise event injection, and proper MainActor isolation for UI operations, it achieves sub-microsecond latency suitable for real-time typing experiences while maintaining thread safety and application stability. The design supports extensibility through additional interceptors and configurable hotkeys while maintaining high performance and reliability across diverse applications.

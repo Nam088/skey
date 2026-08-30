@@ -1,6 +1,6 @@
 schema_version: 1
 module_path: macos_app/shared_infrastructure
-title: Shared App Infrastructure (Settings, Logging, Localization, Services & UI)
+title: Shared Infrastructure (Settings, Logging, Localization, Status Bar & Shortcuts)
 scope:
     - macos/skey-app/Sources/Shared/
 source_files: []

@@ -1,0 +1,1 @@
+None beyond standard Swift build; debug-mode logging requires enabling `isDebugMode` in settings to write `/tmp/skey.log` with 0600 permissions, and log rotation triggers automatically at 2 MB.

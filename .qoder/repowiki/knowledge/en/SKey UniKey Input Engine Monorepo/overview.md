@@ -1,0 +1,1 @@
+Monorepo uniting the legacy C++ UniKey reference engine, a safe Rust port exposing a shared C ABI, and a native macOS Swift app that consumes the compiled library.

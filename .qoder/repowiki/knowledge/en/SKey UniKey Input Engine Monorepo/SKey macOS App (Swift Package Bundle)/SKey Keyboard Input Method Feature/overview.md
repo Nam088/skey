@@ -1,0 +1,1 @@
+Orchestrates a macOS input method that intercepts global keyboard events, applies Vietnamese typing and macro expansion via a Rust-backed engine, and injects composed text into the focused application.

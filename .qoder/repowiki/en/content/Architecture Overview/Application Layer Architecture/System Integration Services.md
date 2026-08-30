@@ -9,7 +9,16 @@
 - [AppFocusObserver.swift](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift)
 - [AppCoordinator.swift](file://macos/skey-app/Sources/App/AppCoordinator.swift)
 - [AppDelegate.swift](file://macos/skey-app/Sources/App/AppDelegate.swift)
+- [GeneralSettingsTab.swift](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Updated PermissionsService section to reflect ObservableObject conformance and reactive UI bindings
+- Added new section on smart caching with 5-second validity window
+- Enhanced Input Monitoring permission testing via temporary EventTap creation
+- Updated UI integration examples showing reactive permission status display
+- Added new diagram showing reactive permission flow with Combine framework
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -23,9 +32,9 @@
 9. [Conclusion](#conclusion)
 
 ## Introduction
-This document explains the macOS system integration services that power SKey’s menu bar presence, permissions handling, and launch behavior. It focuses on:
+This document explains the macOS system integration services that power SKey's menu bar presence, permissions handling, and launch behavior. It focuses on:
 - StatusBarManager for menu bar icon management, notifications, and user interactions
-- PermissionsService for accessibility and input monitoring authorization flows
+- PermissionsService for accessibility and input monitoring authorization flows with reactive UI bindings
 - LaunchAtLoginService for registering/unregistering the app at login via ServiceManagement
 It also covers security considerations, user experience patterns for permission requests, fallback strategies when permissions are denied, and examples of integrating with other macOS services and handling system event notifications.
 
@@ -41,12 +50,14 @@ AppCoordinator --> LaunchAtLoginService["LaunchAtLoginService"]
 AppCoordinator --> PermissionsService["PermissionsService"]
 AppCoordinator --> KeyboardFeature["KeyboardFeature"]
 KeyboardFeature --> EventTapManager["EventTapManager"]
+PermissionsService --> GeneralSettingsTab["GeneralSettingsTab"]
 ```
 
 **Diagram sources**
 - [AppDelegate.swift:7-30](file://macos/skey-app/Sources/App/AppDelegate.swift#L7-L30)
 - [AppCoordinator.swift:30-58](file://macos/skey-app/Sources/App/AppCoordinator.swift#L30-L58)
 - [EventTapManager.swift:15-103](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L15-L103)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
 
 **Section sources**
 - [AppDelegate.swift:7-30](file://macos/skey-app/Sources/App/AppDelegate.swift#L7-L30)
@@ -54,7 +65,7 @@ KeyboardFeature --> EventTapManager["EventTapManager"]
 
 ## Core Components
 - StatusBarManager: Manages the NSStatusItem, builds a grouped menu, updates the status icon based on language state, and provides actions to open settings and tools.
-- PermissionsService: Checks and prompts for Accessibility and Input Monitoring permissions; opens System Settings to guide users.
+- PermissionsService: **Updated** Now conforms to ObservableObject from Combine framework with reactive UI bindings. Implements smart caching with 5-second validity window and two new @Published properties tracking hasInputMonitoringPermission and hasAccessibilityPermission separately. Added sophisticated Input Monitoring permission testing via temporary EventTap creation.
 - LaunchAtLoginService: Uses ServiceManagement to register/unregister the app as a Login Item on macOS 13+.
 - Supporting services:
   - EventTapManager: Low-level event capture lifecycle and thread hosting for keyboard events.
@@ -63,7 +74,7 @@ KeyboardFeature --> EventTapManager["EventTapManager"]
 
 **Section sources**
 - [StatusBarManager.swift:6-160](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L6-L160)
-- [PermissionsService.swift:7-41](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L7-L41)
+- [PermissionsService.swift:8-115](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L8-L115)
 - [LaunchAtLoginService.swift:7-50](file://macos/skey-app/Sources/Shared/Services/LaunchAtLoginService.swift#L7-L50)
 - [EventTapManager.swift:15-103](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L15-L103)
 - [AppFocusObserver.swift:14-152](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift#L14-L152)
@@ -82,6 +93,7 @@ participant LA as "LaunchAtLoginService"
 participant PS as "PermissionsService"
 participant KF as "KeyboardFeature"
 participant ET as "EventTapManager"
+participant UI as "GeneralSettingsTab"
 App->>Coord : start()
 Coord->>SB : configure(with features)
 Coord->>KF : start()
@@ -94,6 +106,7 @@ Coord->>PS : openInputMonitoringSettings()
 Coord->>PS : openAccessibilitySettings()
 loop Poll until granted
 Coord->>PS : checkPermissions(prompt : false)
+UI->>PS : observe @Published properties
 alt Granted
 Coord->>KF : start()
 end
@@ -106,6 +119,7 @@ KF->>ET : start()
 - [AppDelegate.swift:7-30](file://macos/skey-app/Sources/App/AppDelegate.swift#L7-L30)
 - [AppCoordinator.swift:30-84](file://macos/skey-app/Sources/App/AppCoordinator.swift#L30-L84)
 - [EventTapManager.swift:81-103](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L81-L103)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
 
 ## Detailed Component Analysis
 
@@ -113,7 +127,7 @@ KF->>ET : start()
 Responsibilities:
 - Creates and owns the NSStatusItem and its button target/action.
 - Builds a grouped menu from Feature-provided items and adds Tools submenu (language selection, permissions shortcuts, cleaner tool).
-- Updates the status icon to show “V” or “E” based on current language mode.
+- Updates the status icon to show "V" or "E" based on current language mode.
 - Handles left/right clicks to toggle language or pop up the menu.
 - Provides actions to open Input Monitoring and Accessibility settings by delegating to PermissionsService.
 
@@ -146,26 +160,41 @@ Security and UX notes:
 - [StatusBarManager.swift:259-265](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L259-L265)
 
 ### PermissionsService
-Responsibilities:
+**Updated** Responsibilities:
+- **Enhanced**: Now conforms to `ObservableObject` from Combine framework for reactive UI bindings
+- **New**: Two `@Published` properties (`hasInputMonitoringPermission`, `hasAccessibilityPermission`) for real-time UI updates
+- **Enhanced**: Smart caching with 5-second validity window to avoid expensive system calls
+- **New**: Sophisticated Input Monitoring permission testing via temporary EventTap creation
 - Checks whether the process has Accessibility privileges using AXIsProcessTrusted().
 - Optionally prompts the user via AXIsProcessTrustedWithOptions to request permission.
 - Opens System Settings pages for Input Monitoring and Accessibility to guide users.
 
-Permission flow:
-- On app start, AppCoordinator checks permissions silently first.
+**Enhanced Permission Flow:**
+- On app start, AppCoordinator checks permissions silently first with caching.
 - If not granted, it prompts once and opens both relevant System Settings pages.
+- Reactive UI automatically updates via `@Published` properties when permissions change.
 - A timer periodically re-checks until permissions are granted, then starts the keyboard feature.
 
 ```mermaid
 sequenceDiagram
 participant AC as "AppCoordinator"
 participant PS as "PermissionsService"
+participant UI as "GeneralSettingsTab"
 participant SS as "System Settings"
 AC->>PS : checkPermissions(prompt : false)
+Note over PS : Cache check (5s validity)
+alt Cached result available
+PS-->>AC : Return cached status
+else No cache or expired
+PS->>PS : testInputMonitoringPermission()
+PS->>PS : AXIsProcessTrusted()
+PS-->>UI : @Published property updates
+end
 alt Not trusted
 AC->>PS : checkPermissions(prompt : true)
 AC->>PS : openInputMonitoringSettings()
 AC->>PS : openAccessibilitySettings()
+PS-->>UI : Real-time permission status
 loop Every 2 seconds
 AC->>PS : checkPermissions(prompt : false)
 alt Trusted now
@@ -178,21 +207,29 @@ end
 ```
 
 **Diagram sources**
-- [AppCoordinator.swift:66-84](file://macos/skey-app/Sources/App/AppCoordinator.swift#L66-L84)
-- [PermissionsService.swift:14-41](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L14-L41)
+- [AppCoordinator.swift:58-75](file://macos/skey-app/Sources/App/AppCoordinator.swift#L58-L75)
+- [PermissionsService.swift:22-64](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L22-L64)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
 
-Security considerations:
-- Uses Apple’s official APIs for trust checks and prompting.
-- Avoids bypassing system prompts; always directs users to System Settings if needed.
-- Keeps polling minimal and non-blocking.
+**Smart Caching Implementation:**
+- Maintains `cachedStatus` and `lastCheckTime` with 5-second validity window
+- Avoids expensive system calls on hot paths while ensuring fresh data
+- Automatically invalidates cache after prompting user for permissions
+
+**Enhanced Input Monitoring Testing:**
+- Uses temporary EventTap creation to test Input Monitoring permission
+- Creates minimal CGEvent.tap with keyDown event mask
+- Immediately cleans up tap after testing to avoid resource leaks
+- Returns true if EventTap can be created successfully
 
 **Section sources**
-- [PermissionsService.swift:14-41](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L14-L41)
-- [AppCoordinator.swift:66-84](file://macos/skey-app/Sources/App/AppCoordinator.swift#L66-L84)
+- [PermissionsService.swift:8-115](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L8-L115)
+- [AppCoordinator.swift:58-75](file://macos/skey-app/Sources/App/AppCoordinator.swift#L58-L75)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
 
 ### LaunchAtLoginService
 Responsibilities:
-- Reads and sets the app’s registration as a Login Item using SMAppService.mainApp on macOS 13+.
+- Reads and sets the app's registration as a Login Item using SMAppService.mainApp on macOS 13+.
 - Syncs stored preference with system state on launch.
 
 Behavior:
@@ -266,6 +303,35 @@ KF->>KF : handleAppFocusChanged(to : bundleID)
 - [AppFocusObserver.swift:14-152](file://macos/skey-app/Sources/Shared/Services/AppFocusObserver.swift#L14-L152)
 - [AppCoordinator.swift:48-51](file://macos/skey-app/Sources/App/AppCoordinator.swift#L48-L51)
 
+### Reactive UI Integration
+**New Section** The enhanced PermissionsService integrates seamlessly with SwiftUI through Combine framework:
+
+**Reactive Properties:**
+- `@Published hasAccessibilityPermission`: Automatically updates UI when Accessibility permission status changes
+- `@Published hasInputMonitoringPermission`: Automatically updates UI when Input Monitoring permission status changes
+
+**UI Integration Pattern:**
+- Settings views use `@ObservedObject private var permissions = PermissionsService.shared`
+- Views automatically refresh when permission status changes
+- Real-time feedback with visual indicators (checkmarks/crosses)
+- Automatic permission status text updates ("Granted"/"Required")
+
+```mermaid
+flowchart TD
+PS["PermissionsService"] --> |@Published properties| UI["SwiftUI Views"]
+UI --> |Automatic updates| Status["Permission Status Display"]
+Status --> |Visual feedback| User["User Interface"]
+User --> |Action| PS
+```
+
+**Diagram sources**
+- [PermissionsService.swift:11-12](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L11-L12)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
+
+**Section sources**
+- [PermissionsService.swift:11-12](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L11-L12)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
+
 ## Dependency Analysis
 High-level dependencies among integration services:
 
@@ -278,23 +344,25 @@ AppCoordinator --> AppFocusObserver
 AppCoordinator --> KeyboardFeature
 KeyboardFeature --> EventTapManager
 StatusBarManager --> PermissionsService
+PermissionsService --> GeneralSettingsTab
 ```
 
 **Diagram sources**
 - [AppCoordinator.swift:30-58](file://macos/skey-app/Sources/App/AppCoordinator.swift#L30-L58)
 - [StatusBarManager.swift:259-265](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L259-L265)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
 
 **Section sources**
 - [AppCoordinator.swift:30-58](file://macos/skey-app/Sources/App/AppCoordinator.swift#L30-L58)
 - [StatusBarManager.swift:259-265](file://macos/skey-app/Sources/Shared/UI/StatusBarManager.swift#L259-L265)
 
 ## Performance Considerations
+- **Enhanced**: PermissionsService implements smart caching with 5-second validity window to avoid expensive system calls on hot paths
 - EventTapManager uses a dedicated thread with a high-quality-of-service run loop to minimize latency and avoid main-thread blocking.
 - Language state in EventTapManager is protected by os_unfair_lock to ensure thread safety with minimal overhead.
 - AppFocusObserver caches app category results in memory to reduce repeated filesystem inspections.
 - StatusBarManager rebuilds menus only when necessary (e.g., language change), avoiding unnecessary UI work.
-
-[No sources needed since this section provides general guidance]
+- **New**: Reactive UI updates via Combine framework minimize manual state synchronization and reduce rendering overhead.
 
 ## Troubleshooting Guide
 Common issues and resolutions:
@@ -302,23 +370,27 @@ Common issues and resolutions:
   - Use PermissionsService.checkPermissions(prompt: true) to trigger the system prompt.
   - Open System Settings pages for Input Monitoring and Accessibility via PermissionsService.openInputMonitoringSettings() and openAccessibilitySettings().
   - AppCoordinator polls every 2 seconds until permissions are granted, then starts the keyboard feature.
+  - **Enhanced**: Check reactive UI properties `hasAccessibilityPermission` and `hasInputMonitoringPermission` for real-time status.
 - Event tap disabled:
   - EventTapManager automatically re-enables the tap when receiving tapDisabledByTimeout or tapDisabledByUserInput events.
 - Launch at login not working:
   - Ensure running on macOS 13+ where SMAppService is available.
   - Use LaunchAtLoginService.syncOnLaunch() on app start to reconcile stored preferences with system state.
+- **New**: UI not updating permission status:
+  - Verify that views are using `@ObservedObject` with PermissionsService.shared
+  - Check that `refreshPermissions()` is called after user returns from System Settings
+  - Ensure Combine subscriptions are active in the view lifecycle
 
 **Section sources**
-- [AppCoordinator.swift:66-84](file://macos/skey-app/Sources/App/AppCoordinator.swift#L66-L84)
-- [PermissionsService.swift:14-41](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L14-L41)
+- [AppCoordinator.swift:58-75](file://macos/skey-app/Sources/App/AppCoordinator.swift#L58-L75)
+- [PermissionsService.swift:22-64](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L22-L64)
 - [EventTapManager.swift:172-188](file://macos/skey-app/Sources/Features/Keyboard/EventHandling/EventTapManager.swift#L172-L188)
 - [LaunchAtLoginService.swift:44-50](file://macos/skey-app/Sources/Shared/Services/LaunchAtLoginService.swift#L44-L50)
+- [GeneralSettingsTab.swift:107-131](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L107-L131)
 
 ## Conclusion
-SKey’s macOS system integration is centered around three core services:
+SKey's macOS system integration is centered around three core services:
 - StatusBarManager provides a responsive menu bar interface and bridges user actions to system settings and features.
-- PermissionsService orchestrates secure, user-consented access to Accessibility and Input Monitoring, guiding users through System Settings when needed.
+- **Enhanced** PermissionsService orchestrates secure, user-consented access to Accessibility and Input Monitoring with reactive UI bindings, smart caching, and sophisticated permission testing, guiding users through System Settings when needed.
 - LaunchAtLoginService integrates with macOS ServiceManagement to manage startup behavior reliably on modern systems.
-These services collaborate through AppCoordinator to ensure a smooth, secure, and performant user experience while respecting macOS security boundaries.
-
-[No sources needed since this section summarizes without analyzing specific files]
+These services collaborate through AppCoordinator to ensure a smooth, secure, and performant user experience while respecting macOS security boundaries. The addition of Combine framework support enables real-time UI updates and improved user experience through reactive permission status display.

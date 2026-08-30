@@ -17,7 +17,15 @@
 - [KeyboardSettings.swift](file://macos/skey-app/Sources/Shared/Settings/Modules/KeyboardSettings.swift)
 - [ClipboardSettings.swift](file://macos/skey-app/Sources/Shared/Settings/Modules/ClipboardSettings.swift)
 - [MacroSettings.swift](file://macos/skey-app/Sources/Shared/Settings/Modules/MacroSettings.swift)
+- [PermissionsService.swift](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift)
 </cite>
+
+## Update Summary
+**Changes Made**
+- Enhanced General Settings Tab with visual permission status indicators showing green checkmark badges for granted permissions and red X marks for required permissions
+- Added contextual text display ('Đã cấp quyền' for granted, 'Yêu cầu cấp quyền' for required) based on permission status
+- Implemented automatic permission status refresh with 2-second delay after System Settings changes
+- Updated permissions section to use PermissionsService for reactive permission monitoring
 
 ## Table of Contents
 1. Introduction
@@ -31,12 +39,12 @@
 9. Conclusion
 
 ## Introduction
-This document explains the settings tabs architecture and implementation patterns used across the application’s feature-specific configuration interfaces. It covers:
+This document explains the settings tabs architecture and implementation patterns used across the application's feature-specific configuration interfaces. It covers:
 - Common tab architecture using SwiftUI views, sub-tab navigation, and reusable components
 - Reactive data binding to settings modules via ObservableObject
 - Validation and default value handling through centralized settings storage
 - Consistent UX patterns for toggles, pickers, sliders, shortcuts, lists, and complex forms
-- Each tab’s specific functionality: General, Keyboard, Clipboard, Snippets, Tools, AI, and About
+- Each tab's specific functionality: General, Keyboard, Clipboard, Snippets, Tools, AI, and About
 
 ## Project Structure
 The settings UI is organized by feature tabs under a shared component layer and backed by modular settings classes that persist values and expose reactive properties.
@@ -64,6 +72,7 @@ GS["GeneralSettings"]
 KS["KeyboardSettings"]
 CS["ClipboardSettings"]
 MS["MacroSettings"]
+PS["PermissionsService"]
 end
 G --> Comp
 K --> Comp
@@ -90,10 +99,11 @@ Hub --> GS
 Hub --> KS
 Hub --> CS
 Hub --> MS
+G --> PS
 ```
 
 **Diagram sources**
-- [GeneralSettingsTab.swift:1-226](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L1-L226)
+- [GeneralSettingsTab.swift:1-265](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L1-L265)
 - [KeyboardSettingsTab.swift:1-700](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/KeyboardSettingsTab.swift#L1-L700)
 - [ClipboardSettingsTab.swift:1-310](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/ClipboardSettingsTab.swift#L1-L310)
 - [SnippetsSettingsTab.swift:1-363](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/SnippetsSettingsTab.swift#L1-L363)
@@ -107,6 +117,7 @@ Hub --> MS
 - [KeyboardSettings.swift:1-263](file://macos/skey-app/Sources/Shared/Settings/Modules/KeyboardSettings.swift#L1-L263)
 - [ClipboardSettings.swift:1-268](file://macos/skey-app/Sources/Shared/Settings/Modules/ClipboardSettings.swift#L1-L268)
 - [MacroSettings.swift:1-125](file://macos/skey-app/Sources/Shared/Settings/Modules/MacroSettings.swift#L1-L125)
+- [PermissionsService.swift:1-115](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L1-L115)
 
 **Section sources**
 - [SettingsComponents.swift:1-304](file://macos/skey-app/Sources/Features/Settings/UI/Components/SettingsComponents.swift#L1-L304)
@@ -121,6 +132,7 @@ Hub --> MS
 - AppSettings: Central hub exposing per-feature settings modules (keyboard, clipboard, macro, general, shortcuts, translator).
 - SettingsModule protocol: Defines prefix, defaults registration, and reset behavior for each module.
 - SettingsNavigationState: Tracks active main tab and sub-tabs; provides search mapping to help users navigate quickly.
+- PermissionsService: Manages system permissions with caching and reactive updates for accessibility and input monitoring.
 
 These components ensure a uniform look-and-feel and predictable interaction patterns across all settings tabs.
 
@@ -129,6 +141,7 @@ These components ensure a uniform look-and-feel and predictable interaction patt
 - [AppSettings.swift:1-45](file://macos/skey-app/Sources/Shared/Settings/AppSettings.swift#L1-L45)
 - [SettingsModule.swift:1-17](file://macos/skey-app/Sources/Shared/Settings/SettingsModule.swift#L1-L17)
 - [SettingsNavigationState.swift:1-681](file://macos/skey-app/Sources/Features/Settings/SettingsNavigationState.swift#L1-L681)
+- [PermissionsService.swift:1-115](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L1-L115)
 
 ## Architecture Overview
 Each settings tab follows a common pattern:
@@ -168,7 +181,9 @@ Key behaviors:
 - Launch at login toggle integrates with system service and persists state
 - App language picker binds to localization service
 - Check updates toggle stored in settings
-- Permissions section opens OS settings for accessibility and input monitoring
+- **Enhanced**: Permissions section now displays visual status indicators with green checkmarks for granted permissions and red X marks for required permissions
+- **Enhanced**: Contextual text shows permission status ('Đã cấp quyền' for granted, 'Yêu cầu cấp quyền' for required)
+- **Enhanced**: Automatic permission status refresh with 2-second delay after System Settings changes
 - Logs section includes debug mode (build-conditional), open/clear log actions
 - Backup & Restore exports/imports full app settings
 - Factory reset clears all modules
@@ -181,28 +196,34 @@ UX patterns:
 - SubTabBar groups Basic, Permissions, Logs
 - SettingsGroup/SettingsRow provide consistent card layout
 - Alerts for import/export feedback
+- **New**: Visual permission status indicators provide immediate feedback on permission state
 
 ```mermaid
 flowchart TD
 Start(["Open General Tab"]) --> SubTabs{"Select SubTab"}
 SubTabs --> |Basic| Basic["Launch at Login / Language / Updates"]
-SubTabs --> |Permissions| Perm["Open Accessibility / Input Monitoring Settings"]
+SubTabs --> |Permissions| Perm["Visual Status Indicators<br/>Green Checkmark = Granted<br/>Red X Mark = Required"]
 SubTabs --> |Logs| Logs["Debug Mode / Open Log / Clear Log / Reset"]
+Perm --> AutoRefresh["Auto Refresh After 2s Delay"]
 Basic --> Save["Persist via SettingsStorage"]
-Perm --> System["Open OS Settings"]
+AutoRefresh --> System["Open OS Settings"]
 Logs --> Actions["Export/Import Settings / Reset All"]
 Save --> End(["Done"])
 System --> End
 Actions --> End
 ```
 
+**Updated** Enhanced with visual permission status indicators and automatic refresh functionality
+
 **Diagram sources**
-- [GeneralSettingsTab.swift:24-226](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L24-L226)
+- [GeneralSettingsTab.swift:24-265](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L24-L265)
 - [GeneralSettings.swift:24-90](file://macos/skey-app/Sources/Shared/Settings/Modules/GeneralSettings.swift#L24-L90)
+- [PermissionsService.swift:88-92](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L88-L92)
 
 **Section sources**
-- [GeneralSettingsTab.swift:1-226](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L1-L226)
+- [GeneralSettingsTab.swift:1-265](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L1-L265)
 - [GeneralSettings.swift:1-92](file://macos/skey-app/Sources/Shared/Settings/Modules/GeneralSettings.swift#L1-L92)
+- [PermissionsService.swift:1-115](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L1-L115)
 
 ### Keyboard Settings Tab
 Purpose: Configure input methods, typing rules, quick typing options, and app management (smart switch and excluded apps).
@@ -308,7 +329,7 @@ Validation and defaults:
 - Items persisted to storage and engine reloaded
 
 UX patterns:
-- Single-page “all-in-one” layout with top config, add form, and bottom list
+- Single-page "all-in-one" layout with top config, add form, and bottom list
 - Custom MacroTextArea for better UX than standard TextEditor
 - Empty state messaging and clear actions
 
@@ -419,6 +440,7 @@ UX patterns:
 - Navigation state centralizes sub-tab indices and search mappings
 - Modules encapsulate persistence and defaults, isolating storage concerns
 - Some tabs trigger immediate runtime effects (e.g., engine updates) upon setting changes
+- **Enhanced**: GeneralSettingsTab now depends on PermissionsService for reactive permission monitoring
 
 ```mermaid
 graph LR
@@ -429,6 +451,7 @@ Hub --> GS["GeneralSettings"]
 Hub --> KS["KeyboardSettings"]
 Hub --> CS["ClipboardSettings"]
 Hub --> MS["MacroSettings"]
+GS --> PS["PermissionsService"]
 KS --> Engine["EventTapManager / Engine"]
 T["ToolsSettingsTab"] --> TR["TranslationService"]
 ```
@@ -437,6 +460,7 @@ T["ToolsSettingsTab"] --> TR["TranslationService"]
 - [AppSettings.swift:1-45](file://macos/skey-app/Sources/Shared/Settings/AppSettings.swift#L1-L45)
 - [KeyboardSettingsTab.swift:63-129](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/KeyboardSettingsTab.swift#L63-L129)
 - [ToolsSettingsTab.swift:408-434](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/ToolsSettingsTab.swift#L408-L434)
+- [GeneralSettingsTab.swift:97-136](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L97-L136)
 
 **Section sources**
 - [AppSettings.swift:1-45](file://macos/skey-app/Sources/Shared/Settings/AppSettings.swift#L1-L45)
@@ -447,6 +471,7 @@ T["ToolsSettingsTab"] --> TR["TranslationService"]
 - Debounced persistence: SettingsStorage abstracts asynchronous debounced writes to UserDefaults to avoid blocking UI
 - Efficient list rendering: Lazy structures and filtered lists reduce unnecessary recomputation
 - Animations: Spring animations for reorder and sub-tab transitions improve perceived performance without heavy cost
+- **Enhanced**: Permission status caching with 5-second validity interval to minimize expensive system calls while maintaining responsive UI updates
 
 [No sources needed since this section provides general guidance]
 
@@ -456,11 +481,13 @@ Common issues and resolutions:
 - Import/Export failures: Ensure file formats match expected structure; verify permissions for save/open panels
 - Translation test errors: Check API key validity and network connectivity; review error messages displayed in the UI
 - Excluded apps not applied: Confirm exclusion is enabled and the app list contains the correct bundle IDs; rebuild cache after changes
+- **Enhanced**: Permission status not updating: Verify that the 2-second delay refresh is working correctly after opening System Settings; check that PermissionsService.refreshPermissions() is being called
 
 **Section sources**
 - [GeneralSettingsTab.swift:154-210](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/GeneralSettingsTab.swift#L154-L210)
 - [GeneralSettings.swift:73-90](file://macos/skey-app/Sources/Shared/Settings/Modules/GeneralSettings.swift#L73-L90)
 - [ToolsSettingsTab.swift:408-434](file://macos/skey-app/Sources/Features/Settings/UI/Tabs/ToolsSettingsTab.swift#L408-L434)
+- [PermissionsService.swift:88-92](file://macos/skey-app/Sources/Shared/Services/PermissionsService.swift#L88-L92)
 
 ## Conclusion
 The settings tabs implement a cohesive, scalable architecture:
@@ -468,5 +495,6 @@ The settings tabs implement a cohesive, scalable architecture:
 - Reactive bindings to modular settings ensure consistency and maintainability
 - Robust defaults and validation protect user experience
 - Feature-specific tabs deliver focused configuration while sharing common patterns
+- **Enhanced**: Visual permission status indicators provide immediate, intuitive feedback on system permission state
 
 This design makes it straightforward to add new settings controls, build complex forms, and integrate with the storage system while maintaining a consistent user experience across all tabs.
