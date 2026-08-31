@@ -27,6 +27,7 @@ if(WIN32)
         System/LaunchAtLogin.cpp
         Net/PlatformHttp.cpp
         Translator/TranslationHud.cpp
+        UI/CleanerOverlay.cpp
         Engine/SKeyEngineWrapper.cpp
         Engine/MacroEngine.cpp
         ../Shared/Contracts/IpcCodec.cpp

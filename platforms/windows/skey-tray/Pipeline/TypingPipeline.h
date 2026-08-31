@@ -42,6 +42,11 @@ public:
     using ExcludedAppProvider = std::function<bool()>;
     using ClockMs = std::function<std::uint64_t()>;
 
+    // Progress notifications for the cleaner HUD overlay. Timestamps use the
+    // pipeline clock (set_clock). Called from the hook thread; keep it cheap.
+    enum class CleanerEvent : std::uint8_t { activated, deactivated, esc_down, esc_up, other_key };
+    using CleanerListener = std::function<void(CleanerEvent, std::uint64_t clock_ms)>;
+
     TypingPipeline(EngineInterface& engine, MacroEngine& macro, ActionCallback on_action);
 
     // Returns true to swallow the event, false to pass it through.
@@ -61,6 +66,7 @@ public:
     bool cleaner_active() const noexcept { return cleaner_active_; }
     static constexpr std::uint64_t kCleanerUnlockHoldMs = 2000;
     void set_clock(ClockMs clock);
+    void set_cleaner_listener(CleanerListener listener);
 
     ModifierTracker& modifiers() { return tracker_; }
 
@@ -81,6 +87,7 @@ private:
     bool cleaner_esc_held_ = false;
     std::uint64_t cleaner_esc_down_ms_ = 0;
     ClockMs clock_;
+    CleanerListener cleaner_listener_;
 
     mutable std::mutex config_mutex_;
     Config config_;

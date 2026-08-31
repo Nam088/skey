@@ -22,6 +22,7 @@
 #include "Pipeline/ForegroundAppTracker.h"
 #include "Pipeline/TypingPipeline.h"
 #include "Translator/TranslationHud.h"
+#include "UI/CleanerOverlay.h"
 #endif
 
 namespace skey::windows {
@@ -57,6 +58,7 @@ private:
     void open_clipboard_popup();
     void on_clipboard_capture(std::string text);
     void open_translation_hud();
+    void open_cleaner_overlay();
     void start_update_checker();
 #endif
 
@@ -79,6 +81,8 @@ private:
     // Shared with the detached popup/HUD threads so they never touch `this`.
     std::shared_ptr<std::atomic<bool>> clipboard_popup_open_;
     std::shared_ptr<std::atomic<bool>> translation_hud_open_;
+    std::shared_ptr<std::atomic<bool>> cleaner_overlay_open_;
+    std::shared_ptr<CleanerOverlayBridge> cleaner_bridge_;
     std::mutex clipboard_mutex_;
 
     // Kept alive by the detached update-checker thread.

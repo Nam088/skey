@@ -135,12 +135,20 @@ bool TypingPipeline::process(const HookKeyEvent& event) {
 }
 
 void TypingPipeline::set_cleaner_active(bool active) noexcept {
+    if (cleaner_active_ == active) return;
     cleaner_active_ = active;
     cleaner_esc_held_ = false;
+    if (cleaner_listener_) {
+        cleaner_listener_(active ? CleanerEvent::activated : CleanerEvent::deactivated, now_ms());
+    }
 }
 
 void TypingPipeline::set_clock(ClockMs clock) {
     clock_ = std::move(clock);
+}
+
+void TypingPipeline::set_cleaner_listener(CleanerListener listener) {
+    cleaner_listener_ = std::move(listener);
 }
 
 std::uint64_t TypingPipeline::now_ms() const {
@@ -157,26 +165,29 @@ bool TypingPipeline::handle_cleaner(const HookKeyEvent& event) {
     // invoked because TrayRuntime toggles activation from stage 5 only.
     const uint8_t mods = tracker_.mask() & ~kModCaps;
     if (!event.is_up && hotkeys_.match(event.vk, mods) == HotkeyAction::cleaner) {
-        cleaner_active_ = false;
-        cleaner_esc_held_ = false;
+        set_cleaner_active(false);
         return true;
     }
 
     if (event.vk == kVkEscape) {
         if (event.is_up) {
             cleaner_esc_held_ = false;
+            if (cleaner_listener_) cleaner_listener_(CleanerEvent::esc_up, now_ms());
         } else if (!cleaner_esc_held_) {
             cleaner_esc_held_ = true;
             cleaner_esc_down_ms_ = now_ms();
+            if (cleaner_listener_) cleaner_listener_(CleanerEvent::esc_down, cleaner_esc_down_ms_);
         } else if (now_ms() - cleaner_esc_down_ms_ >= kCleanerUnlockHoldMs) {
-            cleaner_active_ = false;
-            cleaner_esc_held_ = false;
+            set_cleaner_active(false);
         }
         return true;
     }
 
     // Any other key cancels the Esc hold (mirrors macOS reset behavior).
-    cleaner_esc_held_ = false;
+    if (cleaner_esc_held_) {
+        cleaner_esc_held_ = false;
+        if (cleaner_listener_) cleaner_listener_(CleanerEvent::other_key, now_ms());
+    }
     return true;
 }
 

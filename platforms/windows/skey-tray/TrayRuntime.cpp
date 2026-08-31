@@ -16,6 +16,7 @@
 #include "Net/PlatformHttp.h"
 #include "System/LaunchAtLogin.h"
 #include "Translator/TranslationHud.h"
+#include "UI/CleanerOverlay.h"
 #endif
 
 namespace skey::windows {
@@ -172,7 +173,12 @@ bool TrayRuntime::start_hook() {
             case HotkeyAction::toggle_language: toggle_language(); break;
             case HotkeyAction::clipboard: open_clipboard_popup(); break;
             case HotkeyAction::cleaner:
-                pipeline_->set_cleaner_active(!pipeline_->cleaner_active());
+                if (pipeline_->cleaner_active()) {
+                    pipeline_->set_cleaner_active(false);
+                } else {
+                    pipeline_->set_cleaner_active(true);
+                    open_cleaner_overlay();
+                }
                 break;
             case HotkeyAction::translate: open_translation_hud(); break;
             // AI lands in a later phase; swallow the chord for now so it
@@ -182,6 +188,34 @@ bool TrayRuntime::start_hook() {
             }
         });
     pipeline_->set_excluded_app_provider([this] { return foreground_is_excluded(); });
+
+    // Cleaner HUD: pipeline posts Esc-hold progress to the overlay window.
+    if (!cleaner_bridge_) cleaner_bridge_ = std::make_shared<CleanerOverlayBridge>();
+    {
+        std::lock_guard<std::mutex> lock(cleaner_bridge_->mutex);
+        cleaner_bridge_->unlock_request = [this] {
+            if (pipeline_) pipeline_->set_cleaner_active(false);
+        };
+    }
+    pipeline_->set_cleaner_listener(
+        [bridge = cleaner_bridge_](TypingPipeline::CleanerEvent event, std::uint64_t clock_ms) {
+            void* window = nullptr;
+            {
+                std::lock_guard<std::mutex> lock(bridge->mutex);
+                window = bridge->window;
+            }
+            if (window == nullptr) return;
+            std::uintptr_t code = 0;
+            switch (event) {
+            case TypingPipeline::CleanerEvent::esc_down: code = kCleanerEscDown; break;
+            case TypingPipeline::CleanerEvent::esc_up: code = kCleanerEscUp; break;
+            case TypingPipeline::CleanerEvent::other_key: code = kCleanerOtherKey; break;
+            case TypingPipeline::CleanerEvent::deactivated: code = kCleanerDeactivated; break;
+            case TypingPipeline::CleanerEvent::activated: return;
+            }
+            PostMessageW(static_cast<HWND>(window), kCleanerEventMessage, code,
+                         static_cast<LPARAM>(clock_ms));
+        });
 
     // Load persisted settings before the first event is processed.
     const SettingsModel model = SettingsStore{SettingsPaths::settings_file()}.load();
@@ -204,7 +238,14 @@ bool TrayRuntime::start_hook() {
 }
 
 void TrayRuntime::stop_hook() {
+    if (pipeline_ && pipeline_->cleaner_active()) {
+        pipeline_->set_cleaner_active(false);  // closes the overlay, if open
+    }
     hook_.uninstall();
+    if (cleaner_bridge_) {
+        std::lock_guard<std::mutex> lock(cleaner_bridge_->mutex);
+        cleaner_bridge_->unlock_request = nullptr;
+    }
     clipboard_monitor_.reset();  // joins the poll thread before the store goes away
     clipboard_store_.reset();
     pipeline_.reset();
@@ -342,6 +383,21 @@ void TrayRuntime::open_translation_hud() {
     auto flag = translation_hud_open_;
     std::thread([config = std::move(config), flag] {
         TranslationHud::show(config, make_platform_http());
+        flag->store(false);
+    }).detach();
+}
+
+void TrayRuntime::open_cleaner_overlay() {
+    if (!cleaner_overlay_open_) {
+        cleaner_overlay_open_ = std::make_shared<std::atomic<bool>>(false);
+    }
+    bool expected = false;
+    if (!cleaner_overlay_open_->compare_exchange_strong(expected, true)) return;
+
+    auto flag = cleaner_overlay_open_;
+    auto bridge = cleaner_bridge_;
+    std::thread([bridge, flag] {
+        CleanerOverlay::run(bridge);
         flag->store(false);
     }).detach();
 }

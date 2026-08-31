@@ -38,6 +38,7 @@ if(WIN32)
         ../skey-tray/System/LaunchAtLogin.cpp
         ../skey-tray/Net/PlatformHttp.cpp
         ../skey-tray/Translator/TranslationHud.cpp
+        ../skey-tray/UI/CleanerOverlay.cpp
         ../skey-tray/Engine/SKeyEngineWrapper.cpp
         ../skey-tray/Engine/MacroEngine.cpp
         ../Shared/Clipboard/ClipboardText.cpp

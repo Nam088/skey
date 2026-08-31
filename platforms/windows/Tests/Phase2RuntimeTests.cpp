@@ -217,5 +217,45 @@ int main() {
         assert(actions.size() == 1);  // no duplicate callback on internal unlock
     }
 
+    // --- Cleaner listener events feed the overlay ---
+    {
+        FakeEngine engine;
+        MacroEngine macro;
+        TypingPipeline pipe(engine, macro, nullptr);
+        std::uint64_t now = 0;
+        pipe.set_clock([&] { return now; });
+        std::vector<std::pair<TypingPipeline::CleanerEvent, std::uint64_t>> events;
+        pipe.set_cleaner_listener([&](TypingPipeline::CleanerEvent event, std::uint64_t ms) {
+            events.emplace_back(event, ms);
+        });
+
+        pipe.set_cleaner_active(true);   // activated @0
+        pipe.process(down(kVkEsc));      // esc_down @0
+        now = 500;
+        pipe.process(down('X'));         // other_key resets the hold
+        now = 800;
+        pipe.process(down(kVkEsc));      // esc_down @800
+        now = 900;
+        pipe.process(up(kVkEsc));        // esc_up
+        now = 1000;
+        pipe.process(down(kVkEsc));      // esc_down @1000
+        now = 3000;
+        pipe.process(down(kVkEsc));      // hold complete -> deactivated
+        assert(!pipe.cleaner_active());
+
+        assert(events.size() == 7);
+        assert(events[0].first == TypingPipeline::CleanerEvent::activated);
+        assert(events[1].first == TypingPipeline::CleanerEvent::esc_down && events[1].second == 0);
+        assert(events[2].first == TypingPipeline::CleanerEvent::other_key && events[2].second == 500);
+        assert(events[3].first == TypingPipeline::CleanerEvent::esc_down && events[3].second == 800);
+        assert(events[4].first == TypingPipeline::CleanerEvent::esc_up);
+        assert(events[5].first == TypingPipeline::CleanerEvent::esc_down && events[5].second == 1000);
+        assert(events[6].first == TypingPipeline::CleanerEvent::deactivated && events[6].second == 3000);
+
+        // No duplicate events for no-op state changes.
+        pipe.set_cleaner_active(false);
+        assert(events.size() == 7);
+    }
+
     return 0;
 }
