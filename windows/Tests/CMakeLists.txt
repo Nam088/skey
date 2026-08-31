@@ -95,3 +95,36 @@ else()
     target_compile_options(skey_feature_parity_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 add_test(NAME skey_feature_parity_tests COMMAND skey_feature_parity_tests)
+
+add_executable(skey_key_event_tests KeyEventSinkTests.cpp)
+target_include_directories(skey_key_event_tests PRIVATE ../skey-ime)
+if(MSVC)
+    target_compile_options(skey_key_event_tests PRIVATE /W4 /WX /permissive-)
+else()
+    target_compile_options(skey_key_event_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME skey_key_event_tests COMMAND skey_key_event_tests)
+
+add_executable(skey_pipeline_tests
+    WindowsKeyPipelineTests.cpp
+    ../skey-ime/Host/CompositionHost.cpp
+    ../skey-ime/EventHandling/Pipeline/WindowsKeyPipeline.cpp
+)
+target_include_directories(skey_pipeline_tests PRIVATE ../skey-ime)
+if(MSVC)
+    target_compile_options(skey_pipeline_tests PRIVATE /W4 /WX /permissive-)
+else()
+    target_compile_options(skey_pipeline_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME skey_pipeline_tests COMMAND skey_pipeline_tests)
+
+add_executable(skey_clipboard_service_tests
+    ClipboardServiceTests.cpp
+)
+target_include_directories(skey_clipboard_service_tests PRIVATE ..)
+if(MSVC)
+    target_compile_options(skey_clipboard_service_tests PRIVATE /W4 /WX /permissive-)
+else()
+    target_compile_options(skey_clipboard_service_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+add_test(NAME skey_clipboard_service_tests COMMAND skey_clipboard_service_tests)

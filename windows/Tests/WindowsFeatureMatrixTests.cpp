@@ -82,5 +82,45 @@ int main() {
     assert(recovered.locale == Locale::vi_vn && recovered.theme == ThemeMode::system);
     assert(store.reset() && !std::filesystem::exists(path));
 
+    // Extended settings matrix: round-trip all new fields.
+    SettingsModel full{};
+    full.spell_check = false;
+    full.free_marking = false;
+    full.modern_style = true;
+    full.swallowed_key_restore = false;
+    full.quick_telex = true;
+    full.quick_start_consonant = true;
+    full.quick_end_consonant = true;
+    full.upper_case_first_char = true;
+    full.allow_consonant_zfwj = true;
+    full.smart_app_switch = true;
+    full.launch_at_login = true;
+    full.check_updates = false;
+    full.debug_mode = true;
+    full.clipboard_enabled = false;
+    full.clipboard_max_items = 500;
+    full.clipboard_auto_paste = false;
+    full.clipboard_paste_plain_text = true;
+    full.clipboard_save_text = false;
+    full.clipboard_save_images = true;
+    full.macro_enabled = false;
+    full.macro_auto_caps = false;
+    full.macro_in_english_mode = true;
+    assert(store.save(full));
+    const auto full_loaded = store.load();
+    assert(full_loaded.spell_check == false && full_loaded.free_marking == false);
+    assert(full_loaded.modern_style == true && full_loaded.swallowed_key_restore == false);
+    assert(full_loaded.quick_telex == true && full_loaded.quick_start_consonant == true);
+    assert(full_loaded.quick_end_consonant == true && full_loaded.upper_case_first_char == true);
+    assert(full_loaded.allow_consonant_zfwj == true && full_loaded.smart_app_switch == true);
+    assert(full_loaded.launch_at_login == true && full_loaded.check_updates == false);
+    assert(full_loaded.debug_mode == true);
+    assert(full_loaded.clipboard_enabled == false && full_loaded.clipboard_max_items == 500);
+    assert(full_loaded.clipboard_auto_paste == false && full_loaded.clipboard_paste_plain_text == true);
+    assert(full_loaded.clipboard_save_text == false && full_loaded.clipboard_save_images == true);
+    assert(full_loaded.macro_enabled == false && full_loaded.macro_auto_caps == false);
+    assert(full_loaded.macro_in_english_mode == true);
+    assert(store.reset() && !std::filesystem::exists(path));
+
     std::cout << "WINDOWS_FEATURE_MATRIX_OK\n";
 }

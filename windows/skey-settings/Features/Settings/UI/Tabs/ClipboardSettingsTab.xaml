@@ -1,3 +1,18 @@
 <Page x:Class="SKey.Settings.ClipboardSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <StackPanel Spacing="12"><TextBlock Text="Clipboard" Style="{StaticResource SubtitleTextBlockStyle}"/><ToggleSwitch Header="Enable clipboard history" IsOn="True"/><NumberBox Header="Maximum items" Value="100" Minimum="1" Maximum="10000"/></StackPanel>
+  <ScrollViewer>
+    <StackPanel Spacing="16" Padding="0,0,0,24">
+      <TextBlock Text="Clipboard" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+      <TextBlock Text="General" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+      <ToggleSwitch Header="Enable clipboard history" IsOn="True"/>
+      <ToggleSwitch Header="Auto paste" IsOn="True"/>
+      <ToggleSwitch Header="Paste as plain text"/>
+
+      <TextBlock Text="Storage" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ToggleSwitch Header="Save text" IsOn="True"/>
+      <ToggleSwitch Header="Save images"/>
+      <NumberBox Header="Maximum items" Value="100" Minimum="1" Maximum="10000"/>
+      <Button Content="Clear all history" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+    </StackPanel>
+  </ScrollViewer>
 </Page>

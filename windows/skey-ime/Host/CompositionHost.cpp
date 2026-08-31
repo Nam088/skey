@@ -3,12 +3,17 @@
 namespace skey::windows {
 
 EditResult CompositionHost::dispatch(const KeyEvent& event) {
+    const bool shift = (event.modifiers & 1) != 0;
+    const bool caps = (event.modifiers & 8) != 0;
+
     switch (event.kind) {
     case EventKind::key_down:
+        engine_.set_caps_state(shift, caps);
         return apply_edit(engine_.filter(event.codepoint));
     case EventKind::backspace:
         return apply_edit(engine_.backspace());
     case EventKind::word_break: {
+        engine_.set_caps_state(shift, caps);
         const auto result = apply_edit(engine_.filter(event.codepoint));
         host_.commit();
         reset();

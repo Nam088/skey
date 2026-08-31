@@ -18,6 +18,7 @@ public:
     EditResult filter(std::uint32_t codepoint) override;
     EditResult backspace() override;
     void reset() override;
+    void set_caps_state(bool shift, bool caps) override;
 
 private:
     EditResult read_edit(::SKeyEdit edit);

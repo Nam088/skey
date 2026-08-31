@@ -10,6 +10,7 @@ namespace skey::windows {
 class KeyEventSink final : public ITfKeyEventSink {
 public:
     explicit KeyEventSink(IKeyEventHandler* handler = nullptr) noexcept : handler_(handler) {}
+    void set_handler(IKeyEventHandler* handler) noexcept { handler_ = handler; }
     HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** object) override;
     ULONG STDMETHODCALLTYPE AddRef() override;
     ULONG STDMETHODCALLTYPE Release() override;

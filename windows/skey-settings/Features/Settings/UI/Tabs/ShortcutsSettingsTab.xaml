@@ -1,0 +1,46 @@
+<Page x:Class="SKey.Settings.ShortcutsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer>
+    <StackPanel Spacing="16" Padding="0,0,0,24">
+      <TextBlock Text="Shortcuts" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+      <TextBlock Text="Input Toggle" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+      <Grid ColumnSpacing="12" RowSpacing="8">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Toggle Vietnamese/English" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="Ctrl+Shift" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Toggle input method" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="Alt+Shift" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Restore keystrokes" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="Ctrl+Shift+Z" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+      </Grid>
+
+      <TextBlock Text="Clipboard" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <Grid ColumnSpacing="12" RowSpacing="8">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Open clipboard history" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="Ctrl+Shift+V" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Clear clipboard" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="Ctrl+Shift+Delete" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+      </Grid>
+
+      <TextBlock Text="Custom Shortcuts" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <TextBlock Text="Custom shortcut configuration is not yet available" Opacity="0.7"/>
+      <Button Content="Add custom shortcut" IsEnabled="False"/>
+    </StackPanel>
+  </ScrollViewer>
+</Page>

@@ -1,3 +1,48 @@
 <Page x:Class="SKey.Settings.ToolsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <StackPanel Spacing="12"><TextBlock Text="Tools" Style="{StaticResource SubtitleTextBlockStyle}"/><Button Content="Reset settings"/><Button Content="Export settings"/></StackPanel>
+  <ScrollViewer>
+    <StackPanel Spacing="16" Padding="0,0,0,24">
+      <TextBlock Text="Tools" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+      <Border Padding="20,16" CornerRadius="10" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Keyboard Cleaner" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+          <TextBlock TextWrapping="Wrap" Opacity="0.7">Temporarily disables input transformation so you can type raw keys. Useful for passwords or terminal commands.</TextBlock>
+          <ToggleSwitch Header="Enable cleaner mode"/>
+          <Button Content="Clean now"/>
+        </StackPanel>
+      </Border>
+
+      <Border Padding="20,16" CornerRadius="10" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Character Converter" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+          <TextBlock TextWrapping="Wrap" Opacity="0.7">Convert text between Vietnamese character encodings (Unicode, TCVN3, VNI Windows).</TextBlock>
+          <TextBox Header="Input text" AcceptsReturn="True" TextWrapping="Wrap" Height="80"/>
+          <ComboBox Header="Target encoding" SelectedIndex="0" HorizontalAlignment="Stretch">
+            <ComboBoxItem Content="Unicode"/>
+            <ComboBoxItem Content="TCVN3"/>
+            <ComboBoxItem Content="VNI Windows"/>
+          </ComboBox>
+          <Button Content="Convert"/>
+        </StackPanel>
+      </Border>
+
+      <Border Padding="20,16" CornerRadius="10" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Diagnostics" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+          <TextBlock TextWrapping="Wrap" Opacity="0.7">View internal state and export logs for troubleshooting.</TextBlock>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="View diagnostics"/>
+            <Button Content="Export logs"/>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <TextBlock Text="Data Management" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="Export all settings"/>
+        <Button Content="Import settings"/>
+      </StackPanel>
+      <Button Content="Reset to factory defaults" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+    </StackPanel>
+  </ScrollViewer>
 </Page>

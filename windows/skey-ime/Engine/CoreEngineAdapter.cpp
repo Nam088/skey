@@ -30,6 +30,10 @@ void CoreEngineAdapter::reset() {
     if (engine_ != nullptr) skey_engine_reset(engine_);
 }
 
+void CoreEngineAdapter::set_caps_state(bool shift, bool caps) {
+    if (engine_ != nullptr) skey_engine_set_caps_state(engine_, shift ? 1 : 0, caps ? 1 : 0);
+}
+
 EditResult CoreEngineAdapter::read_edit(::SKeyEdit edit) {
     if (edit.handled == 0 || edit.len <= 0) {
         return {.handled = edit.handled != 0,
