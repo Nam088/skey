@@ -104,35 +104,39 @@ public final class AccessibilityContextReader {
             return nil
         }
 
-        // Strategy A: Parameterized attribute kAXStringForRangeParameterizedAttribute
-        let readLen = min(range.location, 30)
-        let startLoc = range.location - readLen
-        var readRange = CFRange(location: startLoc, length: readLen)
-
-        if let rangeValue = AXValueCreate(.cfRange, &readRange) {
-            var stringVal: AnyObject?
-            let paramErr = AXUIElementCopyParameterizedAttributeValue(
-                axElement,
-                kAXStringForRangeParameterizedAttribute as CFString,
-                rangeValue,
-                &stringVal
-            )
-            if paramErr == .success, let text = stringVal as? String, !text.isEmpty {
-                if let word = extractLastWord(from: text) {
-                    return word
-                }
-            }
-        }
-
-        // Strategy B: Read full kAXValueAttribute and slice up to range.location
+        // 2. kAXValueAttribute is the source of truth when readable. Chromium web apps
+        // (e.g. Zalo chat) can report a phantom word through the parameterized string
+        // attribute while the field's value is empty; trusting the value blocks that.
         var valueAttr: AnyObject?
-        if AXUIElementCopyAttributeValue(axElement, kAXValueAttribute as CFString, &valueAttr) == .success,
-           let fullText = valueAttr as? String, !fullText.isEmpty {
+        if AXUIElementCopyAttributeValue(axElement, kAXValueAttribute as CFString, &valueAttr) == .success {
+            let fullText = valueAttr as? String ?? ""
             let location = min(range.location, fullText.utf16.count)
             let prefixIndex = fullText.utf16.index(fullText.utf16.startIndex, offsetBy: location, limitedBy: fullText.utf16.endIndex) ?? fullText.utf16.endIndex
             let prefixString = String(fullText.utf16[..<prefixIndex]) ?? ""
-            if let word = extractLastWord(from: prefixString) {
-                return word
+            return extractLastWord(from: prefixString)
+        }
+
+        // 3. Fallback for elements without a value attribute:
+        // Parameterized attribute kAXStringForRangeParameterizedAttribute.
+        // Skipped in web browsers: Chromium reports stale/phantom text through it
+        // for focusable non-editable elements (e.g. Zalo's richInput div), which
+        // is the phantom-word source. Native apps keep the fallback.
+        if AppFocusObserver.shared.currentCategory != .webBrowser {
+            let readLen = min(range.location, 30)
+            let startLoc = range.location - readLen
+            var readRange = CFRange(location: startLoc, length: readLen)
+
+            if let rangeValue = AXValueCreate(.cfRange, &readRange) {
+                var stringVal: AnyObject?
+                let paramErr = AXUIElementCopyParameterizedAttributeValue(
+                    axElement,
+                    kAXStringForRangeParameterizedAttribute as CFString,
+                    rangeValue,
+                    &stringVal
+                )
+                if paramErr == .success, let text = stringVal as? String, !text.isEmpty {
+                    return extractLastWord(from: text)
+                }
             }
         }
 

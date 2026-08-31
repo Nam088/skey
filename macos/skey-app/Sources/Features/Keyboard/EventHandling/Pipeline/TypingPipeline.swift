@@ -70,12 +70,15 @@ public final class TypingPipeline {
             return .passThrough
         }
 
-        // Stage 3: Handle Mouse Clicks (User clicked mouse to reposition caret or switch focus)
+        // Stage 3: Handle Mouse Clicks (User clicked mouse to reposition caret or switch focus).
+        // Clicks must NOT arm context recomposition: a click often switches focus to another
+        // element whose Accessibility state is stale (e.g. Zalo web), producing phantom words.
+        // Recomposition is armed only by explicit navigation keys (Arrows/Home/End).
         if type == .leftMouseDown || type == .rightMouseDown || type == .otherMouseDown {
             engine.reset()
             MacroEngine.shared.reset()
             modifierOnlyCandidate = false
-            caretMayHaveMoved = true
+            caretMayHaveMoved = false
             return .passThrough
         }
 
