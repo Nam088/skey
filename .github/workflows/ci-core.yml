@@ -1,0 +1,86 @@
+name: CI - Core
+
+on:
+  push:
+    branches: [main, windows-ime]
+    paths:
+      - 'core/**'
+      - 'shared/**'
+      - '.github/workflows/ci-core.yml'
+  pull_request:
+    paths:
+      - 'core/**'
+      - 'shared/**'
+      - '.github/workflows/ci-core.yml'
+  schedule:
+    - cron: '0 18 * * *'
+
+env:
+  RUSTFLAGS: -D warnings
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cargo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            core/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('core/Cargo.lock') }}
+
+      - name: Build workspace
+        run: cargo build --release --workspace
+
+      - name: Run tests
+        run: cargo test --release
+
+      - name: No-allocator build
+        run: |
+          cargo build --release -p skey-core --no-default-features
+          cargo test --release -p skey-core --no-default-features --test smoke
+
+      - name: WebAssembly build
+        run: cargo build --release -p skey-core --target wasm32-unknown-unknown
+
+      - name: Serde feature
+        run: cargo test --release -p skey-core --features serde --test smoke
+
+  differential:
+    name: Differential vs C++
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build oracle & harnesses
+        run: make CXXFLAGS='-O1 -std=c++11 -w -Wno-narrowing -D_tempnam=tempnam -include cstring' CXX=g++ oracle rust oracle-rust ctx-harness
+
+      - name: Verify tables
+        run: |
+          make tables
+          git diff --exit-code -- skey-core/src/phonetics/tables.rs skey-core/src/phonetics/lexi_consts.rs
+
+      - name: Differential sweep
+        run: make sweep
+
+      - name: Macro & keymap sweep
+        run: make macrosweep keymapsweep
+
+      - name: C ABI checks
+        run: make capi-check ctx-check

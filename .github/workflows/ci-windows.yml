@@ -1,4 +1,4 @@
-name: Windows IME contract build
+name: CI - Windows
 
 on:
   push:
@@ -7,21 +7,20 @@ on:
       - 'platforms/windows/**'
       - 'shared/**'
       - 'core/**'
-      - '.github/workflows/windows-ime.yml'
+      - '.github/workflows/ci-windows.yml'
   pull_request:
     paths:
       - 'platforms/windows/**'
       - 'shared/**'
       - 'core/**'
-      - '.github/workflows/windows-ime.yml'
-  workflow_dispatch:
+      - '.github/workflows/ci-windows.yml'
 
 jobs:
   contracts:
-    name: Windows portable contracts
+    name: Build & Test
     runs-on: windows-latest
     steps:
-      - name: Checkout Windows-compatible tree
+      - name: Checkout
         shell: bash
         run: |
           set -euo pipefail
@@ -29,48 +28,45 @@ jobs:
           git config core.protectNTFS false
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
-          # git archive extracts only selected paths and never materialises
-          # the legacy filename that Windows rejects during checkout.
           git archive FETCH_HEAD .github platforms/windows/build-config installer-windows core/skey-capi/include shared platforms/windows | tar -xf -
           
-          # Reorganize to match expected structure
           mkdir -p build-windows windows shared-contracts tests-windows port/skey-capi
           mv platforms/windows/build-config/* build-windows/ 2>/dev/null || true
           mv platforms/windows/* windows/ 2>/dev/null || true
           mv shared/* shared-contracts/ 2>/dev/null || true
           mv core/skey-capi/include port/skey-capi/ 2>/dev/null || true
-          
-      - name: Validate schemas and vectors
+
+      - name: Validate contracts
         shell: bash
         run: python3 build-windows/validate_contracts.py
-        
-      - name: Validate MSIX manifest
+
+      - name: Validate package
         shell: bash
         run: python3 build-windows/validate_package.py
-        
+
       - name: Configure
         run: cmake -S build-windows -B out/windows-contract -DSKEY_BUILD_TESTS=ON
-        
+
       - name: Build
         run: cmake --build out/windows-contract --config Release
-        
+
       - name: Test
         run: ctest --test-dir out/windows-contract -C Release --output-on-failure
-        
-      - name: Package staging archive
+
+      - name: Package
         run: cmake --build out/windows-contract --config Release --target skey-package
-        
-      - name: Upload package
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: skey-windows-package
           path: out/windows-contract/installer-windows/skey-windows.zip
 
   rust:
-    name: Rust core on Windows
+    name: Rust Core
     runs-on: windows-latest
     steps:
-      - name: Checkout Rust tree
+      - name: Checkout
         shell: bash
         run: |
           set -euo pipefail
@@ -79,6 +75,7 @@ jobs:
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
           git archive FETCH_HEAD core | tar -xf -
+
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --workspace --all-targets
         working-directory: core

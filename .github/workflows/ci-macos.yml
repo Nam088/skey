@@ -1,0 +1,81 @@
+name: CI - macOS
+
+on:
+  push:
+    branches: [main, windows-ime]
+    paths:
+      - 'platforms/macos/**'
+      - 'core/**'
+      - 'scripts/**'
+      - '.github/workflows/ci-macos.yml'
+  pull_request:
+    paths:
+      - 'platforms/macos/**'
+      - 'core/**'
+      - 'scripts/**'
+      - '.github/workflows/ci-macos.yml'
+
+jobs:
+  build:
+    name: Build macOS App
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          if [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_15.4.app
+          elif [ -d "/Applications/Xcode.app" ]; then
+            sudo xcode-select -s /Applications/Xcode.app
+          fi
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Build Rust core
+        run: |
+          cd core/skey-capi
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+          cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
+
+      - name: Create universal binary
+        run: |
+          mkdir -p core/target/universal
+          lipo -create \
+            core/target/aarch64-apple-darwin/release/libskey.a \
+            core/target/x86_64-apple-darwin/release/libskey.a \
+            -output core/target/universal/libskey.a
+
+      - name: Build app bundle
+        run: |
+          cd platforms/macos/skey-app
+          mkdir -p SKey.app/Contents/MacOS
+          mkdir -p SKey.app/Contents/Resources
+          cp Resources/Info.plist SKey.app/Contents/
+
+          SWIFT_FILES=($(find Sources -name "*.swift"))
+          swiftc -O -wmo \
+            -target arm64-apple-macos14.0 \
+            -import-objc-header Support/BridgingHeader.h \
+            -I "${{ github.workspace }}/core/skey-capi/include" \
+            "${SWIFT_FILES[@]}" \
+            "${{ github.workspace }}/core/target/universal/libskey.a" \
+            -framework Cocoa \
+            -framework ApplicationServices \
+            -framework Carbon \
+            -framework SwiftUI \
+            -framework CryptoKit \
+            -lsqlite3 \
+            -o SKey.app/Contents/MacOS/SKey
+
+      - name: Code sign
+        run: |
+          codesign --force --deep --sign - platforms/macos/skey-app/SKey.app
+
+      - name: Verify build
+        run: |
+          test -f platforms/macos/skey-app/SKey.app/Contents/MacOS/SKey
+          file platforms/macos/skey-app/SKey.app/Contents/MacOS/SKey
