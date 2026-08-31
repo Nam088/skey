@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*"
-           Name="SKey - Vietnamese Input Method"
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="SKey - Vietnamese Input Method"
            Language="1033"
-           Version="!(bind.FileVersion.skeyime.dll)"
+           Version="1.0.0"
            Manufacturer="SKey"
-           UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
-
-    <Package InstallerVersion="500"
-             Compressed="yes"
-             InstallScope="perMachine"
-             Description="SKey Vietnamese Input Method Installer"
-             Comments="SKey is a modern Vietnamese input method for Windows" />
+           UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+           Scope="perMachine">
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of SKey is already installed." />
     <MediaTemplate EmbedCab="yes" />
@@ -19,36 +13,30 @@
     <Icon Id="SKeyIcon" SourceFile="skey-tray.exe" />
     <Property Id="ARPPRODUCTICON" Value="SKeyIcon" />
 
-    <Feature Id="ProductFeature" Title="SKey" Level="1">
+    <Feature Id="ProductFeature" Title="SKey">
       <ComponentGroupRef Id="ProductComponents" />
       <ComponentRef Id="ApplicationShortcut" />
     </Feature>
 
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLFOLDER" Name="SKey">
-          <Component Id="ApplicationShortcut" Guid="*">
-            <Shortcut Id="StartMenuShortcut"
-                      Name="SKey Tray"
-                      Description="SKey Vietnamese Input Method"
-                      Target="[INSTALLFOLDER]skey-tray.exe"
-                      WorkingDirectory="INSTALLFOLDER"
-                      Icon="SKeyIcon" />
-            <RemoveFolder Id="CleanUpShortcut" On="uninstall" />
-            <RegistryValue Root="HKCU"
-                          Key="Software\SKey"
-                          Name="installed"
-                          Type="integer"
-                          Value="1"
-                          KeyPath="yes" />
-          </Component>
-        </Directory>
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="SKey">
+        <Component Id="ApplicationShortcut" Guid="*">
+          <Shortcut Id="StartMenuShortcut"
+                    Name="SKey Tray"
+                    Description="SKey Vietnamese Input Method"
+                    Target="[INSTALLFOLDER]skey-tray.exe"
+                    WorkingDirectory="INSTALLFOLDER"
+                    Icon="SKeyIcon" />
+          <RemoveFolder Id="CleanUpShortcut" On="uninstall" />
+          <RegistryValue Root="HKCU"
+                        Key="Software\SKey"
+                        Name="installed"
+                        Type="integer"
+                        Value="1"
+                        KeyPath="yes" />
+        </Component>
       </Directory>
-
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="SKey" />
-      </Directory>
-    </Directory>
+    </StandardDirectory>
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="skeyime.dll" Guid="*">
@@ -77,5 +65,5 @@
                   ExeCommand="regsvr32 /s /u &quot;[INSTALLFOLDER]skey-ime.dll&quot;"
                   Return="ignore" />
 
-  </Product>
+  </Package>
 </Wix>
