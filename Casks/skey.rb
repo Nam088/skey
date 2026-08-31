@@ -1,6 +1,6 @@
 cask "skey" do
-  version "1.0.18"
-  sha256 "ca038fe9e645b5f5e3a9863aa5e39177a7c873e1fc629f596429fa594746ed1a"
+  version "1.0.19"
+  sha256 "c20b44a447158426f00beb4111bb61e8591654f18bdb56fee5584e24ce3bd5e4"
 
   url "https://github.com/Nam088/skey/releases/download/v#{version}/SKey-Installer.dmg"
   name "SKey"
