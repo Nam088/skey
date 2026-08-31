@@ -3,7 +3,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-manifest = Path(__file__).parents[1] / "installer-windows" / "AppxManifest.xml"
+manifest = Path(__file__).parents[3] / "installer-windows" / "AppxManifest.xml"
 root = ET.parse(manifest).getroot()
 ns = {"f": "http://schemas.microsoft.com/appx/manifest/foundation/windows10"}
 identity = root.find("f:Identity", ns)
