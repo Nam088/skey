@@ -40,10 +40,10 @@
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="skeyime.dll" Guid="*">
-        <File Id="skeyime.dll" Source="skey-ime.dll" KeyPath="yes" />
+        <File Id="skey_ime.dll" Source="skey-ime.dll" KeyPath="yes" />
       </Component>
       <Component Id="skeytray.exe" Guid="*">
-        <File Id="skey-tray.exe" Source="skey-tray.exe" KeyPath="yes" />
+        <File Id="skey_tray.exe" Source="skey-tray.exe" KeyPath="yes" />
       </Component>
       <Component Id="AppxManifest.xml" Guid="*">
         <File Id="AppxManifest.xml" Source="AppxManifest.xml" KeyPath="yes" />
@@ -51,8 +51,8 @@
     </ComponentGroup>
 
     <InstallExecuteSequence>
-      <Custom Action="RegisterIME" After="InstallFiles">NOT Installed</Custom>
-      <Custom Action="UnregisterIME" Before="RemoveFiles">REMOVE="ALL"</Custom>
+      <Custom Action="RegisterIME" After="InstallFiles" Condition="NOT Installed" />
+      <Custom Action="UnregisterIME" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
     </InstallExecuteSequence>
 
     <CustomAction Id="RegisterIME"
