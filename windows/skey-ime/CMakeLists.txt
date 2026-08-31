@@ -2,6 +2,7 @@ add_library(skey-ime-core STATIC
     Host/CompositionHost.cpp
     Host/TsfTextHost.cpp
     Engine/CoreEngineAdapter.cpp
+    Engine/RustEngineStub.cpp
 )
 target_include_directories(skey-ime-core PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}

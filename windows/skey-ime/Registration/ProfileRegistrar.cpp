@@ -4,8 +4,11 @@
 #include "ProfileRegistrar.h"
 #include "Guids.h"
 
+// TF_TFCAT_TIP_KEYBOARD is defined in newer Windows SDKs
+// For compatibility, define it if not present
 #ifndef TF_TFCAT_TIP_KEYBOARD
-DEFINE_GUID(TF_TFCAT_TIP_KEYBOARD, 0x00000001, 0x1000, 0x1000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01);
+DEFINE_GUID(GUID_TFCAT_TIP_KEYBOARD, 0x00000001, 0x1000, 0x1000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01);
+#define TF_TFCAT_TIP_KEYBOARD GUID_TFCAT_TIP_KEYBOARD
 #endif
 
 namespace skey::windows {
