@@ -42,9 +42,9 @@ HRESULT STDMETHODCALLTYPE ClassFactory::CreateInstance(IUnknown* outer, REFIID r
 
 HRESULT STDMETHODCALLTYPE ClassFactory::LockServer(BOOL lock) {
     if (lock)
-        InterlockedIncrement(&g_moduleRef);
+        g_moduleRef.fetch_add(1, std::memory_order_relaxed);
     else
-        InterlockedDecrement(&g_moduleRef);
+        g_moduleRef.fetch_sub(1, std::memory_order_relaxed);
     return S_OK;
 }
 
