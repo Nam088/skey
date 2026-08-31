@@ -53,35 +53,37 @@ RAW_LOG=$(git log "$COMMIT_RANGE" --pretty=format:"%h|%s" \
   -- platforms/macos/skey-app/ core/ scripts/ .github/workflows/build-and-release-macos.yml \
   2>/dev/null || echo "")
 
-# Skip if no relevant commits
-if [[ -z "$RAW_LOG" ]]; then
-  echo "==> No macOS-related commits found in range $COMMIT_RANGE"
-  exit 0
-fi
-
+# Initialize empty lists
 FEAT_LIST=""
 FIX_LIST=""
 PERF_LIST=""
 UI_LIST=""
 OTHER_LIST=""
 
-while IFS='|' read -r HASH MSG; do
-  [[ -z "$HASH" || -z "$MSG" ]] && continue
-  
-  LOWER_MSG=$(echo "$MSG" | tr '[:upper:]' '[:lower:]')
-  
-  if [[ "$LOWER_MSG" =~ ^feat || "$LOWER_MSG" =~ add || "$LOWER_MSG" =~ thêm ]]; then
-    FEAT_LIST+="- $MSG (\`$HASH\`)"$'\n'
-  elif [[ "$LOWER_MSG" =~ ^fix || "$LOWER_MSG" =~ bug || "$LOWER_MSG" =~ sửa ]]; then
-    FIX_LIST+="- $MSG (\`$HASH\`)"$'\n'
-  elif [[ "$LOWER_MSG" =~ ^perf || "$LOWER_MSG" =~ speed || "$LOWER_MSG" =~ tối\ ưu ]]; then
-    PERF_LIST+="- $MSG (\`$HASH\`)"$'\n'
-  elif [[ "$LOWER_MSG" =~ ^ui || "$LOWER_MSG" =~ icon || "$LOWER_MSG" =~ giao\ diện ]]; then
-    UI_LIST+="- $MSG (\`$HASH\`)"$'\n'
-  else
-    OTHER_LIST+="- $MSG (\`$HASH\`)"$'\n'
-  fi
-done <<< "$RAW_LOG"
+# Process commits if any found
+if [[ -n "$RAW_LOG" ]]; then
+  echo "==> Found macOS-related commits in range $COMMIT_RANGE"
+
+  while IFS='|' read -r HASH MSG; do
+    [[ -z "$HASH" || -z "$MSG" ]] && continue
+    
+    LOWER_MSG=$(echo "$MSG" | tr '[:upper:]' '[:lower:]')
+    
+    if [[ "$LOWER_MSG" =~ ^feat || "$LOWER_MSG" =~ add || "$LOWER_MSG" =~ thêm ]]; then
+      FEAT_LIST+="- $MSG (\`$HASH\`)"$'\n'
+    elif [[ "$LOWER_MSG" =~ ^fix || "$LOWER_MSG" =~ bug || "$LOWER_MSG" =~ sửa ]]; then
+      FIX_LIST+="- $MSG (\`$HASH\`)"$'\n'
+    elif [[ "$LOWER_MSG" =~ ^perf || "$LOWER_MSG" =~ speed || "$LOWER_MSG" =~ tối\ ưu ]]; then
+      PERF_LIST+="- $MSG (\`$HASH\`)"$'\n'
+    elif [[ "$LOWER_MSG" =~ ^ui || "$LOWER_MSG" =~ icon || "$LOWER_MSG" =~ giao\ diện ]]; then
+      UI_LIST+="- $MSG (\`$HASH\`)"$'\n'
+    else
+      OTHER_LIST+="- $MSG (\`$HASH\`)"$'\n'
+    fi
+  done <<< "$RAW_LOG"
+else
+  echo "==> No macOS-related commits found in range $COMMIT_RANGE"
+fi
 
 MD_CONTENT=$(cat <<MD_EOF
 # SKey Phiên bản ${VERSION} (${DATE_STR})
