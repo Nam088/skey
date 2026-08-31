@@ -21,13 +21,18 @@ if(WIN32)
         Pipeline/KeyInjector.cpp
         Pipeline/HotkeyManager.cpp
         Pipeline/ForegroundAppTracker.cpp
+        Clipboard/ClipboardMonitor.cpp
+        Clipboard/ClipboardPaster.cpp
+        Clipboard/ClipboardPopup.cpp
         Engine/SKeyEngineWrapper.cpp
         Engine/MacroEngine.cpp
         ../Shared/Contracts/IpcCodec.cpp
         ../Shared/IPC/IpcTransport.cpp
         ../Shared/Settings/SettingsStore.cpp
         ../Shared/Settings/MacroStore.cpp
-        ../Shared/Settings/SettingsPaths.cpp)
+        ../Shared/Settings/SettingsPaths.cpp
+        ../Shared/Clipboard/ClipboardText.cpp
+        ../Shared/Clipboard/ClipboardHistoryStore.cpp)
     target_include_directories(skey-tray PRIVATE ../ "${SKEY_CAPI_INCLUDE_DIR}")
     target_link_libraries(skey-tray PRIVATE user32 shell32 gdi32 winmm ole32)
 

@@ -30,4 +30,8 @@ std::filesystem::path SettingsPaths::macros_file() {
     return data_dir() / "macros.json";
 }
 
+std::filesystem::path SettingsPaths::clipboard_file() {
+    return data_dir() / "clipboard.json";
+}
+
 } // namespace skey::windows

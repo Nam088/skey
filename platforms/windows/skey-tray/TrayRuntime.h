@@ -13,6 +13,8 @@
 #ifdef _WIN32
 #include <memory>
 
+#include "../Shared/Clipboard/ClipboardHistoryStore.h"
+#include "Clipboard/ClipboardMonitor.h"
 #include "Engine/MacroEngine.h"
 #include "Engine/SKeyEngineWrapper.h"
 #include "Hook/KeyboardHook.h"
@@ -49,6 +51,8 @@ private:
     void reload_settings_if_changed();
     void update_smart_app_switch();
     bool foreground_is_excluded();
+    void open_clipboard_popup();
+    void on_clipboard_capture(std::string text);
 #endif
 
     std::atomic<bool> running_{false};
@@ -64,6 +68,11 @@ private:
     std::unique_ptr<TypingPipeline> pipeline_;
     KeyboardHook hook_;
     ForegroundAppTracker app_tracker_;
+    std::unique_ptr<ClipboardHistoryStore> clipboard_store_;
+    std::unique_ptr<ClipboardMonitor> clipboard_monitor_;
+    // Shared with the detached popup thread so it never touches `this`.
+    std::shared_ptr<std::atomic<bool>> clipboard_popup_open_;
+    std::mutex clipboard_mutex_;
 
     std::mutex settings_mutex_;
     SettingsModel current_settings_;

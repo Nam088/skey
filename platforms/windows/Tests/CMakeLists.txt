@@ -32,8 +32,13 @@ if(WIN32)
         ../skey-tray/Pipeline/KeyInjector.cpp
         ../skey-tray/Pipeline/HotkeyManager.cpp
         ../skey-tray/Pipeline/ForegroundAppTracker.cpp
+        ../skey-tray/Clipboard/ClipboardMonitor.cpp
+        ../skey-tray/Clipboard/ClipboardPaster.cpp
+        ../skey-tray/Clipboard/ClipboardPopup.cpp
         ../skey-tray/Engine/SKeyEngineWrapper.cpp
-        ../skey-tray/Engine/MacroEngine.cpp)
+        ../skey-tray/Engine/MacroEngine.cpp
+        ../Shared/Clipboard/ClipboardText.cpp
+        ../Shared/Clipboard/ClipboardHistoryStore.cpp)
     if(SKEY_CORE_LIB)
         set(SKEY_TYPING_LIBS "${SKEY_CORE_LIB}" winmm advapi32 userenv ws2_32 bcrypt ntdll)
     else()
@@ -63,6 +68,8 @@ add_executable(skey_windows_feature_matrix_tests
     ../Shared/Settings/SettingsStore.cpp
     ../Shared/Settings/MacroStore.cpp
     ../Shared/Settings/SettingsPaths.cpp
+    ../Shared/Clipboard/ClipboardText.cpp
+    ../Shared/Clipboard/ClipboardHistoryStore.cpp
     ../skey-tray/TrayController.cpp
     ../skey-tray/TrayRuntime.cpp
 )
@@ -88,6 +95,8 @@ add_executable(skey_ipc_tray_tests
     ../Shared/Settings/SettingsStore.cpp
     ../Shared/Settings/MacroStore.cpp
     ../Shared/Settings/SettingsPaths.cpp
+    ../Shared/Clipboard/ClipboardText.cpp
+    ../Shared/Clipboard/ClipboardHistoryStore.cpp
     ../skey-tray/TrayRuntime.cpp
 )
 target_include_directories(skey_ipc_tray_tests PRIVATE ..)
@@ -105,6 +114,8 @@ add_executable(skey_tray_ipc_handler_tests
     ../Shared/Settings/SettingsStore.cpp
     ../Shared/Settings/MacroStore.cpp
     ../Shared/Settings/SettingsPaths.cpp
+    ../Shared/Clipboard/ClipboardText.cpp
+    ../Shared/Clipboard/ClipboardHistoryStore.cpp
 )
 target_include_directories(skey_tray_ipc_handler_tests PRIVATE ..)
 target_compile_options(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
@@ -186,6 +197,15 @@ add_executable(skey_clipboard_service_tests
 target_include_directories(skey_clipboard_service_tests PRIVATE ..)
 target_compile_options(skey_clipboard_service_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_clipboard_service_tests COMMAND skey_clipboard_service_tests)
+
+add_executable(skey_clipboard_history_tests
+    ClipboardHistoryTests.cpp
+    ../Shared/Clipboard/ClipboardText.cpp
+    ../Shared/Clipboard/ClipboardHistoryStore.cpp
+)
+target_include_directories(skey_clipboard_history_tests PRIVATE ..)
+target_compile_options(skey_clipboard_history_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_clipboard_history_tests COMMAND skey_clipboard_history_tests)
 
 add_executable(skey_settings_store_roundtrip_tests
     SettingsStoreRoundTripTests.cpp

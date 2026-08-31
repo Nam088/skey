@@ -5,9 +5,14 @@
 #ifdef _WIN32
 #include <windows.h>
 
+#include <chrono>
+
+#include "../Shared/Clipboard/ClipboardText.h"
 #include "../Shared/Settings/MacroStore.h"
 #include "../Shared/Settings/SettingsPaths.h"
 #include "../Shared/Settings/SettingsStore.h"
+#include "Clipboard/ClipboardPaster.h"
+#include "Clipboard/ClipboardPopup.h"
 #endif
 
 namespace skey::windows {
@@ -117,6 +122,12 @@ void TrayRuntime::apply_settings(const SettingsModel& settings) {
     // toggles only diverge until the next save.
     vietnamese_enabled_.store(settings.is_vietnamese);
     if (callback_) callback_(settings.is_vietnamese);
+
+    if (clipboard_store_) clipboard_store_->set_max_items(settings.clipboard_max_items);
+    if (clipboard_monitor_) {
+        if (settings.clipboard_enabled && settings.clipboard_save_text) clipboard_monitor_->start();
+        else clipboard_monitor_->stop();
+    }
 #else
     (void)settings;
 #endif
@@ -147,9 +158,9 @@ bool TrayRuntime::start_hook() {
         *engine_, macro_, [this](HotkeyAction action) {
             switch (action) {
             case HotkeyAction::toggle_language: toggle_language(); break;
-            // Clipboard popup / cleaner / AI / translate land in Phases 3-4;
-            // swallow the chord for now so it doesn't leak into the app.
-            case HotkeyAction::clipboard:
+            case HotkeyAction::clipboard: open_clipboard_popup(); break;
+            // Cleaner / AI / translate land in Phase 4; swallow the chord
+            // for now so it doesn't leak into the app.
             case HotkeyAction::cleaner:
             case HotkeyAction::ai:
             case HotkeyAction::translate: break;
@@ -163,6 +174,12 @@ bool TrayRuntime::start_hook() {
     settings_mtime_ = {};
     macros_mtime_ = {};
     reload_settings_if_changed();
+
+    clipboard_store_ = std::make_unique<ClipboardHistoryStore>(SettingsPaths::clipboard_file());
+    clipboard_store_->load();
+    clipboard_monitor_ = std::make_unique<ClipboardMonitor>(
+        [this](std::string text) { on_clipboard_capture(std::move(text)); });
+
     apply_settings(model);
 
     // The hook stays installed in English mode too: hotkeys (stage 5) and
@@ -174,6 +191,8 @@ bool TrayRuntime::start_hook() {
 
 void TrayRuntime::stop_hook() {
     hook_.uninstall();
+    clipboard_monitor_.reset();  // joins the poll thread before the store goes away
+    clipboard_store_.reset();
     pipeline_.reset();
     engine_.reset();
 }
@@ -256,6 +275,55 @@ void TrayRuntime::update_smart_app_switch() {
         smart_switch_active_ = false;
         set_language(true);
     }
+}
+
+void TrayRuntime::open_clipboard_popup() {
+    if (!clipboard_popup_open_) {
+        clipboard_popup_open_ = std::make_shared<std::atomic<bool>>(false);
+    }
+    bool expected = false;
+    if (!clipboard_popup_open_->compare_exchange_strong(expected, true)) return;
+
+    std::vector<ClipboardPopupItem> popup_items;
+    {
+        std::lock_guard<std::mutex> lock(clipboard_mutex_);
+        if (clipboard_store_) {
+            for (const auto& item : clipboard_store_->items()) {
+                popup_items.push_back({item.text, item.folded, item.pinned});
+            }
+        }
+    }
+    if (popup_items.empty()) {
+        clipboard_popup_open_->store(false);
+        return;
+    }
+
+    // The hook callback thread must stay free (<5ms), so the modal popup
+    // runs on its own thread. The flag keeps the thread alive independently
+    // of TrayRuntime destruction.
+    auto flag = clipboard_popup_open_;
+    std::thread([items = std::move(popup_items), flag] {
+        ClipboardPopup::show(items, [](std::string text) {
+            ClipboardPaster::paste_text(text);
+        });
+        flag->store(false);
+    }).detach();
+}
+
+void TrayRuntime::on_clipboard_capture(std::string text) {
+    // Mirrors the macOS retention policy: whitespace-only and >10MB payloads
+    // are not captured.
+    constexpr std::size_t kMaxCaptureBytes = 10 * 1024 * 1024;
+    if (text.size() > kMaxCaptureBytes || ClipboardText::is_blank(text)) return;
+
+    const auto now = static_cast<std::uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch())
+            .count());
+    std::lock_guard<std::mutex> lock(clipboard_mutex_);
+    if (!clipboard_store_) return;
+    clipboard_store_->add_text(text, now);
+    clipboard_store_->save();
 }
 
 #endif
