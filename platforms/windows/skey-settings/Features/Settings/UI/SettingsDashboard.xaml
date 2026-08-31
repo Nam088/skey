@@ -21,11 +21,13 @@
 
             <StackPanel Spacing="4">
                 <TextBlock
+                    x:Uid="settings.dashboard.title"
                     Text="Settings"
                     Style="{StaticResource HeaderTextBlockStyle}"
                     FontSize="32"
                     FontWeight="SemiBold" />
                 <TextBlock
+                    x:Uid="settings.dashboard.subtitle"
                     Text="Configure typing, appearance, shortcuts and tools"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     TextWrapping="Wrap" />
@@ -33,6 +35,7 @@
 
             <AutoSuggestBox
                 x:Name="SettingsSearchBox"
+                x:Uid="settings.search"
                 Grid.Column="1"
                 PlaceholderText="Search settings"
                 HorizontalAlignment="Stretch"
@@ -71,14 +74,16 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
-                    <TextBlock Text="Vietnamese input" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock x:Uid="settings.dashboard.statusTitle" Text="Vietnamese input" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock
+                        x:Uid="settings.dashboard.statusText"
                         Text="Telex  •  Unicode  •  Ready"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                 </StackPanel>
 
                 <ToggleSwitch
                     x:Name="VietnameseToggle"
+                    x:Uid="settings.dashboard.enableToggle"
                     Grid.Column="2"
                     Header="Enabled"
                     IsOn="True"
@@ -103,8 +108,9 @@
                 VerticalAlignment="Center"
                 Spacing="8">
                 <SymbolIcon Symbol="Find" FontSize="32" HorizontalAlignment="Center" />
-                <TextBlock Text="No settings found" FontSize="18" HorizontalAlignment="Center" />
+                <TextBlock x:Uid="settings.search.noResults" Text="No settings found" FontSize="18" HorizontalAlignment="Center" />
                 <TextBlock
+                    x:Uid="settings.search.noResultsHint"
                     Text="Try a different search term"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     HorizontalAlignment="Center" />
@@ -120,14 +126,17 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock
+                x:Uid="settings.dashboard.autosave"
                 Text="Changes are saved automatically"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 VerticalAlignment="Center" />
             <Button
+                x:Uid="settings.dashboard.resetDefaults"
                 Grid.Column="1"
                 Content="Reset to defaults"
                 AutomationProperties.Name="Reset settings to defaults" />
             <Button
+                x:Uid="settings.dashboard.openDiagnostics"
                 Grid.Column="2"
                 Content="Open diagnostics"
                 AutomationProperties.Name="Open diagnostics" />

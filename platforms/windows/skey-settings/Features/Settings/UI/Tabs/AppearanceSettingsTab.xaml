@@ -1,38 +1,14 @@
-<Page x:Class="SKey.Settings.AppearanceSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Page x:Class="SKey.Settings.AppearanceSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
   <ScrollViewer>
     <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}"/>
+      <TextBlock x:Uid="settings.appearance.title" Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-      <TextBlock Text="Theme" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-      <RadioButtons>
-        <RadioButton Content="System default" IsChecked="True" GroupName="Theme"/>
-        <RadioButton Content="Light" GroupName="Theme"/>
-        <RadioButton Content="Dark" GroupName="Theme"/>
+      <TextBlock x:Uid="settings.theme" Text="Theme" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+      <RadioButtons x:Name="ThemeOptions" SelectedIndex="0">
+        <RadioButton x:Name="ThemeSystemRadio" x:Uid="settings.theme.system" Content="System" GroupName="Theme" IsChecked="True" Checked="OnThemeSystemChecked"/>
+        <RadioButton x:Name="ThemeLightRadio" x:Uid="settings.theme.light" Content="Light" GroupName="Theme" Checked="OnThemeLightChecked"/>
+        <RadioButton x:Name="ThemeDarkRadio" x:Uid="settings.theme.dark" Content="Dark" GroupName="Theme" Checked="OnThemeDarkChecked"/>
       </RadioButtons>
-
-      <TextBlock Text="Accent Color" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <GridView IsItemClickEnabled="True" SelectionMode="Single">
-        <GridView.Items>
-          <Border Width="40" Height="40" CornerRadius="20" Background="#FF0078D4" ToolTipService.ToolTip="Blue"/>
-          <Border Width="40" Height="40" CornerRadius="20" Background="#FF107C10" ToolTipService.ToolTip="Green"/>
-          <Border Width="40" Height="40" CornerRadius="20" Background="#FF8764B8" ToolTipService.ToolTip="Purple"/>
-          <Border Width="40" Height="40" CornerRadius="20" Background="#FFE74856" ToolTipService.ToolTip="Red"/>
-          <Border Width="40" Height="40" CornerRadius="20" Background="#FFFF8C00" ToolTipService.ToolTip="Orange"/>
-          <Border Width="40" Height="40" CornerRadius="20" Background="#FF00B7C3" ToolTipService.ToolTip="Teal"/>
-        </GridView.Items>
-      </GridView>
-
-      <TextBlock Text="Font" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <ComboBox Header="Composition font" SelectedIndex="0" HorizontalAlignment="Stretch">
-        <ComboBoxItem Content="System default"/>
-        <ComboBoxItem Content="Consolas"/>
-        <ComboBoxItem Content="Cascadia Code"/>
-      </ComboBox>
-      <NumberBox Header="Composition font size" Value="14" Minimum="10" Maximum="32"/>
-
-      <TextBlock Text="Transparency" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <ToggleSwitch Header="Enable translucent composition window"/>
-      <Slider Header="Background opacity" Minimum="50" Maximum="100" Value="90" StepFrequency="5"/>
     </StackPanel>
   </ScrollViewer>
 </Page>

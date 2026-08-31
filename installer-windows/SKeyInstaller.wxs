@@ -39,9 +39,6 @@
     </StandardDirectory>
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="skeyime.dll" Guid="*">
-        <File Id="skey_ime.dll" Source="skey-ime.dll" KeyPath="yes" />
-      </Component>
       <Component Id="skeytray.exe" Guid="*">
         <File Id="skey_tray.exe" Source="skey-tray.exe" KeyPath="yes" />
       </Component>
@@ -49,21 +46,6 @@
         <File Id="AppxManifest.xml" Source="AppxManifest.xml" KeyPath="yes" />
       </Component>
     </ComponentGroup>
-
-    <InstallExecuteSequence>
-      <Custom Action="RegisterIME" After="InstallFiles" Condition="NOT Installed" />
-      <Custom Action="UnregisterIME" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
-    </InstallExecuteSequence>
-
-    <CustomAction Id="RegisterIME"
-                  Directory="INSTALLFOLDER"
-                  ExeCommand="regsvr32 /s &quot;[INSTALLFOLDER]skey-ime.dll&quot;"
-                  Return="ignore" />
-
-    <CustomAction Id="UnregisterIME"
-                  Directory="INSTALLFOLDER"
-                  ExeCommand="regsvr32 /s /u &quot;[INSTALLFOLDER]skey-ime.dll&quot;"
-                  Return="ignore" />
 
   </Package>
 </Wix>

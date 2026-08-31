@@ -1,20 +1,33 @@
+#include "pch.h"
 #include "App.xaml.h"
+#if __has_include("App.xaml.g.cpp")
+#include "App.xaml.g.cpp"
+#endif
 
 #ifdef _WIN32
-#include "../../Shared/Settings/SettingsStore.h"
+#include "MainWindow.xaml.h"
+
 #include <winrt/Microsoft.UI.Xaml.h>
 
 namespace winrt::SKey::Settings::implementation {
 
+App::App() {
+    InitializeComponent();
+}
+
 void App::OnLaunched(winrt::Microsoft::UI::Xaml::LaunchActivatedEventArgs const&) {
-    // Load persisted settings on startup.
-    // The SettingsStore path is in AppData/Local/skey/settings.json.
-    auto local = winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path();
-    auto path = std::filesystem::path(local.c_str()) / "settings.json";
-    skey::windows::SettingsStore store(path);
-    auto settings = store.load();
-    store.save(settings);
+    window_ = winrt::make<MainWindow>();
+    window_.Activate();
 }
 
 } // namespace winrt::SKey::Settings::implementation
+
+int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
+    winrt::init_apartment(winrt::apartment_type::single_threaded);
+    winrt::Microsoft::UI::Xaml::Application::Start(
+        [](winrt::Windows::Foundation::IInspectable const&) {
+            winrt::make<winrt::SKey::Settings::implementation::App>();
+        });
+    return 0;
+}
 #endif

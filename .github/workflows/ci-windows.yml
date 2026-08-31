@@ -38,6 +38,15 @@ jobs:
         shell: bash
         run: python3 platforms/windows/build-config/validate_package.py
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust core (skey.lib)
+        shell: bash
+        run: |
+          cd core
+          cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+
       - name: Configure
         run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON
 
@@ -55,6 +64,30 @@ jobs:
         with:
           name: skey-windows-package
           path: out/windows-contract/installer-windows/skey-windows.zip
+
+  settings-ui:
+    name: Settings UI (WinUI 3)
+    runs-on: windows-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: nuget/setup-nuget@v2
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Restore packages
+        run: nuget restore platforms/windows/skey-settings/SKey.Settings.sln
+
+      - name: Build
+        run: msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 /m /v:m
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skey-settings-winui
+          path: platforms/windows/skey-settings/x64/Release/**
+          if-no-files-found: warn
 
   rust:
     name: Rust Core

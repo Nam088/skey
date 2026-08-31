@@ -1,5 +1,5 @@
 @echo off
-REM Windows IME Build Script
+REM SKey Windows Build Script (keyboard-hook architecture)
 REM Usage: build-windows.bat [clean|build|test|all]
 
 setlocal enabledelayedexpansion
@@ -23,10 +23,26 @@ echo Clean complete.
 exit /b 0
 
 :build
+echo Building Rust core (skey.lib)...
+where cargo >nul 2>nul
+if %errorlevel%==0 (
+    pushd ..\..\core
+    cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+    if errorlevel 1 (
+        echo Rust build failed!
+        popd
+        exit /b 1
+    )
+    popd
+) else (
+    echo cargo not found - skey-tray.exe needs skey.lib to link.
+    echo Install Rust or build core/skey-capi manually.
+)
+
 echo Configuring CMake...
 if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 cd %BUILD_DIR%
-cmake .. -DSKEY_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=%CONFIG%
+cmake ../build-config -DSKEY_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=%CONFIG%
 if errorlevel 1 (
     echo CMake configuration failed!
     exit /b 1

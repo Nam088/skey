@@ -1,46 +1,107 @@
-<Page x:Class="SKey.Settings.ShortcutsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Page x:Class="SKey.Settings.ShortcutsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded" PreviewKeyDown="OnPreviewKeyDown" PreviewKeyUp="OnPreviewKeyUp">
   <ScrollViewer>
     <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock Text="Shortcuts" Style="{StaticResource SubtitleTextBlockStyle}"/>
+      <TextBlock x:Uid="settings.shortcuts.title" Text="Shortcuts" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-      <TextBlock Text="Input Toggle" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-      <Grid ColumnSpacing="12" RowSpacing="8">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Toggle Vietnamese/English" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="0" Grid.Column="1" Text="Ctrl+Shift" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Toggle input method" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="Alt+Shift" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Restore keystrokes" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="2" Grid.Column="1" Text="Ctrl+Shift+Z" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-      </Grid>
+      <ToggleSwitch x:Name="CleanerEnabledToggle" x:Uid="cleaner.option.enabled" Header="Enable keyboard cleaner shortcut" IsOn="True" Toggled="OnCleanerEnabledToggled"/>
 
-      <TextBlock Text="Clipboard" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <Grid ColumnSpacing="12" RowSpacing="8">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Open clipboard history" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="0" Grid.Column="1" Text="Ctrl+Shift+V" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Clear clipboard" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="Ctrl+Shift+Delete" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-      </Grid>
+      <StackPanel Spacing="4">
+        <Grid ColumnSpacing="12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" x:Uid="keyboard.shortcut.toggleTitle" Text="Toggle Vietnamese/English" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" x:Name="HotkeyToggleLanguageText" Text="Alt+Z" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <ComboBox Grid.Column="2" x:Name="PresetToggleLanguageCombo" SelectionChanged="OnToggleLanguagePresetChanged" MinWidth="170" VerticalAlignment="Center">
+            <ComboBoxItem Content="Alt + Z"/>
+            <ComboBoxItem Content="Ctrl + Shift"/>
+            <ComboBoxItem Content="Ctrl + Alt + Z"/>
+            <ComboBoxItem Content="Shift + Win"/>
+            <ComboBoxItem Content="Alt + Shift"/>
+            <ComboBoxItem Content="Ctrl + Space"/>
+          </ComboBox>
+          <Button Grid.Column="3" x:Name="RecordToggleLanguageButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordToggleLanguageClicked"/>
+        </Grid>
+        <TextBlock x:Name="ConflictToggleLanguageText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+      </StackPanel>
 
-      <TextBlock Text="Custom Shortcuts" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <TextBlock Text="Custom shortcut configuration is not yet available" Opacity="0.7"/>
-      <Button Content="Add custom shortcut" IsEnabled="False"/>
+      <StackPanel Spacing="4">
+        <Grid ColumnSpacing="12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" x:Uid="clipboard.option.shortcut" Text="Open clipboard history" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" x:Name="HotkeyClipboardText" Text="Alt+V" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <ComboBox Grid.Column="2" x:Name="PresetClipboardCombo" SelectionChanged="OnClipboardPresetChanged" MinWidth="170" VerticalAlignment="Center">
+            <ComboBoxItem Content="Alt + V"/>
+            <ComboBoxItem Content="Shift + Win + V"/>
+            <ComboBoxItem Content="Ctrl + Alt + V"/>
+            <ComboBoxItem Content="Alt + C"/>
+          </ComboBox>
+          <Button Grid.Column="3" x:Name="RecordClipboardButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordClipboardClicked"/>
+        </Grid>
+        <TextBlock x:Name="ConflictClipboardText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <Grid ColumnSpacing="12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" x:Uid="cleaner.option.shortcut" Text="Keyboard cleaner" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" x:Name="HotkeyCleanerText" Text="Alt+Shift+K" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <ComboBox Grid.Column="2" x:Name="PresetCleanerCombo" SelectionChanged="OnCleanerPresetChanged" MinWidth="170" VerticalAlignment="Center">
+            <ComboBoxItem Content="Alt + Shift + K"/>
+            <ComboBoxItem Content="Alt + Shift + C"/>
+            <ComboBoxItem Content="Ctrl + Alt + K"/>
+          </ComboBox>
+          <Button Grid.Column="3" x:Name="RecordCleanerButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordCleanerClicked"/>
+        </Grid>
+        <TextBlock x:Name="ConflictCleanerText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <Grid ColumnSpacing="12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" x:Uid="ai.option.shortcut" Text="AI assistant" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" x:Name="HotkeyAiText" Text="Alt+Space" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <ComboBox Grid.Column="2" x:Name="PresetAiCombo" SelectionChanged="OnAiPresetChanged" MinWidth="170" VerticalAlignment="Center">
+            <ComboBoxItem Content="Alt + Space"/>
+            <ComboBoxItem Content="Ctrl + Alt + Space"/>
+            <ComboBoxItem Content="Shift + Win + Space"/>
+          </ComboBox>
+          <Button Grid.Column="3" x:Name="RecordAiButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordAiClicked"/>
+        </Grid>
+        <TextBlock x:Name="ConflictAiText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <Grid ColumnSpacing="12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Grid.Column="0" x:Uid="translator.option.shortcut" Text="Quick translate" VerticalAlignment="Center"/>
+          <TextBlock Grid.Column="1" x:Name="HotkeyTranslateText" Text="Alt+T" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <Button Grid.Column="2" x:Name="RecordTranslateButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordTranslateClicked"/>
+        </Grid>
+        <TextBlock x:Name="ConflictTranslateText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+      </StackPanel>
     </StackPanel>
   </ScrollViewer>
 </Page>

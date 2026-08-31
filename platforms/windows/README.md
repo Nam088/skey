@@ -4,8 +4,7 @@ Windows frontend được tổ chức tương ứng với `macos/skey-app`, như
 
 ```text
 windows/
-├── skey-ime/       # TSF/IMM32 service, tương đương Keyboard EventHandling
-├── skey-tray/      # tray và lifecycle, tương đương App/StatusBar
+├── skey-tray/      # tray + bộ gõ: WH_KEYBOARD_LL hook, pipeline, engine
 ├── skey-settings/  # Settings UI, tương đương Features/Settings
 ├── Shared/         # models, services, settings, localization, theme
 └── Tests/          # unit, integration và UI contract tests

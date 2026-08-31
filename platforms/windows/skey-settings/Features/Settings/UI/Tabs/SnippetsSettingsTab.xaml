@@ -1,33 +1,42 @@
-<Page x:Class="SKey.Settings.SnippetsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Page x:Class="SKey.Settings.SnippetsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
   <ScrollViewer>
     <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock Text="Snippets" Style="{StaticResource SubtitleTextBlockStyle}"/>
+      <TextBlock x:Uid="settings.snippets.title" Text="Snippets" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-      <TextBlock TextWrapping="Wrap" Opacity="0.7">Define text shortcuts that expand automatically as you type. For example, type "vn" and it expands to "Việt Nam".</TextBlock>
+      <!-- macro.section.options -->
+      <TextBlock x:Uid="macro.section.options" Text="Operation options" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+      <ToggleSwitch x:Name="EnableToggle" x:Uid="macro.option.enable" Header="Enable Snippets / Macro" IsOn="True" Toggled="OnEnableToggled"/>
+      <TextBlock x:Uid="macro.option.enableDesc" Text="Automatically expand shortcuts when pressing Space" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,-10,0,0"/>
+      <StackPanel x:Name="MacroOptionsPanel" Spacing="16">
+        <ToggleSwitch x:Name="AutoCapsToggle" x:Uid="macro.option.autoCaps" Header="Auto-capitalize replacement" IsOn="True" Toggled="OnAutoCapsToggled"/>
+        <TextBlock x:Uid="macro.option.autoCapsDesc" Text="Capitalize replacement corresponding to shortcut casing (e.g. VN -&gt; VIỆT NAM)" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,-10,0,0"/>
+        <ToggleSwitch x:Name="EnglishModeToggle" x:Uid="macro.option.inEnglish" Header="Enable Snippets in English mode" Toggled="OnEnglishModeToggled"/>
+        <TextBlock x:Uid="macro.option.inEnglishDesc" Text="Expand shortcuts even when typing in English mode [E]" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,-10,0,0"/>
+      </StackPanel>
 
+      <!-- macro.section.add -->
+      <TextBlock x:Uid="macro.section.add" Text="Add new snippet" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
       <Grid ColumnSpacing="8">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="120"/>
+          <ColumnDefinition Width="200"/>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <TextBox Header="Abbreviation" PlaceholderText="e.g. vn"/>
-        <TextBox Grid.Column="1" Header="Expansion" PlaceholderText="e.g. Việt Nam"/>
-        <Button Grid.Column="2" Content="Add" VerticalAlignment="Bottom" Style="{StaticResource AccentButtonStyle}"/>
+        <TextBox x:Name="NewTriggerBox" x:Uid="macro.placeholder.shortcutShort" Header="Shortcut" PlaceholderText="e.g. vn" TextChanged="OnAddFieldChanged"/>
+        <TextBox x:Name="NewReplacementBox" x:Uid="macro.placeholder.replacementShort" Grid.Column="1" Header="Replacement" PlaceholderText="e.g. Việt Nam" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" TextChanged="OnAddFieldChanged"/>
+        <Button x:Name="AddButton" x:Uid="macro.action.add" Grid.Column="2" Content="Add" IsEnabled="False" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Bottom" Click="OnAddClicked"/>
       </Grid>
 
-      <TextBlock Text="Saved Snippets" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <!-- macro.section.list -->
+      <TextBlock x:Name="ListTitle" x:Uid="macro.section.list" Text="Snippets list" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <TextBox x:Name="SearchBox" x:Uid="macro.placeholder.search" PlaceholderText="Search snippets..." TextChanged="OnSearchChanged"/>
 
       <Border Padding="16" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
         <StackPanel Spacing="4">
-          <TextBlock Text="No snippets configured" Opacity="0.7" HorizontalAlignment="Center" Padding="0,16"/>
+          <TextBlock x:Name="EmptyStateText" x:Uid="macro.status.empty" Text="No snippets added yet" Opacity="0.7" HorizontalAlignment="Center" Padding="0,16"/>
+          <StackPanel x:Name="MacroListPanel"/>
         </StackPanel>
       </Border>
-
-      <StackPanel Orientation="Horizontal" Spacing="8">
-        <Button Content="Import snippets"/>
-        <Button Content="Export snippets"/>
-      </StackPanel>
     </StackPanel>
   </ScrollViewer>
 </Page>

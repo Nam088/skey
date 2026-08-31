@@ -1,15 +1,14 @@
 # Windows shared layer
 
-Các model và service dùng chung giữa tray/settings. Không import TSF implementation vào UI; giao tiếp với `skey-ime` qua protocol IPC có version.
+Các model và service dùng chung giữa tray/settings. UI không import trực tiếp
+keyboard-hook implementation; giao tiếp với `skey-tray` qua protocol IPC có version.
 
 ```text
 Shared/
 ├── Contracts/
+├── IPC/
 ├── Localization/
-├── Logging/
-├── Services/
 ├── Settings/
-├── Shortcuts/
-└── UI/
+├── Theme/
+└── typing-vectors/
 ```
-

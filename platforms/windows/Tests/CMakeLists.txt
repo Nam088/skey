@@ -5,20 +5,44 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(skey_composition_host_tests
-    CompositionHostTests.cpp
-    ../skey-ime/Host/CompositionHost.cpp
-)
-target_include_directories(skey_composition_host_tests PRIVATE ../skey-ime)
-
 if(MSVC)
-    target_compile_options(skey_composition_host_tests PRIVATE /W4 /WX /permissive-)
+    set(SKEY_TEST_COMPILE_OPTIONS /W4 /WX /permissive-)
 else()
-    target_compile_options(skey_composition_host_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    set(SKEY_TEST_COMPILE_OPTIONS -Wall -Wextra -Wpedantic -Werror)
+endif()
+
+# Rust staticlib (skey.lib / libskey.a) built from core/skey-capi.
+find_library(SKEY_CORE_LIB
+    NAMES skey
+    PATHS
+        "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/x86_64-pc-windows-msvc/release"
+        "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/aarch64-apple-darwin/release"
+        "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/x86_64-apple-darwin/release"
+        "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/release"
+    NO_DEFAULT_PATH)
+
+# Typing modules required by TrayRuntime on Windows.
+set(SKEY_TYPING_SOURCES "")
+set(SKEY_TYPING_LIBS "")
+if(WIN32)
+    set(SKEY_TYPING_SOURCES
+        ../skey-tray/Hook/KeyboardHook.cpp
+        ../skey-tray/Hook/KeyClassifier.cpp
+        ../skey-tray/Pipeline/TypingPipeline.cpp
+        ../skey-tray/Pipeline/KeyInjector.cpp
+        ../skey-tray/Pipeline/HotkeyManager.cpp
+        ../skey-tray/Engine/SKeyEngineWrapper.cpp
+        ../skey-tray/Engine/MacroEngine.cpp)
+    if(SKEY_CORE_LIB)
+        set(SKEY_TYPING_LIBS "${SKEY_CORE_LIB}" winmm advapi32 userenv ws2_32 bcrypt ntdll)
+    else()
+        message(WARNING
+            "skey.lib not found; TrayRuntime-based tests will fail to link. "
+            "Build it first: cargo build --release -p skey-capi --target x86_64-pc-windows-msvc (in core/)")
+    endif()
 endif()
 
 enable_testing()
-add_test(NAME skey_composition_host_tests COMMAND skey_composition_host_tests)
 
 add_executable(skey_shared_services_tests
     SharedServicesTests.cpp
@@ -31,6 +55,7 @@ add_test(NAME skey_shared_services_tests COMMAND skey_shared_services_tests)
 
 add_executable(skey_windows_feature_matrix_tests
     WindowsFeatureMatrixTests.cpp
+    ${SKEY_TYPING_SOURCES}
     ../Shared/Contracts/IpcCodec.cpp
     ../Shared/IPC/IpcTransport.cpp
     ../Shared/Localization/LocalizationService.cpp
@@ -39,92 +64,135 @@ add_executable(skey_windows_feature_matrix_tests
     ../skey-tray/TrayRuntime.cpp
 )
 target_include_directories(skey_windows_feature_matrix_tests PRIVATE ..)
-if(MSVC)
-    target_compile_options(skey_windows_feature_matrix_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_windows_feature_matrix_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
+target_compile_options(skey_windows_feature_matrix_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+target_link_libraries(skey_windows_feature_matrix_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_windows_feature_matrix_tests COMMAND skey_windows_feature_matrix_tests)
 
 add_executable(skey_settings_viewmodel_tests
     SettingsViewModelTests.cpp
     ../Shared/Localization/LocalizationService.cpp
+    ../Shared/Settings/SettingsStore.cpp
 )
 target_include_directories(skey_settings_viewmodel_tests PRIVATE ..)
-if(MSVC)
-    target_compile_options(skey_settings_viewmodel_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_settings_viewmodel_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
+target_compile_options(skey_settings_viewmodel_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_settings_viewmodel_tests COMMAND skey_settings_viewmodel_tests)
 
 add_executable(skey_ipc_tray_tests
     IpcTransportTests.cpp
+    ${SKEY_TYPING_SOURCES}
     ../Shared/Contracts/IpcCodec.cpp
     ../Shared/IPC/IpcTransport.cpp
     ../skey-tray/TrayRuntime.cpp
 )
 target_include_directories(skey_ipc_tray_tests PRIVATE ..)
-if(MSVC)
-    target_compile_options(skey_ipc_tray_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_ipc_tray_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
+target_compile_options(skey_ipc_tray_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+target_link_libraries(skey_ipc_tray_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_ipc_tray_tests COMMAND skey_ipc_tray_tests)
 
 add_executable(skey_tray_ipc_handler_tests
     TrayIpcHandlerTests.cpp
+    ${SKEY_TYPING_SOURCES}
     ../skey-tray/TrayIpcHandler.cpp
     ../skey-tray/TrayRuntime.cpp
     ../Shared/Contracts/IpcCodec.cpp
     ../Shared/IPC/IpcTransport.cpp
 )
 target_include_directories(skey_tray_ipc_handler_tests PRIVATE ..)
-if(MSVC)
-    target_compile_options(skey_tray_ipc_handler_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_tray_ipc_handler_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
+target_compile_options(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+target_link_libraries(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_tray_ipc_handler_tests COMMAND skey_tray_ipc_handler_tests)
 
 add_executable(skey_feature_parity_tests FeatureParityTests.cpp)
 target_include_directories(skey_feature_parity_tests PRIVATE ..)
-if(MSVC)
-    target_compile_options(skey_feature_parity_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_feature_parity_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
+target_compile_options(skey_feature_parity_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_feature_parity_tests COMMAND skey_feature_parity_tests)
 
-add_executable(skey_key_event_tests KeyEventSinkTests.cpp)
-target_include_directories(skey_key_event_tests PRIVATE ../skey-ime)
-if(MSVC)
-    target_compile_options(skey_key_event_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_key_event_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
-add_test(NAME skey_key_event_tests COMMAND skey_key_event_tests)
-
-add_executable(skey_pipeline_tests
-    WindowsKeyPipelineTests.cpp
-    ../skey-ime/Host/CompositionHost.cpp
-    ../skey-ime/EventHandling/Pipeline/WindowsKeyPipeline.cpp
+add_executable(skey_hook_tests
+    HookTests.cpp
+    ../skey-tray/Hook/KeyClassifier.cpp
 )
-target_include_directories(skey_pipeline_tests PRIVATE ../skey-ime)
-if(MSVC)
-    target_compile_options(skey_pipeline_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_pipeline_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_include_directories(skey_hook_tests PRIVATE ..)
+target_compile_options(skey_hook_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_hook_tests COMMAND skey_hook_tests)
+
+add_executable(skey_macro_engine_tests
+    MacroEngineTests.cpp
+    ../skey-tray/Engine/MacroEngine.cpp
+)
+target_include_directories(skey_macro_engine_tests PRIVATE ..)
+target_compile_options(skey_macro_engine_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_macro_engine_tests COMMAND skey_macro_engine_tests)
+
+add_executable(skey_typing_pipeline_tests
+    TypingPipelineTests.cpp
+    ../skey-tray/Hook/KeyClassifier.cpp
+    ../skey-tray/Pipeline/TypingPipeline.cpp
+    ../skey-tray/Pipeline/KeyInjector.cpp
+    ../skey-tray/Pipeline/HotkeyManager.cpp
+    ../skey-tray/Engine/MacroEngine.cpp
+)
+target_include_directories(skey_typing_pipeline_tests PRIVATE ..)
+target_compile_options(skey_typing_pipeline_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+if(WIN32)
+    target_link_libraries(skey_typing_pipeline_tests PRIVATE winmm)
 endif()
-add_test(NAME skey_pipeline_tests COMMAND skey_pipeline_tests)
+add_test(NAME skey_typing_pipeline_tests COMMAND skey_typing_pipeline_tests)
+
+if(SKEY_CORE_LIB)
+    add_executable(skey_typing_vector_tests
+        TypingVectorTests.cpp
+        ../skey-tray/Engine/SKeyEngineWrapper.cpp
+    )
+    target_include_directories(skey_typing_vector_tests PRIVATE
+        ..
+        "${CMAKE_CURRENT_LIST_DIR}/../../../core/skey-capi/include")
+    target_compile_options(skey_typing_vector_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+    if(WIN32)
+        target_link_libraries(skey_typing_vector_tests PRIVATE "${SKEY_CORE_LIB}" advapi32 userenv ws2_32 bcrypt ntdll)
+    else()
+        target_link_libraries(skey_typing_vector_tests PRIVATE "${SKEY_CORE_LIB}")
+    endif()
+    add_test(NAME skey_typing_vector_tests COMMAND skey_typing_vector_tests)
+endif()
 
 add_executable(skey_clipboard_service_tests
     ClipboardServiceTests.cpp
 )
 target_include_directories(skey_clipboard_service_tests PRIVATE ..)
-if(MSVC)
-    target_compile_options(skey_clipboard_service_tests PRIVATE /W4 /WX /permissive-)
-else()
-    target_compile_options(skey_clipboard_service_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
-endif()
+target_compile_options(skey_clipboard_service_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_clipboard_service_tests COMMAND skey_clipboard_service_tests)
+
+add_executable(skey_settings_store_roundtrip_tests
+    SettingsStoreRoundTripTests.cpp
+    ../Shared/Settings/SettingsStore.cpp
+)
+target_include_directories(skey_settings_store_roundtrip_tests PRIVATE ..)
+target_compile_options(skey_settings_store_roundtrip_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_settings_store_roundtrip_tests COMMAND skey_settings_store_roundtrip_tests)
+
+add_executable(skey_keyboard_settings_tests
+    KeyboardSettingsTests.cpp
+    ../skey-settings/Shared/Shortcuts/HotkeyFormat.cpp
+    ../skey-settings/Shared/Shortcuts/HotkeyStore.cpp
+    ../Shared/Settings/SettingsStore.cpp
+)
+target_include_directories(skey_keyboard_settings_tests PRIVATE ..)
+target_compile_options(skey_keyboard_settings_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_keyboard_settings_tests COMMAND skey_keyboard_settings_tests)
+
+add_executable(skey_macro_store_tests
+    MacroStoreTests.cpp
+    ../Shared/Settings/MacroStore.cpp
+)
+target_include_directories(skey_macro_store_tests PRIVATE ..)
+target_compile_options(skey_macro_store_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_macro_store_tests COMMAND skey_macro_store_tests)
+
+add_executable(skey_settings_backup_tests
+    SettingsBackupTests.cpp
+    ../skey-settings/Shared/Settings/Backup/SettingsBackup.cpp
+    ../Shared/Settings/SettingsStore.cpp
+)
+target_include_directories(skey_settings_backup_tests PRIVATE ..)
+target_compile_options(skey_settings_backup_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_settings_backup_tests COMMAND skey_settings_backup_tests)

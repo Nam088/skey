@@ -1,10 +1,17 @@
-# SKey Windows IME - Hướng dẫn build và phát triển
+# SKey Windows - Hướng dẫn build và phát triển
+
+SKey trên Windows dùng kiến trúc keyboard hook cổ điển:
+một process duy nhất (`skey-tray.exe`) cài `WH_KEYBOARD_LL`, nuốt phím qua
+engine Rust (`skey-capi`) và gửi lại kết quả bằng `SendInput`
+(`KEYEVENTF_UNICODE`). Không có IME DLL, không regsvr32, không gạch chân
+composition.
 
 ## Yêu cầu hệ thống
 
 - Windows 10/11
 - Visual Studio 2022 (Community trở lên)
 - CMake 3.20+
+- Rust toolchain (rustup) — để build `skey.lib`
 - Git
 
 ## Cài đặt
@@ -19,19 +26,21 @@ Khi cài, chọn các workload:
 
 ### 2. Cài CMake
 
-Tải từ: https://cmake.org/download/
-
-Hoặc dùng winget:
 ```powershell
 winget install Kitware.CMake
 ```
 
-### 3. Clone repository
+### 3. Cài Rust
+
+```powershell
+winget install Rustlang.Rustup
+```
+
+### 4. Clone repository
 
 ```cmd
 git clone https://github.com/Nam088/skey.git
 cd skey
-git checkout windows-ime
 ```
 
 ## Build
@@ -39,56 +48,46 @@ git checkout windows-ime
 ### Cách 1: Dùng script (khuyến nghị)
 
 ```cmd
-cd windows
+cd platforms\windows
 build-windows.bat all
 ```
 
 Script sẽ tự động:
+- Build Rust core (`skey.lib`) qua cargo
 - Clean build directory
-- Configure CMake
+- Configure CMake (`build-config/`)
 - Build tất cả targets
 - Chạy tests
 
 ### Cách 2: Thủ công
 
 ```cmd
-cd windows
-mkdir build
-cd build
-cmake .. -DSKEY_BUILD_TESTS=ON
-cmake --build . --config Release
+cd core
+cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+cd ..\platforms\windows
+cmake -S build-config -B build -DSKEY_BUILD_TESTS=ON
+cmake --build build --config Release
 ```
-
-### Cách 3: Dùng Visual Studio
-
-```cmd
-cd windows
-cmake -B build -G "Visual Studio 17 2022" -DSKEY_BUILD_TESTS=ON
-```
-
-Mở `build/SKeyWindows.sln` trong Visual Studio và build từ IDE.
 
 ## Chạy tests
 
 ```cmd
-cd windows/build
+cd platforms\windows\build
 ctest -C Release --output-on-failure
 ```
 
 ## Cấu trúc project
 
 ```
-windows/
-├── skey-ime/           # IME DLL (COM server + TSF)
-│   ├── Registration/   # COM registration
-│   ├── TSF/           # Text Services Framework
-│   ├── Host/          # Text host implementation
-│   └── Engine/        # Engine adapter
-├── skey-tray/         # System tray application
-├── skey-settings/     # Settings UI (WinUI 3)
-├── Shared/            # Shared contracts và services
-├── Tests/             # Unit tests
-└── build-windows.bat  # Build script
+platforms/windows/
+├── skey-tray/          # Tray app + bộ gõ (1 process duy nhất)
+│   ├── Hook/           # WH_KEYBOARD_LL + watchdog, LUT phân loại phím, modifier tracking
+│   ├── Pipeline/       # 10 tầng xử lý (port từ macOS TypingPipeline), SendInput injector, hotkeys
+│   └── Engine/         # wrapper skey-capi (Rust) + macro expansion
+├── skey-settings/      # Settings UI (WinUI 3)
+├── Shared/             # Shared contracts và services (IPC, settings, localization)
+├── Tests/              # Unit tests
+└── build-windows.bat   # Build script
 ```
 
 ## Test trên Windows
@@ -96,59 +95,47 @@ windows/
 ### 1. Build project
 
 ```cmd
-cd windows
+cd platforms\windows
 build-windows.bat all
 ```
 
-### 2. Register IME (cần Admin)
-
-```cmd
-cd build\skey-ime\Release
-regsvr32 skey-ime.dll
-```
-
-### 3. Chạy tray app
+### 2. Chạy tray app
 
 ```cmd
 cd build\skey-tray\Release
 skey-tray.exe
 ```
 
-### 4. Test gõ
+### 3. Test gõ
 
 - Mở Notepad hoặc bất kỳ ứng dụng nào
-- Dùng **Ctrl+Shift** để toggle Vietnamese/English
-- Thử gõ: `xin chao` → `xin chào`
+- Click trái vào icon tray để toggle Vietnamese/English
+- Hotkey mặc định: **Alt+Z** toggle ngôn ngữ
+- Thử gõ Telex: `ddasnh` → `đánh`
 
-### 5. Unregister IME (khi xong)
-
-```cmd
-regsvr32 /u skey-ime.dll
-```
+Không cần register gì thêm — hook được cài khi `skey-tray.exe` chạy.
 
 ## Troubleshooting
 
 ### Lỗi: "CMake not found"
 
-Cài CMake và thêm vào PATH:
 ```powershell
 winget install Kitware.CMake
 ```
 
-### Lỗi: "Visual Studio not found"
+### Lỗi: "skey.lib not found" khi build
 
-Cài Visual Studio 2022 với workload "Desktop development with C++"
+Build Rust core trước:
+```cmd
+cd core
+cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+```
 
-### Lỗi: "Windows SDK not found"
+### Gõ không ra tiếng Việt
 
-Cài Windows SDK từ Visual Studio Installer
-
-### IME không hoạt động
-
-1. Kiểm tra DLL đã được register: `regsvr32 skey-ime.dll`
-2. Restart ứng dụng hoặc log out/log in
-3. Kiểm tra System Tray có icon SKey không
-4. Thử dùng Ctrl+Shift để toggle
+1. Kiểm tra icon tray hiển thị chữ **V** (chế độ Việt)
+2. Ứng dụng elevated (Run as Admin) cần SKey chạy với quyền tương đương
+3. Hook có thể bị Windows gỡ ngầm — watchdog sẽ tự cài lại mỗi 2 giây
 
 ## Phát triển
 
@@ -161,26 +148,25 @@ Cài Windows SDK từ Visual Studio Installer
 
 ### Debug
 
-Mở project trong Visual Studio:
 ```cmd
-cmake -B build -G "Visual Studio 17 2022" -DSKEY_BUILD_TESTS=ON
+cmake -S build-config -B build -G "Visual Studio 17 2022" -DSKEY_BUILD_TESTS=ON
 ```
 
-Set breakpoint và debug từ IDE.
+Mở `build/SKeyWindows.sln` và debug từ IDE. Lưu ý: callback hook chạy trên
+thread riêng của hook, không phải UI thread.
 
 ## CI/CD
 
-Mỗi push lên branch `windows-ime` sẽ trigger CI:
-- Build trên Windows latest
-- Chạy tất cả tests
-- Tạo artifact
+Mỗi push lên `main` (thay đổi `platforms/windows/`, `core/`, `shared/`) sẽ
+trigger CI: build Rust core, build C++, chạy tests, đóng gói artifact.
+Release tự động tạo tag `win-v*` và MSI installer (WiX v5).
 
 Xem kết quả tại: https://github.com/Nam088/skey/actions
 
 ## Tài liệu tham khảo
 
-- [TSF Documentation](https://docs.microsoft.com/en-us/windows/win32/tsf/text-services-framework)
-- [COM Documentation](https://docs.microsoft.com/en-us/windows/win32/com/component-object-model-com)
+- [Low-Level Keyboard Hooks (WH_KEYBOARD_LL)](https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc)
+- [SendInput](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput)
 - [WinUI 3 Documentation](https://docs.microsoft.com/en-us/windows/apps/winui/)
 
 ## Hỗ trợ

@@ -44,6 +44,12 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - name: Build Rust core (skey.lib)
+        shell: bash
+        run: |
+          cd core
+          cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+
       - name: Auto Tag
         id: auto_tag
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -117,7 +123,6 @@ jobs:
         shell: bash
         run: |
           cd installer-windows
-          cp ../out/windows-contract/installer-windows/package/skey-ime.dll .
           cp ../out/windows-contract/installer-windows/package/skey-tray.exe .
           wix build SKeyInstaller.wxs -o SKey-Installer.msi -arch x64
 
