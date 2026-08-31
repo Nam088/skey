@@ -98,14 +98,28 @@ jobs:
       - name: Package
         run: cmake --build out/windows-contract --config Release --target skey-package
 
+      - name: Install WiX Toolset
+        run: |
+          dotnet tool install --global wix
+
+      - name: Build MSI Installer
+        shell: bash
+        run: |
+          cd installer-windows
+          cp ../out/windows-contract/installer-windows/package/skey-ime.dll .
+          cp ../out/windows-contract/installer-windows/package/skey-tray.exe .
+          wix build SKeyInstaller.wxs -o SKey-Installer.msi -arch x64
+
       - name: Generate checksums
         shell: bash
         run: |
           cd out/windows-contract/installer-windows
           if command -v certutil &> /dev/null; then
             certutil -hashfile skey-windows.zip SHA256 > SHA256SUMS.txt
+            certutil -hashfile ../../installer-windows/SKey-Installer.msi SHA256 >> SHA256SUMS.txt
           else
             sha256sum skey-windows.zip > SHA256SUMS.txt
+            sha256sum ../../installer-windows/SKey-Installer.msi >> SHA256SUMS.txt
           fi
 
       - name: Upload Artifacts
@@ -114,6 +128,7 @@ jobs:
           name: SKey-Windows-${{ steps.release_meta.outputs.version }}
           path: |
             out/windows-contract/installer-windows/skey-windows.zip
+            installer-windows/SKey-Installer.msi
             out/windows-contract/installer-windows/SHA256SUMS.txt
 
       - name: Generate Release Notes
@@ -139,6 +154,7 @@ jobs:
           tag_name: ${{ steps.release_meta.outputs.tag }}
           name: SKey ${{ steps.release_meta.outputs.tag }}
           files: |
+            installer-windows/SKey-Installer.msi
             out/windows-contract/installer-windows/skey-windows.zip
             out/windows-contract/installer-windows/SHA256SUMS.txt
           body_path: RELEASE_NOTES.md

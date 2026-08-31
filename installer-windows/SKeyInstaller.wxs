@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*"
+           Name="SKey - Vietnamese Input Method"
+           Language="1033"
+           Version="!(bind.FileVersion.skeyime.dll)"
+           Manufacturer="SKey"
+           UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+
+    <Package InstallerVersion="500"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Description="SKey Vietnamese Input Method Installer"
+             Comments="SKey is a modern Vietnamese input method for Windows" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of SKey is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="SKeyIcon" SourceFile="skey-tray.exe" />
+    <Property Id="ARPPRODUCTICON" Value="SKeyIcon" />
+
+    <Feature Id="ProductFeature" Title="SKey" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="SKey">
+          <Component Id="ApplicationShortcut" Guid="*">
+            <Shortcut Id="StartMenuShortcut"
+                      Name="SKey Tray"
+                      Description="SKey Vietnamese Input Method"
+                      Target="[INSTALLFOLDER]skey-tray.exe"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="SKeyIcon" />
+            <RemoveFolder Id="CleanUpShortcut" On="uninstall" />
+            <RegistryValue Root="HKCU"
+                          Key="Software\SKey"
+                          Name="installed"
+                          Type="integer"
+                          Value="1"
+                          KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="SKey" />
+      </Directory>
+    </Directory>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="skeyime.dll" Guid="*">
+        <File Id="skeyime.dll" Source="skey-ime.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="skeytray.exe" Guid="*">
+        <File Id="skey-tray.exe" Source="skey-tray.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="AppxManifest.xml" Guid="*">
+        <File Id="AppxManifest.xml" Source="AppxManifest.xml" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <InstallExecuteSequence>
+      <Custom Action="RegisterIME" After="InstallFiles">NOT Installed</Custom>
+      <Custom Action="UnregisterIME" Before="RemoveFiles">REMOVE="ALL"</Custom>
+    </InstallExecuteSequence>
+
+    <CustomAction Id="RegisterIME"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="regsvr32 /s &quot;[INSTALLFOLDER]skey-ime.dll&quot;"
+                  Return="ignore" />
+
+    <CustomAction Id="UnregisterIME"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="regsvr32 /s /u &quot;[INSTALLFOLDER]skey-ime.dll&quot;"
+                  Return="ignore" />
+
+  </Product>
+</Wix>
