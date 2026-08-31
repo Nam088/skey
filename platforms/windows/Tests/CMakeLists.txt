@@ -35,6 +35,7 @@ if(WIN32)
         ../skey-tray/Clipboard/ClipboardMonitor.cpp
         ../skey-tray/Clipboard/ClipboardPaster.cpp
         ../skey-tray/Clipboard/ClipboardPopup.cpp
+        ../skey-tray/System/LaunchAtLogin.cpp
         ../skey-tray/Engine/SKeyEngineWrapper.cpp
         ../skey-tray/Engine/MacroEngine.cpp
         ../Shared/Clipboard/ClipboardText.cpp

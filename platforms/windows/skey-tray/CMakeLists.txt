@@ -24,6 +24,7 @@ if(WIN32)
         Clipboard/ClipboardMonitor.cpp
         Clipboard/ClipboardPaster.cpp
         Clipboard/ClipboardPopup.cpp
+        System/LaunchAtLogin.cpp
         Engine/SKeyEngineWrapper.cpp
         Engine/MacroEngine.cpp
         ../Shared/Contracts/IpcCodec.cpp
@@ -34,7 +35,7 @@ if(WIN32)
         ../Shared/Clipboard/ClipboardText.cpp
         ../Shared/Clipboard/ClipboardHistoryStore.cpp)
     target_include_directories(skey-tray PRIVATE ../ "${SKEY_CAPI_INCLUDE_DIR}")
-    target_link_libraries(skey-tray PRIVATE user32 shell32 gdi32 winmm ole32)
+    target_link_libraries(skey-tray PRIVATE user32 shell32 gdi32 winmm ole32 advapi32)
 
     if(SKEY_CORE_LIB)
         target_link_libraries(skey-tray PRIVATE "${SKEY_CORE_LIB}" advapi32 userenv ws2_32 bcrypt ntdll)

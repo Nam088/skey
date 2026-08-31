@@ -18,6 +18,7 @@ namespace skey::windows {
 //   1. Injected (self) events pass
 //   2. Hook disabled -> pass
 //   3. Mouse clicks reset engines (handled via on_mouse_click())
+//   3b. Keyboard Cleaner: block all keys, Esc hold 2s unlocks
 //   4. Modifier-only chord toggle (e.g. Ctrl+Shift)
 //   5. Hotkeys swallow (language / clipboard / cleaner / AI / translate)
 //   5b. Ctrl+Shift+Esc swallowed-key restore (skey_engine_restore)
@@ -39,6 +40,7 @@ public:
 
     using ActionCallback = std::function<void(HotkeyAction)>;
     using ExcludedAppProvider = std::function<bool()>;
+    using ClockMs = std::function<std::uint64_t()>;
 
     TypingPipeline(EngineInterface& engine, MacroEngine& macro, ActionCallback on_action);
 
@@ -53,9 +55,18 @@ public:
     void set_excluded_app_provider(ExcludedAppProvider provider);
     HotkeyManager& hotkeys() { return hotkeys_; }
 
+    // Keyboard Cleaner: while active every key is swallowed except the
+    // cleaner hotkey (stage 5) and Esc held for 2s, which unlocks.
+    void set_cleaner_active(bool active) noexcept;
+    bool cleaner_active() const noexcept { return cleaner_active_; }
+    static constexpr std::uint64_t kCleanerUnlockHoldMs = 2000;
+    void set_clock(ClockMs clock);
+
     ModifierTracker& modifiers() { return tracker_; }
 
 private:
+    bool handle_cleaner(const HookKeyEvent& event);
+    std::uint64_t now_ms() const;
     bool handle_composing(const HookKeyEvent& event);
     bool handle_english_macro(const HookKeyEvent& event);
     char32_t extract_character(const HookKeyEvent& event) const;
@@ -66,6 +77,10 @@ private:
     HotkeyManager hotkeys_;
     ModifierTracker tracker_;
     bool modifier_only_candidate_ = false;
+    bool cleaner_active_ = false;
+    bool cleaner_esc_held_ = false;
+    std::uint64_t cleaner_esc_down_ms_ = 0;
+    ClockMs clock_;
 
     mutable std::mutex config_mutex_;
     Config config_;

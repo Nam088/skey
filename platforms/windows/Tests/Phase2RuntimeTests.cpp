@@ -32,6 +32,10 @@ HookKeyEvent down(unsigned vk) {
     return HookKeyEvent{vk, 0, 0, false, false, false};
 }
 
+HookKeyEvent up(unsigned vk) {
+    return HookKeyEvent{vk, 0, 0, true, false, false};
+}
+
 constexpr unsigned kVkCtrl = 0x11;
 constexpr unsigned kVkShift = 0x10;
 constexpr unsigned kVkEsc = 0x1B;
@@ -142,6 +146,75 @@ int main() {
         excluded = false;
         assert(!pipe.process(down('A')));
         assert(engine.filter_calls == 1);
+    }
+
+    // --- Cleaner: every key blocked, Esc held 2s unlocks ---
+    {
+        FakeEngine engine;
+        MacroEngine macro;
+        TypingPipeline pipe(engine, macro, nullptr);
+        std::uint64_t now = 0;
+        pipe.set_clock([&] { return now; });
+
+        pipe.set_cleaner_active(true);
+        assert(pipe.cleaner_active());
+        assert(pipe.process(down('A')));      // swallowed
+        assert(engine.filter_calls == 0);
+        assert(pipe.process(down(kVkCtrl)));  // modifiers blocked too
+        pipe.process(up(kVkCtrl));            // release so stage 6 stays clear
+
+        // Esc hold: first down starts the timer, auto-repeat at +2000ms unlocks.
+        assert(pipe.process(down(kVkEsc)));
+        assert(pipe.cleaner_active());
+        now = 1000;
+        assert(pipe.process(down(kVkEsc)));
+        assert(pipe.cleaner_active());
+        now = 2000;
+        assert(pipe.process(down(kVkEsc)));
+        assert(!pipe.cleaner_active());
+        assert(!pipe.process(down('A')));  // normal processing resumes
+        assert(engine.filter_calls == 1);
+    }
+    {
+        // Any other key resets the Esc hold.
+        FakeEngine engine;
+        MacroEngine macro;
+        TypingPipeline pipe(engine, macro, nullptr);
+        std::uint64_t now = 0;
+        pipe.set_clock([&] { return now; });
+        pipe.set_cleaner_active(true);
+
+        pipe.process(down(kVkEsc));
+        now = 1500;
+        pipe.process(down('X'));     // resets the hold
+        now = 1600;
+        pipe.process(down(kVkEsc));  // hold restarts here
+        now = 3000;
+        pipe.process(down(kVkEsc));
+        assert(pipe.cleaner_active());  // only 1400ms into the new hold
+        now = 3600;
+        pipe.process(down(kVkEsc));
+        assert(!pipe.cleaner_active());
+    }
+    {
+        // Hotkey toggles ON via the stage-5 callback, OFF internally.
+        FakeEngine engine;
+        MacroEngine macro;
+        std::vector<HotkeyAction> actions;
+        TypingPipeline pipe(engine, macro, [&](HotkeyAction action) { actions.push_back(action); });
+        constexpr unsigned kVkAlt = 0x12;
+
+        pipe.process(down(kVkAlt));
+        pipe.process(down(kVkShift));
+        assert(pipe.process(down(HotkeyManager::kVkK)));  // Alt+Shift+K swallowed
+        assert(actions.size() == 1 && actions.back() == HotkeyAction::cleaner);
+
+        pipe.set_cleaner_active(true);
+        pipe.process(down(kVkAlt));
+        pipe.process(down(kVkShift));
+        assert(pipe.process(down(HotkeyManager::kVkK)));
+        assert(!pipe.cleaner_active());
+        assert(actions.size() == 1);  // no duplicate callback on internal unlock
     }
 
     return 0;

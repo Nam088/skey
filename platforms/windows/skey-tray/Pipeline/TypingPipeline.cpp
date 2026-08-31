@@ -1,6 +1,7 @@
 #include "TypingPipeline.h"
 
 #include <array>
+#include <chrono>
 
 #include "KeyInjector.h"
 
@@ -61,6 +62,11 @@ bool TypingPipeline::process(const HookKeyEvent& event) {
     // Modifier state is tracked from events only (GetAsyncKeyState is not
     // trustworthy inside a LL hook callback).
     tracker_.on_event(event.vk, event.is_up, event.is_extended);
+
+    // Stage 3b: Keyboard Cleaner blocks every key (modifiers included); only
+    // its own hotkey or holding Esc for 2s releases it. Runs before the
+    // modifier-only chord stage so chords cannot leak through while cleaning.
+    if (cleaner_active_) return handle_cleaner(event);
 
     // Stage 4: modifier-only chord for language toggle (e.g. Ctrl+Shift).
     if (category == KeyCategory::modifier) {
@@ -126,6 +132,52 @@ bool TypingPipeline::process(const HookKeyEvent& event) {
 
     // Stage 10: composing.
     return handle_composing(event);
+}
+
+void TypingPipeline::set_cleaner_active(bool active) noexcept {
+    cleaner_active_ = active;
+    cleaner_esc_held_ = false;
+}
+
+void TypingPipeline::set_clock(ClockMs clock) {
+    clock_ = std::move(clock);
+}
+
+std::uint64_t TypingPipeline::now_ms() const {
+    if (clock_) return clock_();
+    return static_cast<std::uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch())
+            .count());
+}
+
+bool TypingPipeline::handle_cleaner(const HookKeyEvent& event) {
+    // The cleaner hotkey toggles the cleaner off. Stage 5 never runs while
+    // the cleaner is active, so the match happens here; on_action is not
+    // invoked because TrayRuntime toggles activation from stage 5 only.
+    const uint8_t mods = tracker_.mask() & ~kModCaps;
+    if (!event.is_up && hotkeys_.match(event.vk, mods) == HotkeyAction::cleaner) {
+        cleaner_active_ = false;
+        cleaner_esc_held_ = false;
+        return true;
+    }
+
+    if (event.vk == kVkEscape) {
+        if (event.is_up) {
+            cleaner_esc_held_ = false;
+        } else if (!cleaner_esc_held_) {
+            cleaner_esc_held_ = true;
+            cleaner_esc_down_ms_ = now_ms();
+        } else if (now_ms() - cleaner_esc_down_ms_ >= kCleanerUnlockHoldMs) {
+            cleaner_active_ = false;
+            cleaner_esc_held_ = false;
+        }
+        return true;
+    }
+
+    // Any other key cancels the Esc hold (mirrors macOS reset behavior).
+    cleaner_esc_held_ = false;
+    return true;
 }
 
 bool TypingPipeline::handle_composing(const HookKeyEvent& event) {

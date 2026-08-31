@@ -13,6 +13,7 @@
 #include "../Shared/Settings/SettingsStore.h"
 #include "Clipboard/ClipboardPaster.h"
 #include "Clipboard/ClipboardPopup.h"
+#include "System/LaunchAtLogin.h"
 #endif
 
 namespace skey::windows {
@@ -128,6 +129,8 @@ void TrayRuntime::apply_settings(const SettingsModel& settings) {
         if (settings.clipboard_enabled && settings.clipboard_save_text) clipboard_monitor_->start();
         else clipboard_monitor_->stop();
     }
+
+    LaunchAtLogin::set_enabled(settings.launch_at_login);
 #else
     (void)settings;
 #endif
@@ -159,9 +162,11 @@ bool TrayRuntime::start_hook() {
             switch (action) {
             case HotkeyAction::toggle_language: toggle_language(); break;
             case HotkeyAction::clipboard: open_clipboard_popup(); break;
-            // Cleaner / AI / translate land in Phase 4; swallow the chord
-            // for now so it doesn't leak into the app.
             case HotkeyAction::cleaner:
+                pipeline_->set_cleaner_active(!pipeline_->cleaner_active());
+                break;
+            // AI / translate land in Phase 4; swallow the chord for now so
+            // it doesn't leak into the app.
             case HotkeyAction::ai:
             case HotkeyAction::translate: break;
             case HotkeyAction::none: break;
