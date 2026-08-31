@@ -32,6 +32,7 @@ if(WIN32)
         Engine/MacroEngine.cpp
         ../Shared/Contracts/IpcCodec.cpp
         ../Shared/IPC/IpcTransport.cpp
+        ../Shared/Localization/LocalizationService.cpp
         ../Shared/Settings/SettingsStore.cpp
         ../Shared/Settings/MacroStore.cpp
         ../Shared/Settings/SettingsPaths.cpp

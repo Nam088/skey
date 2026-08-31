@@ -1,6 +1,7 @@
 #include "ClipboardPopup.h"
 
 #include "../../Shared/Clipboard/ClipboardText.h"
+#include "../../Shared/Localization/LocalizationService.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -233,7 +234,8 @@ bool ClipboardPopup::show(std::vector<ClipboardPopupItem> items, Choose choose) 
     const POINT origin = popup_origin();
     const HWND window = CreateWindowExW(
         WS_EX_TOPMOST, reinterpret_cast<LPCWSTR>(static_cast<std::uintptr_t>(atom)),
-        L"SKey Clipboard", WS_POPUP | WS_BORDER | WS_SYSMENU, origin.x, origin.y,
+        to_wide(std::string{LocalizationService::shared().text("hud.clipboard.title")}).c_str(),
+        WS_POPUP | WS_BORDER | WS_SYSMENU, origin.x, origin.y,
         kWindowWidth, kWindowHeight, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
     if (window == nullptr) return false;
     state.window = window;

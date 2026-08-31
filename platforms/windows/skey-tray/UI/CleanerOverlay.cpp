@@ -1,8 +1,11 @@
 #include "CleanerOverlay.h"
 
+#include "../../Shared/Localization/LocalizationService.h"
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <string>
 #include <utility>
 
 #ifdef _WIN32
@@ -32,6 +35,18 @@ std::uint64_t steady_now_ms() {
         std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now().time_since_epoch())
             .count());
+}
+
+std::wstring to_wide(const std::string& utf8) {
+    if (utf8.empty()) return {};
+    const int length = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), static_cast<int>(utf8.size()), nullptr, 0);
+    std::wstring out(static_cast<std::size_t>(length), L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), static_cast<int>(utf8.size()), out.data(), length);
+    return out;
+}
+
+std::wstring localized(const char* key) {
+    return to_wide(std::string{LocalizationService::shared().text(key)});
 }
 
 double hold_progress(const OverlayState& state) {
@@ -94,7 +109,8 @@ void paint(OverlayState& state, HDC dc) {
                              OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
                              DEFAULT_PITCH, L"Segoe UI");
     HFONT old_font = static_cast<HFONT>(SelectObject(dc, bold));
-    DrawTextW(dc, L"Locked", -1, &badge, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    const std::wstring locked = localized("cleaner.badge.locked");
+    DrawTextW(dc, locked.c_str(), -1, &badge, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
     // Esc ring + label.
     const double progress = hold_progress(state);
@@ -116,9 +132,8 @@ void paint(OverlayState& state, HDC dc) {
                              DEFAULT_PITCH, L"Segoe UI");
     old_font = static_cast<HFONT>(SelectObject(dc, hint));
     RECT text{180, 0, client.right - 16, kWindowHeight};
-    DrawTextW(dc, state.holding ? L"Keep holding Esc\u2026"
-                                : L"Hold Esc for 2 seconds to unlock \u2014 click to unlock",
-              -1, &text, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+    const std::wstring hint = localized(state.holding ? "cleaner.esc.holding" : "cleaner.esc.hint");
+    DrawTextW(dc, hint.c_str(), -1, &text, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
     DeleteObject(SelectObject(dc, old_font));
 }
 

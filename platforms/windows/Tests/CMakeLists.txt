@@ -43,6 +43,7 @@ if(WIN32)
         ../skey-tray/Engine/MacroEngine.cpp
         ../Shared/Clipboard/ClipboardText.cpp
         ../Shared/Clipboard/ClipboardHistoryStore.cpp
+        ../Shared/Localization/LocalizationService.cpp
         ../Shared/Translator/TranslatorService.cpp
         ../Shared/Updates/UpdateChecker.cpp)
     if(SKEY_CORE_LIB)

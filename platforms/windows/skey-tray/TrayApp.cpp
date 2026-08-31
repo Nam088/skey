@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <shellapi.h>
 
+#include "../Shared/Localization/LocalizationService.h"
 #include "TrayIpcHandler.h"
 #include "TrayRuntime.h"
 
@@ -29,12 +30,15 @@ std::wstring to_wide(const std::string& utf8) {
 }
 
 void show_update_notification(const skey::windows::UpdateInfo& info) {
+    auto& loc = skey::windows::LocalizationService::shared();
     g_update_url = to_wide(!info.asset_url.empty() ? info.asset_url : info.release_url);
     g_nid.uFlags |= NIF_INFO;
     g_nid.dwInfoFlags = NIIF_INFO | NIIF_LARGE_ICON;
-    wcsncpy_s(g_nid.szInfoTitle, L"SKey update available", std::size(g_nid.szInfoTitle) - 1);
+    const std::wstring title = to_wide(std::string{loc.text("tray.update.title")});
+    wcsncpy_s(g_nid.szInfoTitle, title.c_str(), std::size(g_nid.szInfoTitle) - 1);
     const std::wstring message =
-        L"Version " + to_wide(info.version) + L" is ready \u2014 click to download.";
+        to_wide(std::string{loc.text("tray.update.message_prefix")}) + to_wide(info.version) +
+        to_wide(std::string{loc.text("tray.update.message_suffix")});
     wcsncpy_s(g_nid.szInfo, message.c_str(), std::size(g_nid.szInfo) - 1);
     Shell_NotifyIconW(NIM_MODIFY, &g_nid);
     g_nid.uFlags &= ~static_cast<decltype(g_nid.uFlags)>(NIF_INFO);
@@ -93,13 +97,18 @@ void update_tray_icon(bool vietnamese) {
 void show_context_menu() {
     POINT pt{};
     GetCursorPos(&pt);
+    auto& loc = skey::windows::LocalizationService::shared();
+    const auto item = [&loc](const char* key) {
+        return to_wide(std::string{loc.text(key)});
+    };
     HMENU menu = CreatePopupMenu();
     const bool is_vn = g_runtime != nullptr && g_runtime->vietnamese_enabled();
-    AppendMenuW(menu, MF_STRING, IDM_TOGGLE, is_vn ? L"Switch to English" : L"Chuy\u1EC3n sang Ti\u1EBFng Vi\u1EC7t");
+    AppendMenuW(menu, MF_STRING, IDM_TOGGLE,
+                item(is_vn ? "tray.menu.switch_english" : "tray.menu.switch_vietnamese").c_str());
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
-    AppendMenuW(menu, MF_STRING, IDM_SETTINGS, L"Settings...");
+    AppendMenuW(menu, MF_STRING, IDM_SETTINGS, item("tray.menu.settings").c_str());
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
-    AppendMenuW(menu, MF_STRING, IDM_EXIT, L"Quit");
+    AppendMenuW(menu, MF_STRING, IDM_EXIT, item("tray.menu.quit").c_str());
 
     SetForegroundWindow(g_hwnd);
     TrackPopupMenu(menu, TPM_BOTTOMALIGN | TPM_LEFTALIGN, pt.x, pt.y, 0, g_hwnd, nullptr);

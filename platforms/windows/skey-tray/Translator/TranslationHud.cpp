@@ -1,5 +1,7 @@
 #include "TranslationHud.h"
 
+#include "../../Shared/Localization/LocalizationService.h"
+
 #include <algorithm>
 #include <cstdint>
 #include <iterator>
@@ -123,7 +125,8 @@ void start_translation(HudState& state) {
     params.target = selected_target(state);
 
     EnableWindow(state.button, FALSE);
-    SetWindowTextW(state.status, L"Translating\x2026");
+    SetWindowTextW(state.status,
+                   to_wide(std::string{LocalizationService::shared().text("hud.translate.busy")}).c_str());
 
     const HWND window = state.window;
     std::shared_ptr<TranslationCore> core = state.core;
@@ -155,8 +158,9 @@ void apply_result(HudState& state) {
         SetWindowTextW(state.status, line.c_str());
     } else {
         SetWindowTextW(state.result, L"");
-        const std::string error =
-            outcome.error.empty() ? std::string{"translation failed"} : outcome.error;
+        const std::string error = outcome.error.empty()
+                                      ? std::string{LocalizationService::shared().text("hud.translate.failed")}
+                                      : outcome.error;
         SetWindowTextW(state.status, to_wide(error).c_str());
     }
 }
@@ -254,7 +258,8 @@ void TranslationHud::show(TranslationHudConfig config, TranslatorService::HttpFn
     const POINT origin = hud_origin();
     const HWND window = CreateWindowExW(
         WS_EX_TOPMOST, reinterpret_cast<LPCWSTR>(static_cast<std::uintptr_t>(atom)),
-        L"SKey Translate", WS_POPUP | WS_BORDER | WS_SYSMENU, origin.x, origin.y,
+        to_wide(std::string{LocalizationService::shared().text("hud.translate.title")}).c_str(),
+        WS_POPUP | WS_BORDER | WS_SYSMENU, origin.x, origin.y,
         kWindowWidth, kWindowHeight, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
     if (window == nullptr) return;
     state.window = window;
@@ -272,7 +277,8 @@ void TranslationHud::show(TranslationHudConfig config, TranslatorService::HttpFn
                                   kMargin, row_y, 160, 200, window,
                                   reinterpret_cast<HMENU>(kIdCombo),
                                   GetModuleHandleW(nullptr), nullptr);
-    state.button = CreateWindowExW(0, L"BUTTON", L"Translate",
+    state.button = CreateWindowExW(0, L"BUTTON",
+                                   to_wide(std::string{LocalizationService::shared().text("hud.translate.button")}).c_str(),
                                    WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                                    kMargin + 168, row_y, 100, kRowHeight, window,
                                    reinterpret_cast<HMENU>(kIdTranslate),

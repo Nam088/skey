@@ -8,6 +8,7 @@
 #include <chrono>
 
 #include "../Shared/Clipboard/ClipboardText.h"
+#include "../Shared/Localization/LocalizationService.h"
 #include "../Shared/Settings/MacroStore.h"
 #include "../Shared/Settings/SettingsPaths.h"
 #include "../Shared/Settings/SettingsStore.h"
@@ -84,6 +85,7 @@ void TrayRuntime::set_language(bool vietnamese) {
 
 void TrayRuntime::apply_settings(const SettingsModel& settings) {
 #ifdef _WIN32
+    LocalizationService::shared().set_locale(settings.locale);
     {
         std::lock_guard<std::mutex> lock(settings_mutex_);
         current_settings_ = settings;
