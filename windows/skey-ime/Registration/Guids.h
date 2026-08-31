@@ -2,6 +2,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <atomic>
 
 namespace skey::windows {
 

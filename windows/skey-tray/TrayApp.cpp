@@ -64,7 +64,7 @@ void update_tray_icon(bool vietnamese) {
     g_nid.hIcon = current_icon;
 
     const std::wstring tip = vietnamese ? L"SKey - Ti\u1EBFng Vi\u1EC7t" : L"SKey - English";
-    wcsncpy(g_nid.szTip, tip.c_str(), std::size(g_nid.szTip) - 1);
+    wcsncpy_s(g_nid.szTip, tip.c_str(), std::size(g_nid.szTip) - 1);
     g_nid.szTip[std::size(g_nid.szTip) - 1] = L'\0';
     Shell_NotifyIconW(NIM_MODIFY, &g_nid);
 }
@@ -155,7 +155,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     g_nid.uCallbackMessage = WM_TRAYICON;
     g_nid.hIcon = create_status_icon(runtime.vietnamese_enabled());
     const std::wstring tip = runtime.vietnamese_enabled() ? L"SKey - Ti\u1EBFng Vi\u1EC7t" : L"SKey - English";
-    wcsncpy(g_nid.szTip, tip.c_str(), std::size(g_nid.szTip) - 1);
+    wcsncpy_s(g_nid.szTip, tip.c_str(), std::size(g_nid.szTip) - 1);
     g_nid.szTip[std::size(g_nid.szTip) - 1] = L'\0';
     Shell_NotifyIconW(NIM_ADD, &g_nid);
 

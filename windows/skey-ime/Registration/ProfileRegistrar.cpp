@@ -4,6 +4,10 @@
 #include "ProfileRegistrar.h"
 #include "Guids.h"
 
+#ifndef TF_TFCAT_TIP_KEYBOARD
+DEFINE_GUID(TF_TFCAT_TIP_KEYBOARD, 0x00000001, 0x1000, 0x1000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01);
+#endif
+
 namespace skey::windows {
 
 namespace {
@@ -35,27 +39,24 @@ HRESULT unregister_category() {
 } // namespace
 
 HRESULT RegisterTextService(HINSTANCE module) noexcept {
-    ITfInputProcessorProfileMgr* profile_mgr = nullptr;
+    ITfInputProcessorProfiles* profiles = nullptr;
     HRESULT hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
-                                  IID_ITfInputProcessorProfileMgr,
-                                  reinterpret_cast<void**>(&profile_mgr));
+                                  IID_ITfInputProcessorProfiles,
+                                  reinterpret_cast<void**>(&profiles));
     if (FAILED(hr)) return hr;
 
-    hr = profile_mgr->AddProfile(CLSID_SKeyTextService, kVietnameseLangId, GUID_SKeyLanguageProfile,
-                                  kTextServiceDescription, kLanguageProfileDescription,
-                                  nullptr, 0, nullptr, 0, 0);
-    profile_mgr->Release();
+    hr = profiles->Register(CLSID_SKeyTextService);
+    profiles->Release();
     if (FAILED(hr)) return hr;
 
     hr = register_category();
     if (FAILED(hr)) {
         CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
-                         IID_ITfInputProcessorProfileMgr,
-                         reinterpret_cast<void**>(&profile_mgr));
-        if (profile_mgr != nullptr) {
-            profile_mgr->RemoveProfile(kVietnameseLangId, CLSID_SKeyTextService,
-                                        GUID_SKeyLanguageProfile);
-            profile_mgr->Release();
+                         IID_ITfInputProcessorProfiles,
+                         reinterpret_cast<void**>(&profiles));
+        if (profiles != nullptr) {
+            profiles->Unregister(CLSID_SKeyTextService);
+            profiles->Release();
         }
         return hr;
     }
@@ -65,14 +66,13 @@ HRESULT RegisterTextService(HINSTANCE module) noexcept {
 }
 
 HRESULT UnregisterTextService() noexcept {
-    ITfInputProcessorProfileMgr* profile_mgr = nullptr;
+    ITfInputProcessorProfiles* profiles = nullptr;
     HRESULT hr = CoCreateInstance(CLSID_TF_InputProcessorProfiles, nullptr, CLSCTX_INPROC_SERVER,
-                                  IID_ITfInputProcessorProfileMgr,
-                                  reinterpret_cast<void**>(&profile_mgr));
+                                  IID_ITfInputProcessorProfiles,
+                                  reinterpret_cast<void**>(&profiles));
     if (SUCCEEDED(hr)) {
-        profile_mgr->RemoveProfile(kVietnameseLangId, CLSID_SKeyTextService,
-                                    GUID_SKeyLanguageProfile);
-        profile_mgr->Release();
+        profiles->Unregister(CLSID_SKeyTextService);
+        profiles->Release();
     }
 
     unregister_category();
