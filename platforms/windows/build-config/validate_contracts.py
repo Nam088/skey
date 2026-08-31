@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[3]
 
 
 def load(name):
-    with (ROOT / "shared" / name).open(encoding="utf-8") as stream:
+    with (ROOT / "shared" / "contracts" / name).open(encoding="utf-8") as stream:
         return json.load(stream)
 
 
@@ -17,7 +17,8 @@ def main():
     config = load("config.schema.json")
     ipc = load("ipc.schema.json")
     keys = load("localization.keys.json")["keys"]
-    vectors = load("typing-vectors/basic.json")["vectors"]
+    with (ROOT / "shared" / "typing-vectors" / "basic.json").open(encoding="utf-8") as stream:
+        vectors = json.load(stream)["vectors"]
     parity = load("feature-parity.json")
 
     assert config["properties"]["theme"]["enum"] == ["system", "light", "dark"]
