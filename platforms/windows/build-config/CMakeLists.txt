@@ -19,6 +19,7 @@ endif()
 
 if(WIN32)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../skey-tray ${CMAKE_CURRENT_BINARY_DIR}/skey-tray)
+    add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../skey-tsf ${CMAKE_CURRENT_BINARY_DIR}/skey-tsf)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../skey-settings ${CMAKE_CURRENT_BINARY_DIR}/skey-settings)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../../installer-windows ${CMAKE_CURRENT_BINARY_DIR}/installer-windows)
 endif()

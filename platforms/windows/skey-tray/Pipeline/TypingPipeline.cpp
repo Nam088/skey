@@ -42,6 +42,15 @@ void TypingPipeline::set_excluded_app_provider(ExcludedAppProvider provider) {
     excluded_app_provider_ = std::move(provider);
 }
 
+void TypingPipeline::set_tsf_pusher(TsfPusher pusher) {
+    tsf_pusher_ = std::move(pusher);
+}
+
+void TypingPipeline::deliver(int backspaces, const std::string& utf8_text) {
+    if (tsf_pusher_ && tsf_pusher_(backspaces, utf8_text)) return;
+    KeyInjector::inject(backspaces, utf8_text);
+}
+
 bool TypingPipeline::process(const HookKeyEvent& event) {
     // Stage 1: pass through events injected by SKey itself.
     if (event.is_injected) return false;
@@ -103,7 +112,7 @@ bool TypingPipeline::process(const HookKeyEvent& event) {
         mods == (kModCtrl | kModShift)) {
         const auto restored = engine_.restore();
         if (restored.handled) {
-            KeyInjector::inject(restored.backspaces, restored.text);
+            deliver(restored.backspaces, restored.text);
             return true;
         }
         return false;
@@ -211,7 +220,7 @@ bool TypingPipeline::handle_composing(const HookKeyEvent& event) {
         macro_.record_backspace();
         const auto result = engine_.backspace();
         if (result.handled) {
-            KeyInjector::inject(result.backspaces, result.text);
+            deliver(result.backspaces, result.text);
             return true;
         }
         return false;
@@ -236,7 +245,7 @@ bool TypingPipeline::handle_composing(const HookKeyEvent& event) {
         const auto macro_result = macro_.evaluate_on_space();
         if (macro_result.handled) {
             engine_.reset();
-            KeyInjector::inject(macro_result.backspaces, macro_result.replacement);
+            deliver(macro_result.backspaces, macro_result.replacement);
             return true;
         }
     }
@@ -244,7 +253,7 @@ bool TypingPipeline::handle_composing(const HookKeyEvent& event) {
     const auto result = engine_.filter(character);
     macro_.record_char(character);
     if (result.handled) {
-        KeyInjector::inject(result.backspaces, result.text);
+        deliver(result.backspaces, result.text);
         return true;
     }
     return false;
@@ -275,7 +284,7 @@ bool TypingPipeline::handle_english_macro(const HookKeyEvent& event) {
     if (event.vk == kVkSpace) {
         const auto result = macro_.evaluate_on_space();
         if (result.handled) {
-            KeyInjector::inject(result.backspaces, result.replacement);
+            deliver(result.backspaces, result.replacement);
             return true;
         }
         return false;

@@ -216,4 +216,6 @@
   <data name="settings.nav.ai.Content"><value>AI</value></data>
   <data name="settings.nav.appearance.Content"><value>Giao diện</value></data>
   <data name="settings.nav.about.Content"><value>Giới thiệu</value></data>
+  <data name="keyboard.option.imeBrowsers.Header"><value>Dùng IME cho trình duyệt</value></data>
+  <data name="keyboard.option.imeBrowsersDesc.Text"><value>Gõ qua cầu nối TSF trong Chrome/Edge/Firefox để thanh địa chỉ và ô tìm kiếm không bị lặp ký tự</value></data>
 </root>

@@ -15,6 +15,7 @@
 #include "Clipboard/ClipboardPaster.h"
 #include "Clipboard/ClipboardPopup.h"
 #include "Net/PlatformHttp.h"
+#include "System/InputProfile.h"
 #include "System/LaunchAtLogin.h"
 #include "Translator/TranslationHud.h"
 #include "UI/CleanerOverlay.h"
@@ -131,6 +132,11 @@ void TrayRuntime::apply_settings(const SettingsModel& settings) {
         pipeline_->set_config(config);
     }
 
+    // The profile switch makes browsers load/activate skey-tsf.dll. Best
+    // effort: without the DLL (portable runs) push() fails and the pipeline
+    // keeps using SendInput.
+    sync_tsf_profile(settings.use_ime_for_browsers);
+
     // Settings file is the source of truth on (re)load; runtime hotkey
     // toggles only diverge until the next save.
     vietnamese_enabled_.store(settings.is_vietnamese);
@@ -191,6 +197,24 @@ bool TrayRuntime::start_hook() {
         });
     pipeline_->set_excluded_app_provider([this] { return foreground_is_excluded(); });
 
+    // Phase 5: engine results in browsers go through skey-tsf.dll (TSF edit
+    // inside the app) instead of SendInput, which Chromium omniboxes race.
+    // The pusher returns false for non-browsers/unreachable DLL and the
+    // pipeline falls back to KeyInjector.
+    tsf_client_.open();
+    pipeline_->set_tsf_pusher([this](int backspaces, const std::string& text) {
+        SettingsModel snapshot;
+        {
+            std::lock_guard<std::mutex> lock(settings_mutex_);
+            snapshot = current_settings_;
+        }
+        if (!snapshot.use_ime_for_browsers) return false;
+        unsigned long pid = 0;
+        const std::string exe = app_tracker_.current_exe(&pid);
+        if (pid == 0 || !ForegroundAppTracker::is_browser(exe)) return false;
+        return tsf_client_.push(static_cast<std::uint32_t>(pid), backspaces, text);
+    });
+
     // Cleaner HUD: pipeline posts Esc-hold progress to the overlay window.
     if (!cleaner_bridge_) cleaner_bridge_ = std::make_shared<CleanerOverlayBridge>();
     {
@@ -244,6 +268,11 @@ void TrayRuntime::stop_hook() {
         pipeline_->set_cleaner_active(false);  // closes the overlay, if open
     }
     hook_.uninstall();
+    if (tsf_profile_active_) {
+        InputProfile::restore();
+        tsf_profile_active_ = false;
+    }
+    tsf_client_.close();
     if (cleaner_bridge_) {
         std::lock_guard<std::mutex> lock(cleaner_bridge_->mutex);
         cleaner_bridge_->unlock_request = nullptr;
@@ -289,6 +318,15 @@ void TrayRuntime::reload_settings_if_changed() {
         if (macros_mtime_ == std::filesystem::file_time_type{} && macros_time != std::filesystem::file_time_type{}) {
             macros_mtime_ = macros_time;
         }
+    }
+}
+
+void TrayRuntime::sync_tsf_profile(bool wanted) {
+    if (wanted && !tsf_profile_active_) {
+        tsf_profile_active_ = InputProfile::activate();
+    } else if (!wanted && tsf_profile_active_) {
+        InputProfile::restore();
+        tsf_profile_active_ = false;
     }
 }
 

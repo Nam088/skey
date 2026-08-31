@@ -78,6 +78,8 @@
         <TextBlock x:Uid="keyboard.section.smartSwitch" Text="Smart Environment Switching" Style="{StaticResource BodyStrongTextBlockStyle}"/>
         <ToggleSwitch x:Name="SmartAppSwitchToggle" x:Uid="keyboard.option.smartSwitch" Header="Enable Smart App Switch" Toggled="OnSmartAppSwitchToggled"/>
         <TextBlock x:Uid="keyboard.option.smartSwitchDesc" Text="Auto switch to English in IDE / Terminal and restore when switching back" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <ToggleSwitch x:Name="ImeBrowsersToggle" x:Uid="keyboard.option.imeBrowsers" Header="Use IME for browsers" IsOn="True" Toggled="OnImeBrowsersToggled"/>
+        <TextBlock x:Uid="keyboard.option.imeBrowsersDesc" Text="Type through the TSF bridge in Chrome/Edge/Firefox so address bars never double characters" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
         <TextBlock x:Uid="keyboard.section.excludedApps" Text="Excluded Applications" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
         <ToggleSwitch x:Name="ExclusionEnabledToggle" x:Uid="keyboard.excluded.enableMaster" Header="Enable app exclusion" IsOn="True" Toggled="OnExclusionEnabledToggled"/>

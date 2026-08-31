@@ -15,6 +15,7 @@
 #include <memory>
 
 #include "../Shared/Clipboard/ClipboardHistoryStore.h"
+#include "../Shared/TsfBridge/TsfBridge.h"
 #include "Clipboard/ClipboardMonitor.h"
 #include "Engine/MacroEngine.h"
 #include "Engine/SKeyEngineWrapper.h"
@@ -55,6 +56,7 @@ private:
     void reload_settings_if_changed();
     void update_smart_app_switch();
     bool foreground_is_excluded();
+    void sync_tsf_profile(bool wanted);
     void open_clipboard_popup();
     void on_clipboard_capture(std::string text);
     void open_translation_hud();
@@ -76,6 +78,8 @@ private:
     std::unique_ptr<TypingPipeline> pipeline_;
     KeyboardHook hook_;
     ForegroundAppTracker app_tracker_;
+    TsfBridgeClient tsf_client_;
+    bool tsf_profile_active_{false};
     std::unique_ptr<ClipboardHistoryStore> clipboard_store_;
     std::unique_ptr<ClipboardMonitor> clipboard_monitor_;
     // Shared with the detached popup/HUD threads so they never touch `this`.

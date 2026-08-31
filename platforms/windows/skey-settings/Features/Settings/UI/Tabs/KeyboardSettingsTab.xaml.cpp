@@ -57,6 +57,7 @@ void KeyboardSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable c
     QuickEndConsonantToggle().IsOn(s.quick_end_consonant);
     UpperCaseFirstToggle().IsOn(s.upper_case_first_char);
     SmartAppSwitchToggle().IsOn(s.smart_app_switch);
+    ImeBrowsersToggle().IsOn(s.use_ime_for_browsers);
     ExclusionEnabledToggle().IsOn(s.app_exclusion_enabled);
 
     SelectSubTab(0);
@@ -175,6 +176,11 @@ void KeyboardSettingsTab::OnUpperCaseFirstCharToggled(ToggleSwitch const& sender
 void KeyboardSettingsTab::OnSmartAppSwitchToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
     if (!vm_ || loading_) return;
     vm_->set_smart_app_switch(sender.IsOn());
+}
+
+void KeyboardSettingsTab::OnImeBrowsersToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    if (!vm_ || loading_) return;
+    vm_->set_use_ime_for_browsers(sender.IsOn());
 }
 
 void KeyboardSettingsTab::OnExclusionEnabledToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {

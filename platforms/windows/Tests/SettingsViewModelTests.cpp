@@ -66,6 +66,9 @@ int main() {
     vm.set_smart_app_switch(true);
     assert(vm.settings().smart_app_switch);
 
+    vm.set_use_ime_for_browsers(false);
+    assert(!vm.settings().use_ime_for_browsers);
+
     vm.set_launch_at_login(true);
     assert(vm.settings().launch_at_login);
 

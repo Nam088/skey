@@ -304,6 +304,8 @@ SettingsModel SettingsStore::load() const {
     r.macro_auto_caps = bool_value_for(text, "macroAutoCaps", true);
     r.macro_in_english_mode = bool_value_for(text, "macroInEnglishMode", false);
 
+    r.use_ime_for_browsers = bool_value_for(text, "useImeForBrowsers", true);
+
     r.cleaner_enabled = bool_value_for(text, "cleanerEnabled", true);
     std::vector<std::string> hotkey_objects;
     if (object_array_for(text, "hotkeys", hotkey_objects)) {
@@ -430,7 +432,8 @@ bool SettingsStore::save(const SettingsModel& s) const {
     output << (s.translator_engines.empty() ? "" : "\n  ") << "],\n"
         << "  \"macroEnabled\": " << bool_str(s.macro_enabled) << ",\n"
         << "  \"macroAutoCaps\": " << bool_str(s.macro_auto_caps) << ",\n"
-        << "  \"macroInEnglishMode\": " << bool_str(s.macro_in_english_mode) << "\n"
+        << "  \"macroInEnglishMode\": " << bool_str(s.macro_in_english_mode) << ",\n"
+        << "  \"useImeForBrowsers\": " << bool_str(s.use_ime_for_browsers) << "\n"
         << "}\n";
     return output.good();
 }

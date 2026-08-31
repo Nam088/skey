@@ -48,6 +48,9 @@ struct SettingsModel final {
     bool upper_case_first_char{false};
     bool allow_consonant_zfwj{false};
     bool smart_app_switch{false};
+    // Phase 5: route engine results through the skey-tsf.dll TSF bridge in
+    // Chromium/Firefox apps, where SendInput re-injection races autocomplete.
+    bool use_ime_for_browsers{true};
 
     bool launch_at_login{false};
     bool check_updates{true};

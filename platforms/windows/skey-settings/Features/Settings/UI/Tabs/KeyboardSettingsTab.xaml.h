@@ -46,6 +46,8 @@ struct KeyboardSettingsTab : KeyboardSettingsTabT<KeyboardSettingsTab> {
                                      winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnSmartAppSwitchToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
                                  winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
+    void OnImeBrowsersToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+                              winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnExclusionEnabledToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
                                    winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnAddExcludedAppClicked(winrt::Windows::Foundation::IInspectable const& sender,

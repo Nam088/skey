@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include <mutex>
+#include <string>
 
 #include "../Engine/EngineInterface.h"
 #include "../Engine/MacroEngine.h"
@@ -41,6 +42,10 @@ public:
     using ActionCallback = std::function<void(HotkeyAction)>;
     using ExcludedAppProvider = std::function<bool()>;
     using ClockMs = std::function<std::uint64_t()>;
+    // Phase 5: delivers an engine result through the TSF bridge when the
+    // foreground app is a browser. Returning true means the DLL applied the
+    // edit; returning false makes the pipeline fall back to SendInput.
+    using TsfPusher = std::function<bool(int backspaces, const std::string& utf8_text)>;
 
     // Progress notifications for the cleaner HUD overlay. Timestamps use the
     // pipeline clock (set_clock). Called from the hook thread; keep it cheap.
@@ -58,6 +63,7 @@ public:
     void set_config(const Config& config);
     Config config() const;
     void set_excluded_app_provider(ExcludedAppProvider provider);
+    void set_tsf_pusher(TsfPusher pusher);
     HotkeyManager& hotkeys() { return hotkeys_; }
 
     // Keyboard Cleaner: while active every key is swallowed except the
@@ -76,6 +82,8 @@ private:
     bool handle_composing(const HookKeyEvent& event);
     bool handle_english_macro(const HookKeyEvent& event);
     char32_t extract_character(const HookKeyEvent& event) const;
+    // TSF bridge first (browsers), SendInput fallback everywhere else.
+    void deliver(int backspaces, const std::string& utf8_text);
 
     EngineInterface& engine_;
     MacroEngine& macro_;
@@ -88,6 +96,7 @@ private:
     std::uint64_t cleaner_esc_down_ms_ = 0;
     ClockMs clock_;
     CleanerListener cleaner_listener_;
+    TsfPusher tsf_pusher_;
 
     mutable std::mutex config_mutex_;
     Config config_;

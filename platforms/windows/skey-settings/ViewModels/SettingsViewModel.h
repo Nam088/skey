@@ -54,6 +54,7 @@ public:
     void set_upper_case_first_char(bool v) { settings_.upper_case_first_char = v; save(); }
     void set_allow_consonant_zfwj(bool v) { settings_.allow_consonant_zfwj = v; save(); }
     void set_smart_app_switch(bool v) { settings_.smart_app_switch = v; save(); }
+    void set_use_ime_for_browsers(bool v) { settings_.use_ime_for_browsers = v; save(); }
 
     void set_launch_at_login(bool v) { settings_.launch_at_login = v; save(); }
     void set_check_updates(bool v) { settings_.check_updates = v; save(); }

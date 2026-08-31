@@ -36,6 +36,8 @@ if(WIN32)
         ../skey-tray/Clipboard/ClipboardPaster.cpp
         ../skey-tray/Clipboard/ClipboardPopup.cpp
         ../skey-tray/System/LaunchAtLogin.cpp
+        ../skey-tray/System/InputProfile.cpp
+        ../Shared/TsfBridge/TsfBridge.cpp
         ../skey-tray/Net/PlatformHttp.cpp
         ../skey-tray/Translator/TranslationHud.cpp
         ../skey-tray/UI/CleanerOverlay.cpp
@@ -180,6 +182,23 @@ if(WIN32)
     target_link_libraries(skey_phase2_runtime_tests PRIVATE winmm)
 endif()
 add_test(NAME skey_phase2_runtime_tests COMMAND skey_phase2_runtime_tests)
+
+add_executable(skey_tsf_bridge_tests
+    TsfBridgeTests.cpp
+    ../Shared/TsfBridge/TsfBridge.cpp
+    ../skey-tray/Hook/KeyClassifier.cpp
+    ../skey-tray/Pipeline/TypingPipeline.cpp
+    ../skey-tray/Pipeline/KeyInjector.cpp
+    ../skey-tray/Pipeline/HotkeyManager.cpp
+    ../skey-tray/Pipeline/ForegroundAppTracker.cpp
+    ../skey-tray/Engine/MacroEngine.cpp
+)
+target_include_directories(skey_tsf_bridge_tests PRIVATE ..)
+target_compile_options(skey_tsf_bridge_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+if(WIN32)
+    target_link_libraries(skey_tsf_bridge_tests PRIVATE winmm)
+endif()
+add_test(NAME skey_tsf_bridge_tests COMMAND skey_tsf_bridge_tests)
 
 if(SKEY_CORE_LIB)
     add_executable(skey_typing_vector_tests

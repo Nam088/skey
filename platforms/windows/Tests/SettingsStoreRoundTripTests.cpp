@@ -56,6 +56,7 @@ SettingsModel make_full_model() {
     m.macro_auto_caps = false;
     m.macro_in_english_mode = true;
     m.cleaner_enabled = false;
+    m.use_ime_for_browsers = false;
     m.hotkeys = {
         {"toggleLanguage", 0x5Au, 4u},
         {"clipboard", 0x43u, 5u},
@@ -118,6 +119,7 @@ void assert_models_equal(const SettingsModel& a, const SettingsModel& b) {
     assert(a.macro_auto_caps == b.macro_auto_caps);
     assert(a.macro_in_english_mode == b.macro_in_english_mode);
     assert(a.cleaner_enabled == b.cleaner_enabled);
+    assert(a.use_ime_for_browsers == b.use_ime_for_browsers);
     assert(a.hotkeys.size() == b.hotkeys.size());
     for (std::size_t i = 0; i < a.hotkeys.size(); ++i) {
         assert(a.hotkeys[i].action == b.hotkeys[i].action);
@@ -149,6 +151,7 @@ int main() {
     assert(defaults.locale == Locale::vi_vn && defaults.theme == ThemeMode::system);
     assert(defaults.input_method == InputMethod::telex && defaults.charset == "unicode");
     assert(defaults.app_exclusion_enabled && defaults.cleaner_enabled);
+    assert(defaults.use_ime_for_browsers);
     assert(defaults.excluded_apps.empty());
     assert(defaults.hotkeys.size() == 5);
     assert(defaults.hotkeys[0].action == "toggleLanguage");
@@ -193,6 +196,7 @@ int main() {
     assert(legacy.excluded_apps.empty());
     assert(legacy.translator_engines.size() == 5);
     assert(legacy.app_exclusion_enabled && legacy.cleaner_enabled);
+    assert(legacy.use_ime_for_browsers);
 
     // Corrupt file -> defaults, never crash.
     {

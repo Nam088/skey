@@ -216,4 +216,6 @@
   <data name="settings.nav.ai.Content"><value>AI</value></data>
   <data name="settings.nav.appearance.Content"><value>Appearance</value></data>
   <data name="settings.nav.about.Content"><value>About</value></data>
+  <data name="keyboard.option.imeBrowsers.Header"><value>Use IME for Browsers</value></data>
+  <data name="keyboard.option.imeBrowsersDesc.Text"><value>Route typing through the TSF bridge in Chrome/Edge/Firefox so address bars and search boxes never show doubled characters</value></data>
 </root>

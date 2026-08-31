@@ -72,11 +72,39 @@ bool ForegroundAppTracker::is_developer_tool(const std::string& exe_name) {
     return false;
 }
 
+bool ForegroundAppTracker::is_browser(const std::string& exe_name) {
+    const std::string exe = normalize(exe_name);
+    if (exe.empty()) return false;
+
+    // Chromium family + Firefox; TSF edits land cleanly in their address
+    // bars and web content where SendInput re-injection races autocomplete.
+    static const char* const browsers[] = {
+        "chrome", "msedge", "brave", "opera", "vivaldi",
+        "firefox", "waterfox", "floorp", "zen",
+        "thorium", "ungoogled-chromium", "chrome_proxy",
+    };
+    for (const char* name : browsers) {
+        if (exe == name) return true;
+    }
+    // Generic Chromium forks (avastbrowser, ybrowser, ...).
+    static const char* const suffixes[] = {"browser"};
+    for (const char* suffix : suffixes) {
+        const std::size_t len = std::char_traits<char>::length(suffix);
+        if (exe.size() >= len && exe.compare(exe.size() - len, len, suffix) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 #ifdef _WIN32
 
-std::string ForegroundAppTracker::current_exe() {
+std::string ForegroundAppTracker::current_exe(unsigned long* out_pid) {
     const HWND hwnd = GetForegroundWindow();
-    if (hwnd == cached_hwnd_ && !cached_exe_.empty()) return cached_exe_;
+    if (hwnd == cached_hwnd_ && !cached_exe_.empty()) {
+        if (out_pid != nullptr) *out_pid = cached_pid_;
+        return cached_exe_;
+    }
 
     std::string exe;
     DWORD pid = 0;
@@ -101,7 +129,9 @@ std::string ForegroundAppTracker::current_exe() {
     }
 
     cached_hwnd_ = hwnd;
+    cached_pid_ = static_cast<unsigned long>(pid);
     cached_exe_ = std::move(exe);
+    if (out_pid != nullptr) *out_pid = cached_pid_;
     return cached_exe_;
 }
 
