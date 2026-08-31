@@ -1,4 +1,4 @@
-name: Release - macOS
+name: Release - Windows
 
 on:
   push:
@@ -24,30 +24,32 @@ concurrency:
 jobs:
   release:
     name: Build & Release
-    runs-on: macos-14
+    runs-on: windows-latest
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Select Xcode
+      - name: Checkout
+        shell: bash
         run: |
-          if [ -d "/Applications/Xcode_15.4.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_15.4.app
-          elif [ -d "/Applications/Xcode.app" ]; then
-            sudo xcode-select -s /Applications/Xcode.app
-          fi
+          set -euo pipefail
+          git init .
+          git config core.protectNTFS false
+          git remote add origin "https://github.com/${{ github.repository }}.git"
+          git fetch --depth=1 origin "${{ github.sha }}"
+          git archive FETCH_HEAD .github platforms/windows installer-windows core shared | tar -xf -
+
+      - name: Fetch tags for versioning
+        shell: bash
+        run: |
+          git fetch --tags --force || true
 
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - name: Auto Tag
         id: auto_tag
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        shell: bash
         run: |
           git fetch --tags --force
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
@@ -86,6 +88,7 @@ jobs:
 
       - name: Determine Version
         id: release_meta
+        shell: bash
         run: |
           if [ -n "${{ steps.auto_tag.outputs.new_tag }}" ]; then
             TAG="${{ steps.auto_tag.outputs.new_tag }}"
@@ -97,24 +100,49 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=${TAG#v}" >> $GITHUB_OUTPUT
 
-      - name: Build Release
-        env:
-          APP_VERSION: ${{ steps.release_meta.outputs.version }}
-        run: bash scripts/build_release.sh
+      - name: Configure
+        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=OFF
+
+      - name: Build
+        run: cmake --build out/windows-contract --config Release
+
+      - name: Package
+        run: cmake --build out/windows-contract --config Release --target skey-package
+
+      - name: Generate checksums
+        shell: bash
+        run: |
+          cd out/windows-contract/installer-windows
+          if command -v certutil &> /dev/null; then
+            certutil -hashfile skey-windows.zip SHA256 > SHA256SUMS.txt
+          else
+            sha256sum skey-windows.zip > SHA256SUMS.txt
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SKey-macOS-${{ steps.release_meta.outputs.version }}
+          name: SKey-Windows-${{ steps.release_meta.outputs.version }}
           path: |
-            dist/SKey-Installer.dmg
-            dist/SKey-macOS-Universal.zip
-            dist/SHA256SUMS.txt
+            out/windows-contract/installer-windows/skey-windows.zip
+            out/windows-contract/installer-windows/SHA256SUMS.txt
 
       - name: Generate Release Notes
+        id: release_notes
+        shell: bash
         run: |
-          bash scripts/generate_release_notes.sh --version "${{ steps.release_meta.outputs.tag }}" --output dist/RELEASE_NOTES.md
-          cat dist/RELEASE_NOTES.md
+          TAG="${{ steps.release_meta.outputs.tag }}"
+          echo "## SKey Windows ${TAG}" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### Changes" >> RELEASE_NOTES.md
+          git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD >> RELEASE_NOTES.md 2>/dev/null || echo "- Initial release" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### Checksums" >> RELEASE_NOTES.md
+          echo '```' >> RELEASE_NOTES.md
+          cat out/windows-contract/installer-windows/SHA256SUMS.txt >> RELEASE_NOTES.md
+          echo '```' >> RELEASE_NOTES.md
+          cat RELEASE_NOTES.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -122,10 +150,9 @@ jobs:
           tag_name: ${{ steps.release_meta.outputs.tag }}
           name: SKey ${{ steps.release_meta.outputs.tag }}
           files: |
-            dist/SKey-Installer.dmg
-            dist/SKey-macOS-Universal.zip
-            dist/SHA256SUMS.txt
-          body_path: dist/RELEASE_NOTES.md
+            out/windows-contract/installer-windows/skey-windows.zip
+            out/windows-contract/installer-windows/SHA256SUMS.txt
+          body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
         env:
