@@ -36,7 +36,8 @@ if(WIN32)
         ../Shared/Settings/SettingsPaths.cpp
         ../Shared/Clipboard/ClipboardText.cpp
         ../Shared/Clipboard/ClipboardHistoryStore.cpp
-        ../Shared/Translator/TranslatorService.cpp)
+        ../Shared/Translator/TranslatorService.cpp
+        ../Shared/Updates/UpdateChecker.cpp)
     target_include_directories(skey-tray PRIVATE ../ "${SKEY_CAPI_INCLUDE_DIR}")
     target_link_libraries(skey-tray PRIVATE user32 shell32 gdi32 winmm ole32 advapi32 winhttp)
 

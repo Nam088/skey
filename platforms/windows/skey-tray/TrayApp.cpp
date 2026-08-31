@@ -18,6 +18,27 @@ constexpr WORD IDM_EXIT = 1003;
 HWND g_hwnd = nullptr;
 NOTIFYICONDATAW g_nid{};
 skey::windows::TrayRuntime* g_runtime = nullptr;
+std::wstring g_update_url;
+
+std::wstring to_wide(const std::string& utf8) {
+    if (utf8.empty()) return {};
+    const int length = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), static_cast<int>(utf8.size()), nullptr, 0);
+    std::wstring out(static_cast<std::size_t>(length), L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), static_cast<int>(utf8.size()), out.data(), length);
+    return out;
+}
+
+void show_update_notification(const skey::windows::UpdateInfo& info) {
+    g_update_url = to_wide(!info.asset_url.empty() ? info.asset_url : info.release_url);
+    g_nid.uFlags |= NIF_INFO;
+    g_nid.dwInfoFlags = NIIF_INFO | NIIF_LARGE_ICON;
+    wcsncpy_s(g_nid.szInfoTitle, L"SKey update available", std::size(g_nid.szInfoTitle) - 1);
+    const std::wstring message =
+        L"Version " + to_wide(info.version) + L" is ready \u2014 click to download.";
+    wcsncpy_s(g_nid.szInfo, message.c_str(), std::size(g_nid.szInfo) - 1);
+    Shell_NotifyIconW(NIM_MODIFY, &g_nid);
+    g_nid.uFlags &= ~static_cast<decltype(g_nid.uFlags)>(NIF_INFO);
+}
 
 HICON create_status_icon(bool vietnamese) {
     constexpr int size = 16;
@@ -90,6 +111,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_TRAYICON:
         switch (LOWORD(lp)) {
+        case NIN_BALLOONUSERCLICK:
+            if (!g_update_url.empty()) {
+                ShellExecuteW(nullptr, L"open", g_update_url.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+            }
+            break;
         case WM_LBUTTONUP:
             if (g_runtime != nullptr) {
                 g_runtime->toggle_language();
@@ -141,7 +167,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
                               HWND_MESSAGE, nullptr, instance, nullptr);
     if (g_hwnd == nullptr) return 1;
 
-    TrayRuntime runtime([](bool vietnamese) { update_tray_icon(vietnamese); });
+    TrayRuntime runtime([](bool vietnamese) { update_tray_icon(vietnamese); },
+                        [](const UpdateInfo& info) { show_update_notification(info); });
     TrayIpcHandler handler(runtime);
     g_runtime = &runtime;
 

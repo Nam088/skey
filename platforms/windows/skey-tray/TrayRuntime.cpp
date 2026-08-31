@@ -20,7 +20,8 @@
 
 namespace skey::windows {
 
-TrayRuntime::TrayRuntime(StatusCallback callback) : callback_(std::move(callback)) {}
+TrayRuntime::TrayRuntime(StatusCallback callback, UpdateCallback update)
+    : callback_(std::move(callback)), update_callback_(std::move(update)) {}
 TrayRuntime::~TrayRuntime() { stop(); }
 
 bool TrayRuntime::start() {
@@ -29,6 +30,7 @@ bool TrayRuntime::start() {
 #ifdef _WIN32
     // Hook failure is non-fatal: tray + IPC still run in degraded mode.
     start_hook();
+    start_update_checker();
 #endif
     service_thread_ = std::thread(&TrayRuntime::service_loop, this);
     return true;
@@ -37,6 +39,7 @@ bool TrayRuntime::start() {
 void TrayRuntime::stop() {
     if (!running_.exchange(false)) return;
 #ifdef _WIN32
+    if (update_bridge_) update_bridge_->alive.store(false);
     stop_hook();
 #endif
     if (service_thread_.joinable()) service_thread_.join();
@@ -83,6 +86,10 @@ void TrayRuntime::apply_settings(const SettingsModel& settings) {
     {
         std::lock_guard<std::mutex> lock(settings_mutex_);
         current_settings_ = settings;
+    }
+    if (update_bridge_) {
+        std::lock_guard<std::mutex> lock(update_bridge_->mutex);
+        update_bridge_->settings = settings;
     }
 
     if (engine_) {
@@ -336,6 +343,68 @@ void TrayRuntime::open_translation_hud() {
     std::thread([config = std::move(config), flag] {
         TranslationHud::show(config, make_platform_http());
         flag->store(false);
+    }).detach();
+}
+
+void TrayRuntime::start_update_checker() {
+    if (!update_bridge_) update_bridge_ = std::make_shared<UpdateBridge>();
+    {
+        std::lock_guard<std::mutex> lock(update_bridge_->mutex);
+        update_bridge_->alive.store(true);
+    }
+    std::shared_ptr<UpdateBridge> bridge = update_bridge_;
+    UpdateCallback notify = update_callback_;
+    const auto state_path = SettingsPaths::update_state_file();
+
+    // Mirrors macOS UpdateChecker cadence: first check ~6s after launch,
+    // then at most once per 24h, gated by the checkUpdates setting and
+    // nagging only once per version.
+    std::thread([bridge, notify = std::move(notify), state_path] {
+        constexpr std::uint64_t kCooldownMs = 24ULL * 60 * 60 * 1000;
+        const auto wait = [&bridge](std::uint64_t ms) {
+            std::uint64_t waited = 0;
+            while (waited < ms && bridge->alive.load()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+                waited += 250;
+            }
+        };
+        const auto now_ms = [] {
+            return static_cast<std::uint64_t>(
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch())
+                    .count());
+        };
+
+        bool first = true;
+        while (bridge->alive.load()) {
+            wait(first ? 6000 : 60 * 60 * 1000);  // 6s first, hourly after
+            first = false;
+            if (!bridge->alive.load()) break;
+
+            bool check_enabled = false;
+            {
+                std::lock_guard<std::mutex> lock(bridge->mutex);
+                check_enabled = bridge->settings.check_updates;
+            }
+            if (!check_enabled) continue;
+
+            UpdateState state = UpdateChecker::load_state(state_path);
+            const std::uint64_t now = now_ms();
+            if (state.last_check_ms != 0 && now - state.last_check_ms < kCooldownMs) {
+                continue;
+            }
+
+            const UpdateInfo info =
+                UpdateChecker{make_platform_http()}.check(kAppVersion);
+            state.last_check_ms = now_ms();
+            if (info.available && info.version != state.dismissed_version) {
+                state.dismissed_version = info.version;
+                UpdateChecker::save_state(state_path, state);
+                if (notify) notify(info);
+            } else {
+                UpdateChecker::save_state(state_path, state);
+            }
+        }
     }).detach();
 }
 

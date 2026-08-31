@@ -10,12 +10,14 @@ namespace skey::windows {
 //   %LOCALAPPDATA%\SKey\settings.json
 //   %LOCALAPPDATA%\SKey\macros.json
 //   %LOCALAPPDATA%\SKey\clipboard.json
+//   %LOCALAPPDATA%\SKey\update_state.json
 class SettingsPaths final {
 public:
     static std::filesystem::path data_dir();
     static std::filesystem::path settings_file();
     static std::filesystem::path macros_file();
     static std::filesystem::path clipboard_file();
+    static std::filesystem::path update_state_file();
 };
 
 } // namespace skey::windows

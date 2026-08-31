@@ -42,7 +42,8 @@ if(WIN32)
         ../skey-tray/Engine/MacroEngine.cpp
         ../Shared/Clipboard/ClipboardText.cpp
         ../Shared/Clipboard/ClipboardHistoryStore.cpp
-        ../Shared/Translator/TranslatorService.cpp)
+        ../Shared/Translator/TranslatorService.cpp
+        ../Shared/Updates/UpdateChecker.cpp)
     if(SKEY_CORE_LIB)
         set(SKEY_TYPING_LIBS "${SKEY_CORE_LIB}" winmm advapi32 userenv ws2_32 bcrypt ntdll winhttp)
     else()
@@ -218,6 +219,15 @@ add_executable(skey_translator_service_tests
 target_include_directories(skey_translator_service_tests PRIVATE ..)
 target_compile_options(skey_translator_service_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_translator_service_tests COMMAND skey_translator_service_tests)
+
+add_executable(skey_update_checker_tests
+    UpdateCheckerTests.cpp
+    ../Shared/Updates/UpdateChecker.cpp
+    ../Shared/Translator/TranslatorService.cpp
+)
+target_include_directories(skey_update_checker_tests PRIVATE ..)
+target_compile_options(skey_update_checker_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_update_checker_tests COMMAND skey_update_checker_tests)
 
 add_executable(skey_settings_store_roundtrip_tests
     SettingsStoreRoundTripTests.cpp

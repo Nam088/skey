@@ -2,6 +2,7 @@
 
 #include "../Shared/Contracts/SettingsModel.h"
 #include "../Shared/IPC/IpcTransport.h"
+#include "../Shared/Updates/UpdateChecker.h"
 
 #include <atomic>
 #include <cstdint>
@@ -28,7 +29,8 @@ namespace skey::windows {
 class TrayRuntime final {
 public:
     using StatusCallback = std::function<void(bool vietnamese_enabled)>;
-    explicit TrayRuntime(StatusCallback callback = {});
+    using UpdateCallback = std::function<void(UpdateInfo)>;
+    explicit TrayRuntime(StatusCallback callback = {}, UpdateCallback update = {});
     ~TrayRuntime();
     TrayRuntime(const TrayRuntime&) = delete;
     TrayRuntime& operator=(const TrayRuntime&) = delete;
@@ -55,11 +57,13 @@ private:
     void open_clipboard_popup();
     void on_clipboard_capture(std::string text);
     void open_translation_hud();
+    void start_update_checker();
 #endif
 
     std::atomic<bool> running_{false};
     std::atomic<bool> vietnamese_enabled_{true};
     StatusCallback callback_;
+    UpdateCallback update_callback_;
     std::thread service_thread_;
     std::thread ipc_thread_;
 #ifdef _WIN32
@@ -76,6 +80,14 @@ private:
     std::shared_ptr<std::atomic<bool>> clipboard_popup_open_;
     std::shared_ptr<std::atomic<bool>> translation_hud_open_;
     std::mutex clipboard_mutex_;
+
+    // Kept alive by the detached update-checker thread.
+    struct UpdateBridge {
+        std::mutex mutex;
+        SettingsModel settings;
+        std::atomic<bool> alive{true};
+    };
+    std::shared_ptr<UpdateBridge> update_bridge_;
 
     std::mutex settings_mutex_;
     SettingsModel current_settings_;

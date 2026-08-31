@@ -34,4 +34,8 @@ std::filesystem::path SettingsPaths::clipboard_file() {
     return data_dir() / "clipboard.json";
 }
 
+std::filesystem::path SettingsPaths::update_state_file() {
+    return data_dir() / "update_state.json";
+}
+
 } // namespace skey::windows
