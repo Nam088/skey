@@ -17,6 +17,17 @@ if(WIN32)
     add_compile_definitions(NOMINMAX UNICODE _UNICODE)
 endif()
 
+# The test suites are assert()-driven; keep asserts live even in the CMake
+# Release configuration CI uses (otherwise every suite passes vacuously).
+if(MSVC)
+    add_compile_options(/UNDEBUG)
+else()
+    add_compile_options(-UNDEBUG)
+endif()
+
+# C header of the Rust engine, needed by targets compiling TrayRuntime.cpp.
+set(SKEY_CAPI_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../core/skey-capi/include")
+
 # Rust staticlib (skey.lib / libskey.a) built from core/skey-capi.
 find_library(SKEY_CORE_LIB
     NAMES skey
@@ -88,7 +99,7 @@ add_executable(skey_windows_feature_matrix_tests
     ../skey-tray/TrayController.cpp
     ../skey-tray/TrayRuntime.cpp
 )
-target_include_directories(skey_windows_feature_matrix_tests PRIVATE ..)
+target_include_directories(skey_windows_feature_matrix_tests PRIVATE .. "${SKEY_CAPI_INCLUDE_DIR}")
 target_compile_options(skey_windows_feature_matrix_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 target_link_libraries(skey_windows_feature_matrix_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_windows_feature_matrix_tests COMMAND skey_windows_feature_matrix_tests)
@@ -114,7 +125,7 @@ add_executable(skey_ipc_tray_tests
     ../Shared/Clipboard/ClipboardHistoryStore.cpp
     ../skey-tray/TrayRuntime.cpp
 )
-target_include_directories(skey_ipc_tray_tests PRIVATE ..)
+target_include_directories(skey_ipc_tray_tests PRIVATE .. "${SKEY_CAPI_INCLUDE_DIR}")
 target_compile_options(skey_ipc_tray_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 target_link_libraries(skey_ipc_tray_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_ipc_tray_tests COMMAND skey_ipc_tray_tests)
@@ -132,7 +143,7 @@ add_executable(skey_tray_ipc_handler_tests
     ../Shared/Clipboard/ClipboardText.cpp
     ../Shared/Clipboard/ClipboardHistoryStore.cpp
 )
-target_include_directories(skey_tray_ipc_handler_tests PRIVATE ..)
+target_include_directories(skey_tray_ipc_handler_tests PRIVATE .. "${SKEY_CAPI_INCLUDE_DIR}")
 target_compile_options(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 target_link_libraries(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_tray_ipc_handler_tests COMMAND skey_tray_ipc_handler_tests)

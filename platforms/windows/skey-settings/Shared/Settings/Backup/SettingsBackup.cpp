@@ -479,7 +479,13 @@ bool SettingsBackup::export_to_file(const SettingsModel& model,
 
     char exported_at[32] = {};
     const std::time_t now = std::time(nullptr);
+#ifdef _WIN32
+    std::tm utc_storage{};
+    gmtime_s(&utc_storage, &now);
+    const std::tm* utc = &utc_storage;
+#else
     const std::tm* utc = std::gmtime(&now);
+#endif
     if (utc != nullptr && std::strftime(exported_at, sizeof(exported_at), "%Y-%m-%dT%H:%M:%SZ", utc) != 0) {
         output << "  \"exportedAt\": \"" << exported_at << "\",\n";
     }
@@ -539,7 +545,13 @@ bool SettingsBackup::factory_reset(const SettingsStore& store) {
 std::string SettingsBackup::default_backup_filename() {
     char buffer[48] = {};
     const std::time_t now = std::time(nullptr);
+#ifdef _WIN32
+    std::tm local_storage{};
+    localtime_s(&local_storage, &now);
+    const std::tm* local = &local_storage;
+#else
     const std::tm* local = std::localtime(&now);
+#endif
     if (local == nullptr || std::strftime(buffer, sizeof(buffer), "skey_backup_%Y%m%d_%H%M%S.json", local) == 0) {
         return "skey_backup.json";
     }
