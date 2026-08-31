@@ -13,6 +13,7 @@ namespace skey::windows {
 
 namespace {
 constexpr unsigned kVkSpace = 0x20;
+constexpr unsigned kVkEscape = 0x1B;
 } // namespace
 
 TypingPipeline::TypingPipeline(EngineInterface& engine, MacroEngine& macro,
@@ -87,6 +88,19 @@ bool TypingPipeline::process(const HookKeyEvent& event) {
     if (action != HotkeyAction::none) {
         if (!event.is_up && on_action_) on_action_(action);
         return true;
+    }
+
+    // Stage 5b: swallowed-key restore (Ctrl+Shift+Esc). Only swallow when the
+    // restore produced output; otherwise pass the chord through so the system
+    // Task Manager shortcut keeps working.
+    if (cfg.restore_enabled && event.vk == kVkEscape && !event.is_up &&
+        mods == (kModCtrl | kModShift)) {
+        const auto restored = engine_.restore();
+        if (restored.handled) {
+            KeyInjector::inject(restored.backspaces, restored.text);
+            return true;
+        }
+        return false;
     }
 
     // Stage 6: Win/Ctrl/Alt combos reset engines and pass through.

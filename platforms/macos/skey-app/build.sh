@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 APP_BUNDLE="$SCRIPT_DIR/SKey.app"
 SYSTEM_APPLICATIONS="/Applications/SKey.app"
 

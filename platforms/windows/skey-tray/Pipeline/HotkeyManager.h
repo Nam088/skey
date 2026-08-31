@@ -1,6 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
+#include <vector>
+
+#include "../../Shared/Contracts/SettingsModel.h"
 
 namespace skey::windows {
 
@@ -27,6 +31,11 @@ public:
 
     void set_hotkey(HotkeyAction action, Hotkey hotkey) noexcept;
     void set_cleaner_enabled(bool enabled) noexcept { cleaner_enabled_ = enabled; }
+
+    // Applies user-configured records (SettingsModel::hotkeys). Unknown action
+    // names are ignored; records do not clear bindings they don't mention.
+    void apply_records(const std::vector<HotkeyRecord>& records) noexcept;
+    static HotkeyAction action_from_name(const std::string& name) noexcept;
 
     // `mods` must already exclude the caps-lock bit.
     HotkeyAction match(unsigned vk, uint8_t mods) const noexcept;

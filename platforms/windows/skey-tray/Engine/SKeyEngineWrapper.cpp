@@ -35,7 +35,7 @@ void SKeyEngineWrapper::setup_default_options() {
     skey_engine_set_options(engine_, &opt);
 
     skey_engine_set_charset(engine_, 12);  // XUTF8
-    skey_engine_set_input_method_raw(engine_, static_cast<int>(InputMethod::telex));
+    skey_engine_set_input_method_raw(engine_, static_cast<int>(EngineInputMethod::telex));
     skey_engine_set_swallowed_key_restore(engine_, 1);
     skey_engine_set_quick_telex(engine_, 0);
     skey_engine_set_quick_start_consonant(engine_, 0);
@@ -44,7 +44,7 @@ void SKeyEngineWrapper::setup_default_options() {
     skey_engine_set_allow_consonant_zfwj(engine_, 0);
 }
 
-void SKeyEngineWrapper::set_input_method(InputMethod method) {
+void SKeyEngineWrapper::set_input_method(EngineInputMethod method) {
     std::lock_guard<std::mutex> lock(mutex_);
     if (engine_ == nullptr) return;
     skey_engine_set_input_method_raw(engine_, static_cast<int>(method));

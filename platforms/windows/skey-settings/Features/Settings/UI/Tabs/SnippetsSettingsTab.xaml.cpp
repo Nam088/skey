@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <filesystem>
 
+#include "../../../../../Shared/Settings/SettingsPaths.h"
+
 #include "../../../../ViewModels/SharedViewModel.h"
 
 namespace winrt::SKey::Settings::implementation {
@@ -66,8 +68,7 @@ ColumnDefinition column(GridUnitType type, double value) {
 void SnippetsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                       RoutedEventArgs const&) {
     if (!store_) {
-        const auto local = winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path();
-        store_.emplace(std::filesystem::path(local.c_str()));
+        store_.emplace(SettingsPaths::macros_file());
     }
     if (vm_) {
         const auto& model = vm_->settings();

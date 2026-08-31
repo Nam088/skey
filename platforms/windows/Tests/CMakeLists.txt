@@ -31,6 +31,7 @@ if(WIN32)
         ../skey-tray/Pipeline/TypingPipeline.cpp
         ../skey-tray/Pipeline/KeyInjector.cpp
         ../skey-tray/Pipeline/HotkeyManager.cpp
+        ../skey-tray/Pipeline/ForegroundAppTracker.cpp
         ../skey-tray/Engine/SKeyEngineWrapper.cpp
         ../skey-tray/Engine/MacroEngine.cpp)
     if(SKEY_CORE_LIB)
@@ -60,6 +61,8 @@ add_executable(skey_windows_feature_matrix_tests
     ../Shared/IPC/IpcTransport.cpp
     ../Shared/Localization/LocalizationService.cpp
     ../Shared/Settings/SettingsStore.cpp
+    ../Shared/Settings/MacroStore.cpp
+    ../Shared/Settings/SettingsPaths.cpp
     ../skey-tray/TrayController.cpp
     ../skey-tray/TrayRuntime.cpp
 )
@@ -82,6 +85,9 @@ add_executable(skey_ipc_tray_tests
     ${SKEY_TYPING_SOURCES}
     ../Shared/Contracts/IpcCodec.cpp
     ../Shared/IPC/IpcTransport.cpp
+    ../Shared/Settings/SettingsStore.cpp
+    ../Shared/Settings/MacroStore.cpp
+    ../Shared/Settings/SettingsPaths.cpp
     ../skey-tray/TrayRuntime.cpp
 )
 target_include_directories(skey_ipc_tray_tests PRIVATE ..)
@@ -96,6 +102,9 @@ add_executable(skey_tray_ipc_handler_tests
     ../skey-tray/TrayRuntime.cpp
     ../Shared/Contracts/IpcCodec.cpp
     ../Shared/IPC/IpcTransport.cpp
+    ../Shared/Settings/SettingsStore.cpp
+    ../Shared/Settings/MacroStore.cpp
+    ../Shared/Settings/SettingsPaths.cpp
 )
 target_include_directories(skey_tray_ipc_handler_tests PRIVATE ..)
 target_compile_options(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
@@ -137,6 +146,22 @@ if(WIN32)
     target_link_libraries(skey_typing_pipeline_tests PRIVATE winmm)
 endif()
 add_test(NAME skey_typing_pipeline_tests COMMAND skey_typing_pipeline_tests)
+
+add_executable(skey_phase2_runtime_tests
+    Phase2RuntimeTests.cpp
+    ../skey-tray/Hook/KeyClassifier.cpp
+    ../skey-tray/Pipeline/TypingPipeline.cpp
+    ../skey-tray/Pipeline/KeyInjector.cpp
+    ../skey-tray/Pipeline/HotkeyManager.cpp
+    ../skey-tray/Pipeline/ForegroundAppTracker.cpp
+    ../skey-tray/Engine/MacroEngine.cpp
+)
+target_include_directories(skey_phase2_runtime_tests PRIVATE ..)
+target_compile_options(skey_phase2_runtime_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+if(WIN32)
+    target_link_libraries(skey_phase2_runtime_tests PRIVATE winmm)
+endif()
+add_test(NAME skey_phase2_runtime_tests COMMAND skey_phase2_runtime_tests)
 
 if(SKEY_CORE_LIB)
     add_executable(skey_typing_vector_tests

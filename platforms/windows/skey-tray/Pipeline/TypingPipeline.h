@@ -20,6 +20,7 @@ namespace skey::windows {
 //   3. Mouse clicks reset engines (handled via on_mouse_click())
 //   4. Modifier-only chord toggle (e.g. Ctrl+Shift)
 //   5. Hotkeys swallow (language / clipboard / cleaner / AI / translate)
+//   5b. Ctrl+Shift+Esc swallowed-key restore (skey_engine_restore)
 //   6. Ctrl/Alt/Win combos -> reset engines, pass
 //   7. Key-up -> pass (engine state preserved)
 //   8. Excluded apps -> pass
@@ -33,6 +34,7 @@ public:
         bool macro_enabled = false;
         bool macro_in_english = false;
         bool cleaner_enabled = true;
+        bool restore_enabled = true;
     };
 
     using ActionCallback = std::function<void(HotkeyAction)>;

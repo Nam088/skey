@@ -57,7 +57,7 @@ int main() {
     };
 
     SKeyEngineWrapper engine;
-    engine.set_input_method(InputMethod::telex);
+    engine.set_input_method(EngineInputMethod::telex);
 
     for (const auto& vector : vectors) {
         engine.reset();

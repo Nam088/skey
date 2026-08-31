@@ -9,7 +9,7 @@
 
 namespace skey::windows {
 
-enum class InputMethod : int {
+enum class EngineInputMethod : int {
     telex = 0,
     vni = 1,
     viqr = 2,
@@ -29,7 +29,7 @@ public:
     SKeyEngineWrapper& operator=(const SKeyEngineWrapper&) = delete;
 
     void setup_default_options();
-    void set_input_method(InputMethod method);
+    void set_input_method(EngineInputMethod method);
     void set_spell_check(bool enabled);
     void set_modern_style(bool enabled);
     void set_free_marking(bool enabled);

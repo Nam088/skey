@@ -20,12 +20,16 @@ if(WIN32)
         Pipeline/TypingPipeline.cpp
         Pipeline/KeyInjector.cpp
         Pipeline/HotkeyManager.cpp
+        Pipeline/ForegroundAppTracker.cpp
         Engine/SKeyEngineWrapper.cpp
         Engine/MacroEngine.cpp
         ../Shared/Contracts/IpcCodec.cpp
-        ../Shared/IPC/IpcTransport.cpp)
+        ../Shared/IPC/IpcTransport.cpp
+        ../Shared/Settings/SettingsStore.cpp
+        ../Shared/Settings/MacroStore.cpp
+        ../Shared/Settings/SettingsPaths.cpp)
     target_include_directories(skey-tray PRIVATE ../ "${SKEY_CAPI_INCLUDE_DIR}")
-    target_link_libraries(skey-tray PRIVATE user32 shell32 gdi32 winmm)
+    target_link_libraries(skey-tray PRIVATE user32 shell32 gdi32 winmm ole32)
 
     if(SKEY_CORE_LIB)
         target_link_libraries(skey-tray PRIVATE "${SKEY_CORE_LIB}" advapi32 userenv ws2_32 bcrypt ntdll)
