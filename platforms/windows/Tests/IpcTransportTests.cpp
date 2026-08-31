@@ -23,12 +23,14 @@ int main() {
     assert(!IpcCodec::decode_response("RES\t1\tid\t2\t\tpayload\n", malformed_response));
 
     TrayRuntime tray;
+    tray.disable_os_integration();  // lifecycle test: no desktop hooks
     assert(tray.start());
     assert(!tray.start());
     assert(tray.toggle_language() && !tray.vietnamese_enabled());
     tray.stop();
     assert(!tray.running());
     TrayRuntime ipc_runtime;
+    ipc_runtime.disable_os_integration();
     assert(ipc_runtime.start_ipc([](const IpcRequest& req) {
         return IpcResponse{1, req.request_id, true, {}, "ack"};
     }));

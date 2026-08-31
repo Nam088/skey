@@ -6,6 +6,7 @@ using namespace skey::windows;
 
 int main() {
     TrayRuntime runtime;
+    runtime.disable_os_integration();  // handler test: no desktop hooks
     assert(runtime.start());
     TrayIpcHandler handler(runtime);
     IpcRequest status{.request_id = "1", .method = kGetStatus};

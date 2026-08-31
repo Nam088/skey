@@ -39,6 +39,7 @@ int main() {
     assert(!controller.is_running());
     bool callback_value = false;
     TrayRuntime runtime([&callback_value](bool value) { callback_value = value; });
+    runtime.disable_os_integration();  // lifecycle test: no desktop hooks
     assert(runtime.start() && runtime.running());
     assert(runtime.toggle_language() && !runtime.vietnamese_enabled() && !callback_value);
     runtime.stop();

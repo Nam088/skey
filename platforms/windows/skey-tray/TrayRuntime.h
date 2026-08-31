@@ -47,6 +47,10 @@ public:
     // Pushes a settings snapshot into the engine/pipeline/hotkeys/macros.
     void apply_settings(const SettingsModel& settings);
 
+    // Skips keyboard-hook install, layout switching, clipboard capture and
+    // update checks. Used by tests and non-interactive sessions.
+    void disable_os_integration() { os_integration_ = false; }
+
 private:
     void service_loop();
     void set_language(bool vietnamese);
@@ -66,6 +70,7 @@ private:
 
     std::atomic<bool> running_{false};
     std::atomic<bool> vietnamese_enabled_{true};
+    bool os_integration_{true};
     StatusCallback callback_;
     UpdateCallback update_callback_;
     std::thread service_thread_;

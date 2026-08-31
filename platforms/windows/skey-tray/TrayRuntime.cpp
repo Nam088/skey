@@ -23,6 +23,23 @@
 
 namespace skey::windows {
 
+#ifdef _WIN32
+namespace {
+
+// Low-level hooks and keyboard-layout switching require an interactive
+// desktop; on services / CI sessions they block indefinitely, so the OS
+// integration layer is skipped there.
+bool interactive_session() {
+    DWORD session_id = 0;
+    if (!ProcessIdToSessionId(GetCurrentProcessId(), &session_id) || session_id == 0) {
+        return false;
+    }
+    return GetProcessWindowStation() != nullptr;
+}
+
+} // namespace
+#endif
+
 TrayRuntime::TrayRuntime(StatusCallback callback, UpdateCallback update)
     : callback_(std::move(callback)), update_callback_(std::move(update)) {}
 TrayRuntime::~TrayRuntime() { stop(); }
@@ -31,9 +48,12 @@ bool TrayRuntime::start() {
     bool expected = false;
     if (!running_.compare_exchange_strong(expected, true)) return false;
 #ifdef _WIN32
-    // Hook failure is non-fatal: tray + IPC still run in degraded mode.
-    start_hook();
-    start_update_checker();
+    if (!interactive_session()) os_integration_ = false;
+    if (os_integration_) {
+        // Hook failure is non-fatal: tray + IPC still run in degraded mode.
+        start_hook();
+        start_update_checker();
+    }
 #endif
     service_thread_ = std::thread(&TrayRuntime::service_loop, this);
     return true;
@@ -139,8 +159,9 @@ void TrayRuntime::apply_settings(const SettingsModel& settings) {
 
     // The profile switch makes browsers load/activate skey-tsf.dll. Best
     // effort: without the DLL (portable runs) push() fails and the pipeline
-    // keeps using SendInput.
-    sync_tsf_profile(settings.use_ime_for_browsers);
+    // keeps using SendInput. Skipped without a desktop: layout switching
+    // blocks there.
+    if (os_integration_) sync_tsf_profile(settings.use_ime_for_browsers);
 
     // Settings file is the source of truth on (re)load; runtime hotkey
     // toggles only diverge until the next save.
