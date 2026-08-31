@@ -17,7 +17,7 @@ def main():
     config = load("config.schema.json")
     ipc = load("ipc.schema.json")
     keys = load("localization.keys.json")["keys"]
-    with (ROOT / "shared" / "typing-vectors" / "basic.json").open(encoding="utf-8") as stream:
+    with (ROOT / "shared" / "contracts" / "typing-vectors" / "basic.json").open(encoding="utf-8") as stream:
         vectors = json.load(stream)["vectors"]
     parity = load("feature-parity.json")
 
