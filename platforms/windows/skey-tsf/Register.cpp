@@ -61,7 +61,8 @@ void register_categories() {
                                         IID_ITfCategoryMgr,
                                         reinterpret_cast<void**>(&categories));
     if (FAILED(hr)) return;  // needs elevation; the system-context pass does it
-    categories->RegisterCategory(CLSID_SKeyTextService, GUID_TFCAT_TSF_TIP, CLSID_SKeyTextService);
+    categories->RegisterCategory(CLSID_SKeyTextService, GUID_SKeyTsfTipCategory,
+                                 CLSID_SKeyTextService);
     categories->Release();
 }
 
@@ -77,7 +78,7 @@ void register_profile() {
     profiles->Register(CLSID_SKeyTextService);
     profiles->AddLanguageProfile(CLSID_SKeyTextService, kVietnamese, GUID_SKeyProfile, description,
                                  static_cast<ULONG>(std::wcslen(description)), nullptr, 0, 0);
-    profiles->Enable(CLSID_SKeyTextService, GUID_SKeyProfile, TRUE);
+    profiles->EnableLanguageProfile(CLSID_SKeyTextService, kVietnamese, GUID_SKeyProfile, TRUE);
     profiles->Release();
 }
 
@@ -87,7 +88,8 @@ void unregister_profile() {
                                         CLSCTX_INPROC_SERVER, IID_ITfInputProcessorProfiles,
                                         reinterpret_cast<void**>(&profiles));
     if (FAILED(hr)) return;
-    profiles->Enable(CLSID_SKeyTextService, GUID_SKeyProfile, FALSE);
+    constexpr LANGID kVietnamese = MAKELANGID(LANG_VIETNAMESE, SUBLANG_DEFAULT);
+    profiles->EnableLanguageProfile(CLSID_SKeyTextService, kVietnamese, GUID_SKeyProfile, FALSE);
     profiles->Unregister(CLSID_SKeyTextService);
     profiles->Release();
 }
@@ -98,7 +100,8 @@ void unregister_categories() {
                                         IID_ITfCategoryMgr,
                                         reinterpret_cast<void**>(&categories));
     if (FAILED(hr)) return;
-    categories->UnregisterCategory(CLSID_SKeyTextService, GUID_TFCAT_TSF_TIP, CLSID_SKeyTextService);
+    categories->UnregisterCategory(CLSID_SKeyTextService, GUID_SKeyTsfTipCategory,
+                                   CLSID_SKeyTextService);
     categories->Release();
 }
 

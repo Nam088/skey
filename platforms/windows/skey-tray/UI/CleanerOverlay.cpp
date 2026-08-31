@@ -132,8 +132,8 @@ void paint(OverlayState& state, HDC dc) {
                              DEFAULT_PITCH, L"Segoe UI");
     old_font = static_cast<HFONT>(SelectObject(dc, hint));
     RECT text{180, 0, client.right - 16, kWindowHeight};
-    const std::wstring hint = localized(state.holding ? "cleaner.esc.holding" : "cleaner.esc.hint");
-    DrawTextW(dc, hint.c_str(), -1, &text, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+    const std::wstring hint_text = localized(state.holding ? "cleaner.esc.holding" : "cleaner.esc.hint");
+    DrawTextW(dc, hint_text.c_str(), -1, &text, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
     DeleteObject(SelectObject(dc, old_font));
 }
 

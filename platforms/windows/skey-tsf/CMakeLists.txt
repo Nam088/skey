@@ -13,5 +13,6 @@ if(WIN32)
         ../Shared/TsfBridge/TsfBridge.cpp
         skey-tsf.def)
     target_include_directories(skey-tsf PRIVATE ..)
+    target_compile_definitions(skey-tsf PRIVATE NOMINMAX UNICODE _UNICODE)
     target_link_libraries(skey-tsf PRIVATE user32 ole32 advapi32)
 endif()

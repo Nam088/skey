@@ -2,6 +2,8 @@
 
 #include <msctf.h>
 
+#include <string>
+
 // Applies one bridge edit ({backspaces, text}) at the current selection of
 // the focused TSF context: replaces the text before the caret and moves the
 // caret to the end of the insertion. Runs inside an edit session requested

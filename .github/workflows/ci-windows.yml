@@ -80,7 +80,9 @@ jobs:
         run: nuget restore platforms/windows/skey-settings/SKey.Settings.sln
 
       - name: Build
-        run: msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 /m /v:m
+        # CI runners ship the v144 toolset; the project pins v143 for local
+        # VS2022 development, so override it here.
+        run: msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v144 /m /v:m
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

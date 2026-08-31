@@ -11,6 +11,12 @@ else()
     set(SKEY_TEST_COMPILE_OPTIONS -Wall -Wextra -Wpedantic -Werror)
 endif()
 
+if(WIN32)
+    # Same definitions as skey-tray: windows.h min/max macros and narrow
+    # resource constants would break the shared sources under MSVC.
+    add_compile_definitions(NOMINMAX UNICODE _UNICODE)
+endif()
+
 # Rust staticlib (skey.lib / libskey.a) built from core/skey-capi.
 find_library(SKEY_CORE_LIB
     NAMES skey

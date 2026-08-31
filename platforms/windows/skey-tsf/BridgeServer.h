@@ -6,6 +6,10 @@
 #include "SKeyTsfGlobals.h"
 #include "../Shared/TsfBridge/TsfBridge.h"
 
+// The protocol constants and frame type live in the shared skey::windows
+// namespace; this header is private to skey-tsf.dll.
+using namespace skey::windows;
+
 namespace skey::tsf {
 
 // Message delivered to the text service window on the TSF thread.

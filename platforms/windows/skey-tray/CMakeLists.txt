@@ -43,6 +43,9 @@ if(WIN32)
         ../Shared/TsfBridge/TsfBridge.cpp
         ../Shared/Updates/UpdateChecker.cpp)
     target_include_directories(skey-tray PRIVATE ../ "${SKEY_CAPI_INCLUDE_DIR}")
+    # NOMINMAX: windows.h min/max macros break std::min/std::max.
+    # UNICODE/_UNICODE: resource constants (IDC_ARROW, ...) must be wide.
+    target_compile_definitions(skey-tray PRIVATE NOMINMAX UNICODE _UNICODE)
     target_link_libraries(skey-tray PRIVATE user32 shell32 gdi32 winmm ole32 advapi32 winhttp)
 
     if(SKEY_CORE_LIB)

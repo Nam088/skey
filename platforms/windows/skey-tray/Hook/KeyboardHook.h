@@ -35,7 +35,7 @@ public:
 
     bool install(KeyCallback key_cb, MouseClickCallback mouse_cb = {});
     void uninstall();
-    bool installed() const noexcept { return hook_.load(std::memory_order_acquire) != nullptr; }
+    bool installed() const noexcept { return key_hook_.load(std::memory_order_acquire) != nullptr; }
 
 private:
     static LRESULT CALLBACK key_proc(int code, WPARAM wp, LPARAM lp);
