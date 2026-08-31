@@ -1,4 +1,4 @@
-// @generated from src/ukengine/vnlexi.h by port/tablegen/gen_lexi.py.
+// @generated from archive/unikey-legacy/ukengine/vnlexi.h by core/tablegen/gen_lexi.py.
 // The enum order is load bearing: parity encodes case, each tone
 // level is plus two. See the compile time assertions in lexi.rs.
 
