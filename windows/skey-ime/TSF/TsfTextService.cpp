@@ -8,6 +8,9 @@
 
 namespace skey::windows {
 
+TsfTextService::TsfTextService() noexcept = default;
+TsfTextService::~TsfTextService() = default;
+
 HRESULT STDMETHODCALLTYPE TsfTextService::QueryInterface(REFIID riid, void** object) {
     if (object == nullptr) return E_POINTER;
     *object = nullptr;

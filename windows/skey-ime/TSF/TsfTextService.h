@@ -15,7 +15,8 @@ class WindowsImeService;
 
 class TsfTextService final : public ITfTextInputProcessor {
 public:
-    TsfTextService() noexcept = default;
+    TsfTextService() noexcept;
+    ~TsfTextService();
 
     HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** object) override;
     ULONG STDMETHODCALLTYPE AddRef() override;
@@ -30,7 +31,6 @@ public:
     bool active() const noexcept { return active_; }
 
 private:
-    ~TsfTextService() = default;
     void detach_sink() noexcept;
 
     LONG references_{1};
