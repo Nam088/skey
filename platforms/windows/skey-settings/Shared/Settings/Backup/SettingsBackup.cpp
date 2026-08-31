@@ -338,7 +338,8 @@ std::string settings_to_json(const skey::windows::SettingsModel& s) {
     output << (s.translator_engines.empty() ? "" : "\n    ") << "],\n"
         << "    \"macroEnabled\": " << bool_str(s.macro_enabled) << ",\n"
         << "    \"macroAutoCaps\": " << bool_str(s.macro_auto_caps) << ",\n"
-        << "    \"macroInEnglishMode\": " << bool_str(s.macro_in_english_mode) << "\n"
+        << "    \"macroInEnglishMode\": " << bool_str(s.macro_in_english_mode) << ",\n"
+        << "    \"useImeForBrowsers\": " << bool_str(s.use_ime_for_browsers) << "\n"
         << "  }";
     return output.str();
 }
@@ -411,6 +412,7 @@ void parse_settings(const std::string& text, skey::windows::SettingsModel& r) {
     r.macro_enabled = bool_value_for(text, "macroEnabled", true);
     r.macro_auto_caps = bool_value_for(text, "macroAutoCaps", true);
     r.macro_in_english_mode = bool_value_for(text, "macroInEnglishMode", false);
+    r.use_ime_for_browsers = bool_value_for(text, "useImeForBrowsers", true);
 
     r.cleaner_enabled = bool_value_for(text, "cleanerEnabled", true);
     std::vector<std::string> hotkey_objects;

@@ -31,6 +31,7 @@ SettingsModel make_full_model() {
     m.upper_case_first_char = true;
     m.allow_consonant_zfwj = true;
     m.smart_app_switch = true;
+    m.use_ime_for_browsers = false;
     m.launch_at_login = true;
     m.check_updates = false;
     m.debug_mode = true;
@@ -93,6 +94,7 @@ void assert_models_equal(const SettingsModel& a, const SettingsModel& b) {
     assert(a.upper_case_first_char == b.upper_case_first_char);
     assert(a.allow_consonant_zfwj == b.allow_consonant_zfwj);
     assert(a.smart_app_switch == b.smart_app_switch);
+    assert(a.use_ime_for_browsers == b.use_ime_for_browsers);
     assert(a.launch_at_login == b.launch_at_login);
     assert(a.check_updates == b.check_updates);
     assert(a.debug_mode == b.debug_mode);

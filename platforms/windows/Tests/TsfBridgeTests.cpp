@@ -72,6 +72,17 @@ int main() {
         assert(backspaces == 3 && out == text);
     }
 
+    // --- Backspace-only push (empty replacement text) ---
+    {
+        TsfBridgeFrame frame{};
+        assert(tsf_bridge::encode_push(frame, 2, 7, 5, ""));
+        assert(frame.text_len == 0 && frame.backspaces == 5);
+        int backspaces = 0;
+        std::string out = "sentinel";
+        assert(tsf_bridge::decode_push(frame, 2, 7, backspaces, out));
+        assert(backspaces == 5 && out.empty());
+    }
+
     // --- Maximum-size text fits exactly ---
     {
         std::string max_text(kTsfMaxTextUnits, 'x');
