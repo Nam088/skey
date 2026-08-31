@@ -5,19 +5,19 @@ import json
 import subprocess
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 METHODS = {"telex": "0", "vni": "1", "viqr": "2", "simpleTelex": "5"}
 
 
 def main():
-    vectors = json.loads((ROOT / "shared-contracts/typing-vectors/basic.json").read_text(encoding="utf-8"))["vectors"]
+    vectors = json.loads((ROOT / "shared/typing-vectors/basic.json").read_text(encoding="utf-8"))["vectors"]
     for vector in vectors:
         result = subprocess.run(
             ["cargo", "run", "--quiet", "--release", "-p", "skey-cli", "--", "type", METHODS[vector["inputMethod"]], "0"],
             input=vector["keys"] + "\n",
             text=True,
             capture_output=True,
-            cwd=ROOT / "port",
+            cwd=ROOT / "core",
             check=True,
         ).stdout.strip()
         if result != vector["expected"]:

@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: port
+        working-directory: core
     steps:
       - uses: actions/checkout@v4
 
@@ -34,8 +34,8 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            port/target
-          key: cargo-${{ runner.os }}-${{ hashFiles('port/Cargo.lock') }}
+            core/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('core/Cargo.lock') }}
 
       - name: build the workspace
         run: cargo build --release --workspace
@@ -73,7 +73,7 @@ jobs:
     if: github.event_name == 'schedule' || github.event_name == 'pull_request'
     defaults:
       run:
-        working-directory: port
+        working-directory: core
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -83,6 +83,8 @@ jobs:
         # provide the missing C string declarations without modifying the
         # reference sources themselves.
         run: make CXXFLAGS='-O1 -std=c++11 -w -Wno-narrowing -D_tempnam=tempnam -include cstring' CXX=g++ oracle rust oracle-rust ctx-harness
+        env:
+          LEGACY_SRC_DIR: ../archive/unikey-legacy
 
       - name: the tables still match the C++ binary they came from
         run: |

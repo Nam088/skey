@@ -25,28 +25,28 @@ config.status
 
 # The Rust port: cargo output, and the harness binaries that Makefile
 # rebuilds from tracked sources.
-port/target/
-port/oracle/oracle
-port/oracle/oracle_rust
-port/oracle/ctx_harness
-port/tablegen/dump
-port/bench/bench_cpp
-port/bench/bench_cpp_o3
+core/target/
+core/oracle/oracle
+core/oracle/oracle_rust
+core/oracle/ctx_harness
+core/tablegen/dump
+core/bench/bench_cpp
+core/bench/bench_cpp_o3
 
-# macOS IMKit host, built directly with swiftc (see macos/UniKeyIM-simple/build.sh).
+# macOS IMKit host, built directly with swiftc (see platforms/macos/UniKeyIM-simple/build.sh).
 # The .app bundle and the unpackaged binary are outputs, not sources.
-macos/UniKeyIM-simple/UniKeyIM
-macos/UniKeyIM-simple/UniKeyIM.app/
-macos/UniKeyIM-simple/harness
+platforms/macos/UniKeyIM-simple/UniKeyIM
+platforms/macos/UniKeyIM-simple/UniKeyIM.app/
+platforms/macos/UniKeyIM-simple/harness
 
 # macOS SKey App build outputs
-macos/skey-app/SKey.app/
-macos/skey-app/scripts/spotlight_comprehensive_test
-macos/skey-app/scripts/spotlight_sentence_tester
-macos/skey-app/scripts/spotlight_speed_benchmarks
-macos/skey-app/scripts/spotlight_tester
+platforms/macos/skey-app/SKey.app/
+platforms/macos/skey-app/scripts/spotlight_comprehensive_test
+platforms/macos/skey-app/scripts/spotlight_sentence_tester
+platforms/macos/skey-app/scripts/spotlight_speed_benchmarks
+platforms/macos/skey-app/scripts/spotlight_tester
 /tmp/cross_app_test_bin
 dist/
-macos/skey-app/dist/
+platforms/macos/skey-app/dist/
 .build/
-macos/skey-app/.build/
+platforms/macos/skey-app/.build/

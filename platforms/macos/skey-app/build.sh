@@ -7,10 +7,10 @@ APP_BUNDLE="$SCRIPT_DIR/SKey.app"
 SYSTEM_APPLICATIONS="/Applications/SKey.app"
 
 echo "==> 1. Building Rust libskey.a..."
-cd "$REPO_DIR/port/skey-capi"
+cd "$REPO_DIR/core/skey-capi"
 cargo build --release
 
-LIBSKEY="$REPO_DIR/port/target/release/libskey.a"
+LIBSKEY="$REPO_DIR/core/target/release/libskey.a"
 if [[ ! -f "$LIBSKEY" ]]; then
     echo "Error: $LIBSKEY not found!"
     exit 1
@@ -76,7 +76,7 @@ fi
 swiftc "${SWIFT_OPT_FLAGS[@]}" \
     "${DEBUG_FLAG[@]}" \
     -import-objc-header "$SCRIPT_DIR/Support/BridgingHeader.h" \
-    -I "$REPO_DIR/port/skey-capi/include" \
+    -I "$REPO_DIR/core/skey-capi/include" \
     "${SWIFT_FILES[@]}" \
     "$LIBSKEY" \
     -framework Cocoa \

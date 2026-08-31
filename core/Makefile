@@ -7,7 +7,7 @@
 #   make golden   re-freeze the golden hashes (reviewed changes only)
 #   make test     cargo test, needs no C++ build
 #
-SRC      := ../src
+SRC      := ../archive/unikey-legacy/src
 INCLUDES := -I$(SRC)/ukengine -I$(SRC)/ukinterface -I$(SRC)/vnconv -I$(SRC)/byteio
 # Two accommodations the sources need. They predate the C++11 narrowing
 # rules, and they call _tempnam, which is an MSVC name that neither libc

@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$REPO_DIR/dist"
-APP_DIR="$REPO_DIR/macos/skey-app"
+APP_DIR="$REPO_DIR/platforms/macos/skey-app"
 TARGET_APP="$DIST_DIR/SKey.app"
 
 echo "==> 1. Preparing clean dist directory..."
@@ -11,7 +11,7 @@ rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR"
 
 echo "==> 2. Building Rust core library for aarch64 and x86_64..."
-cd "$REPO_DIR/port/skey-capi"
+cd "$REPO_DIR/core/skey-capi"
 
 # Add Apple targets if missing
 rustup target add aarch64-apple-darwin x86_64-apple-darwin 2>/dev/null || true
@@ -19,13 +19,13 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin 2>/dev/null || true
 cargo build --release --target aarch64-apple-darwin
 cargo build --release --target x86_64-apple-darwin
 
-mkdir -p "$REPO_DIR/port/target/universal"
+mkdir -p "$REPO_DIR/core/target/universal"
 lipo -create \
-    "$REPO_DIR/port/target/aarch64-apple-darwin/release/libskey.a" \
-    "$REPO_DIR/port/target/x86_64-apple-darwin/release/libskey.a" \
-    -output "$REPO_DIR/port/target/universal/libskey.a"
+    "$REPO_DIR/core/target/aarch64-apple-darwin/release/libskey.a" \
+    "$REPO_DIR/core/target/x86_64-apple-darwin/release/libskey.a" \
+    -output "$REPO_DIR/core/target/universal/libskey.a"
 
-LIBSKEY="$REPO_DIR/port/target/universal/libskey.a"
+LIBSKEY="$REPO_DIR/core/target/universal/libskey.a"
 echo "Universal libskey.a created successfully:"
 lipo -info "$LIBSKEY"
 
@@ -68,9 +68,9 @@ done < <(find "$APP_DIR/Sources" -name "*.swift" -print0)
 swiftc -O -wmo \
     -target arm64-apple-macos26.0 \
     -import-objc-header "$APP_DIR/Support/BridgingHeader.h" \
-    -I "$REPO_DIR/port/skey-capi/include" \
+    -I "$REPO_DIR/core/skey-capi/include" \
     "${SWIFT_FILES[@]}" \
-    "$REPO_DIR/port/target/aarch64-apple-darwin/release/libskey.a" \
+    "$REPO_DIR/core/target/aarch64-apple-darwin/release/libskey.a" \
     -framework Cocoa \
     -framework ApplicationServices \
     -framework Carbon \
@@ -83,9 +83,9 @@ swiftc -O -wmo \
 swiftc -O -wmo \
     -target x86_64-apple-macos26.0 \
     -import-objc-header "$APP_DIR/Support/BridgingHeader.h" \
-    -I "$REPO_DIR/port/skey-capi/include" \
+    -I "$REPO_DIR/core/skey-capi/include" \
     "${SWIFT_FILES[@]}" \
-    "$REPO_DIR/port/target/x86_64-apple-darwin/release/libskey.a" \
+    "$REPO_DIR/core/target/x86_64-apple-darwin/release/libskey.a" \
     -framework Cocoa \
     -framework ApplicationServices \
     -framework Carbon \

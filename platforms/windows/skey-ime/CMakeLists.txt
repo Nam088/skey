@@ -6,7 +6,7 @@ add_library(skey-ime-core STATIC
 )
 target_include_directories(skey-ime-core PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}/../../port/skey-capi/include
+    ${CMAKE_CURRENT_LIST_DIR}/../../../core/skey-capi/include
 )
 
 if(WIN32)

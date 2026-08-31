@@ -6,7 +6,7 @@ APP_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_DIR="$(cd "$APP_DIR/../.." && pwd)"
 BIN_PATH="/tmp/test_app_exclusion_bin"
 
-LIBSKEY="$REPO_DIR/port/target/release/libskey.a"
+LIBSKEY="$REPO_DIR/core/target/release/libskey.a"
 
 SWIFT_SOURCES=()
 while IFS= read -r -d '' file; do
@@ -19,7 +19,7 @@ done < <(find "$APP_DIR/Sources" -name "*.swift" -print0)
 echo "==> 1. Compiling Test Suite with Whole Module..."
 swiftc -O -wmo -D DEBUG \
     -import-objc-header "$APP_DIR/Support/BridgingHeader.h" \
-    -I "$REPO_DIR/port/skey-capi/include" \
+    -I "$REPO_DIR/core/skey-capi/include" \
     "${SWIFT_SOURCES[@]}" \
     "$SCRIPT_DIR/test_app_exclusion_and_debug_security.swift" \
     "$LIBSKEY" \

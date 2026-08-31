@@ -4,17 +4,15 @@ on:
   push:
     branches: [main, windows-ime]
     paths:
-      - 'windows/**'
-      - 'shared-contracts/**'
-      - 'tests-windows/**'
-      - 'build-windows/**'
+      - 'platforms/windows/**'
+      - 'shared/**'
+      - 'core/**'
       - '.github/workflows/windows-ime.yml'
   pull_request:
     paths:
-      - 'windows/**'
-      - 'shared-contracts/**'
-      - 'tests-windows/**'
-      - 'build-windows/**'
+      - 'platforms/windows/**'
+      - 'shared/**'
+      - 'core/**'
       - '.github/workflows/windows-ime.yml'
   workflow_dispatch:
 
@@ -33,21 +31,35 @@ jobs:
           git fetch --depth=1 origin "${{ github.sha }}"
           # git archive extracts only selected paths and never materialises
           # the legacy filename that Windows rejects during checkout.
-          git archive FETCH_HEAD .github build-windows installer-windows port/skey-capi/include shared-contracts tests-windows windows | tar -xf -
+          git archive FETCH_HEAD .github platforms/windows/build-config installer-windows core/skey-capi/include shared platforms/windows | tar -xf -
+          
+          # Reorganize to match expected structure
+          mkdir -p build-windows windows shared-contracts tests-windows port/skey-capi
+          mv platforms/windows/build-config/* build-windows/ 2>/dev/null || true
+          mv platforms/windows/* windows/ 2>/dev/null || true
+          mv shared/* shared-contracts/ 2>/dev/null || true
+          mv core/skey-capi/include port/skey-capi/ 2>/dev/null || true
+          
       - name: Validate schemas and vectors
         shell: bash
         run: python3 build-windows/validate_contracts.py
+        
       - name: Validate MSIX manifest
         shell: bash
         run: python3 build-windows/validate_package.py
+        
       - name: Configure
         run: cmake -S build-windows -B out/windows-contract -DSKEY_BUILD_TESTS=ON
+        
       - name: Build
         run: cmake --build out/windows-contract --config Release
+        
       - name: Test
         run: ctest --test-dir out/windows-contract -C Release --output-on-failure
+        
       - name: Package staging archive
         run: cmake --build out/windows-contract --config Release --target skey-package
+        
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
@@ -66,7 +78,7 @@ jobs:
           git config core.protectNTFS false
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
-          git archive FETCH_HEAD port | tar -xf -
+          git archive FETCH_HEAD core | tar -xf -
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --workspace --all-targets
-        working-directory: port
+        working-directory: core

@@ -50,7 +50,7 @@ fi
 
 # Extract ONLY macOS-related commits (filter by paths)
 RAW_LOG=$(git log "$COMMIT_RANGE" --pretty=format:"%h|%s" \
-  -- macos/skey-app/ port/ scripts/ .github/workflows/build-and-release-macos.yml \
+  -- platforms/macos/skey-app/ core/ scripts/ .github/workflows/build-and-release-macos.yml \
   2>/dev/null || echo "")
 
 # Skip if no relevant commits

@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 SOURCES_DIR="$SCRIPT_DIR/../Sources"
-LIBSKEY="$REPO_DIR/port/target/release/libskey.a"
+LIBSKEY="$REPO_DIR/core/target/release/libskey.a"
 BIN_PATH="/tmp/context_recomposer_tester_bin"
 
 echo "==> Compiling Context Recomposer & Web Isolation Safety Tester..."
@@ -38,7 +38,7 @@ SWIFT_SOURCES=(
 
 swiftc -parse-as-library \
     -import-objc-header "$SCRIPT_DIR/../Support/BridgingHeader.h" \
-    -I "$REPO_DIR/port/skey-capi/include" \
+    -I "$REPO_DIR/core/skey-capi/include" \
     "${SWIFT_SOURCES[@]}" \
     "$LIBSKEY" \
     -framework Cocoa \

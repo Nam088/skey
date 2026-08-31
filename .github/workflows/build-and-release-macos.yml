@@ -6,8 +6,8 @@ on:
       - main
       - master
     paths:
-      - 'macos/skey-app/**'
-      - 'port/**'
+      - 'platforms/macos/skey-app/**'
+      - 'core/**'
       - 'scripts/**'
       - '.github/workflows/build-and-release-macos.yml'
     tags:
@@ -17,8 +17,8 @@ on:
       - main
       - master
     paths:
-      - 'macos/skey-app/**'
-      - 'port/**'
+      - 'platforms/macos/skey-app/**'
+      - 'core/**'
       - 'scripts/**'
       - '.github/workflows/build-and-release-macos.yml'
   workflow_dispatch:
