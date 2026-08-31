@@ -54,6 +54,26 @@ jobs:
       - name: Build
         run: cmake --build out/windows-contract --config Release
 
+      - name: Engine smoke diagnostic
+        shell: pwsh
+        run: |
+          $exe = "out/windows-contract/contract-tests/Release/skey_engine_smoke_tests.exe"
+          if (Test-Path $exe) {
+            $p = Start-Process -FilePath $exe -NoNewWindow -PassThru `
+              -RedirectStandardError smoke.err -RedirectStandardOutput smoke.out
+            if (-not $p.WaitForExit(60000)) {
+              Write-Host "SMOKE HANG: no exit within 60s; killing"
+              Stop-Process -Id $p.Id -Force
+            }
+            Write-Host "--- stderr ---"
+            Get-Content smoke.err -ErrorAction SilentlyContinue
+            Write-Host "--- stdout ---"
+            Get-Content smoke.out -ErrorAction SilentlyContinue
+            Write-Host "exit code: $($p.ExitCode)"
+          } else {
+            Write-Host "smoke exe not found"
+          }
+
       - name: Test
         run: ctest --test-dir out/windows-contract -C Release --output-on-failure
 

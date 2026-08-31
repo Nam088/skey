@@ -3,6 +3,7 @@
 #include "../skey-tray/Engine/SKeyEngineWrapper.h"
 
 #include <cassert>
+#include <cstdio>
 #include <string>
 
 using namespace skey::windows;
@@ -47,6 +48,7 @@ struct Vector {
 } // namespace
 
 int main() {
+    std::fprintf(stderr, "V12 main enter\n");
     const Vector vectors[] = {
         {"dd", "\xc4\x91"},                             // đ
         {"ddasnh", "\xc4\x91\xC3\xA1nh"},               // đánh
@@ -57,6 +59,7 @@ int main() {
     };
 
     SKeyEngineWrapper engine;
+    std::fprintf(stderr, "V12 engine created\n");
     engine.set_input_method(EngineInputMethod::telex);
 
     for (const auto& vector : vectors) {

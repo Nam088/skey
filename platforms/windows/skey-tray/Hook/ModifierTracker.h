@@ -62,13 +62,18 @@ public:
         return m;
     }
 
-    // Builds the 256-byte key state array expected by ToUnicode().
+    // Builds the 256-byte key state array expected by ToUnicode(). The
+    // generic VK_SHIFT/VK_CONTROL/VK_MENU slots are what ToUnicode reads
+    // for modifier state; the left/right slots are kept in sync too.
     void build_key_state(std::array<uint8_t, 256>& state) const noexcept {
         state.fill(0);
+        if (shift()) state[kVkShift] = 0x80;
         if (l_shift_) state[kVkLShift] = 0x80;
         if (r_shift_) state[kVkRShift] = 0x80;
+        if (ctrl()) state[kVkControl] = 0x80;
         if (l_ctrl_) state[kVkLControl] = 0x80;
         if (r_ctrl_) state[kVkRControl] = 0x80;
+        if (alt()) state[kVkMenu] = 0x80;
         if (l_alt_) state[kVkLMenu] = 0x80;
         if (r_alt_) state[kVkRMenu] = 0x80;
         if (caps_lock_) state[kVkCapital] = 0x01;

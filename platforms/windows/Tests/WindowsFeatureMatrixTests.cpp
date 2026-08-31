@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -14,6 +15,7 @@
 using namespace skey::windows;
 
 int main() {
+    std::fprintf(stderr, "V2 main enter\n");
     // IPC matrix: round-trip every field, including delimiter characters.
     for (const auto& method : {std::string(kGetStatus), std::string(kSetLanguage),
                               std::string(kSetSettings), std::string(kResetEngine)}) {

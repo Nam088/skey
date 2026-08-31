@@ -240,6 +240,21 @@ if(SKEY_CORE_LIB)
         target_link_libraries(skey_typing_vector_tests PRIVATE "${SKEY_CORE_LIB}")
     endif()
     add_test(NAME skey_typing_vector_tests COMMAND skey_typing_vector_tests)
+
+    skey_add_test_executable(skey_engine_smoke_tests
+        EngineSmokeTests.cpp
+        ../skey-tray/Engine/SKeyEngineWrapper.cpp
+    )
+    target_include_directories(skey_engine_smoke_tests PRIVATE
+        ..
+        "${SKEY_CAPI_INCLUDE_DIR}")
+    target_compile_options(skey_engine_smoke_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+    if(WIN32)
+        target_link_libraries(skey_engine_smoke_tests PRIVATE "${SKEY_CORE_LIB}" advapi32 userenv ws2_32 bcrypt ntdll)
+    else()
+        target_link_libraries(skey_engine_smoke_tests PRIVATE "${SKEY_CORE_LIB}")
+    endif()
+    add_test(NAME skey_engine_smoke_tests COMMAND skey_engine_smoke_tests)
 endif()
 
 skey_add_test_executable(skey_clipboard_service_tests
