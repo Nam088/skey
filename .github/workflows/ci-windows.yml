@@ -19,6 +19,7 @@ jobs:
   contracts:
     name: Build & Test
     runs-on: windows-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         shell: bash
@@ -68,6 +69,7 @@ jobs:
   settings-ui:
     name: Settings UI (WinUI 3)
     runs-on: windows-latest
+    timeout-minutes: 30
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -80,9 +82,9 @@ jobs:
         run: nuget restore platforms/windows/skey-settings/SKey.Settings.sln
 
       - name: Build
-        # CI runners ship the v144 toolset; the project pins v143 for local
+        # CI runners ship the v180 toolset; the project pins v143 for local
         # VS2022 development, so override it here.
-        run: msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v144 /m /v:m
+        run: msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v180 /m /v:m
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

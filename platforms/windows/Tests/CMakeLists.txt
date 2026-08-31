@@ -28,6 +28,14 @@ endif()
 # C header of the Rust engine, needed by targets compiling TrayRuntime.cpp.
 set(SKEY_CAPI_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../core/skey-capi/include")
 
+# Linked into every test executable: on Windows it redirects failed assert()
+# reports to stderr so headless CI fails instead of blocking on a dialog.
+set(SKEY_TEST_GUARD "${CMAKE_CURRENT_LIST_DIR}/TestGuard.cpp")
+
+function(skey_add_test_executable name)
+    add_executable(${name} ${ARGN} "${SKEY_TEST_GUARD}")
+endfunction()
+
 # Rust staticlib (skey.lib / libskey.a) built from core/skey-capi.
 find_library(SKEY_CORE_LIB
     NAMES skey
@@ -76,7 +84,7 @@ endif()
 
 enable_testing()
 
-add_executable(skey_shared_services_tests
+skey_add_test_executable(skey_shared_services_tests
     SharedServicesTests.cpp
     ../Shared/Localization/LocalizationService.cpp
     ../Shared/Settings/SettingsStore.cpp
@@ -85,7 +93,7 @@ add_executable(skey_shared_services_tests
 target_include_directories(skey_shared_services_tests PRIVATE ..)
 add_test(NAME skey_shared_services_tests COMMAND skey_shared_services_tests)
 
-add_executable(skey_windows_feature_matrix_tests
+skey_add_test_executable(skey_windows_feature_matrix_tests
     WindowsFeatureMatrixTests.cpp
     ${SKEY_TYPING_SOURCES}
     ../Shared/Contracts/IpcCodec.cpp
@@ -104,7 +112,7 @@ target_compile_options(skey_windows_feature_matrix_tests PRIVATE ${SKEY_TEST_COM
 target_link_libraries(skey_windows_feature_matrix_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_windows_feature_matrix_tests COMMAND skey_windows_feature_matrix_tests)
 
-add_executable(skey_settings_viewmodel_tests
+skey_add_test_executable(skey_settings_viewmodel_tests
     SettingsViewModelTests.cpp
     ../Shared/Localization/LocalizationService.cpp
     ../Shared/Settings/SettingsStore.cpp
@@ -113,7 +121,7 @@ target_include_directories(skey_settings_viewmodel_tests PRIVATE ..)
 target_compile_options(skey_settings_viewmodel_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_settings_viewmodel_tests COMMAND skey_settings_viewmodel_tests)
 
-add_executable(skey_ipc_tray_tests
+skey_add_test_executable(skey_ipc_tray_tests
     IpcTransportTests.cpp
     ${SKEY_TYPING_SOURCES}
     ../Shared/Contracts/IpcCodec.cpp
@@ -130,7 +138,7 @@ target_compile_options(skey_ipc_tray_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 target_link_libraries(skey_ipc_tray_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_ipc_tray_tests COMMAND skey_ipc_tray_tests)
 
-add_executable(skey_tray_ipc_handler_tests
+skey_add_test_executable(skey_tray_ipc_handler_tests
     TrayIpcHandlerTests.cpp
     ${SKEY_TYPING_SOURCES}
     ../skey-tray/TrayIpcHandler.cpp
@@ -148,12 +156,12 @@ target_compile_options(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TEST_COMPILE_O
 target_link_libraries(skey_tray_ipc_handler_tests PRIVATE ${SKEY_TYPING_LIBS})
 add_test(NAME skey_tray_ipc_handler_tests COMMAND skey_tray_ipc_handler_tests)
 
-add_executable(skey_feature_parity_tests FeatureParityTests.cpp)
+skey_add_test_executable(skey_feature_parity_tests FeatureParityTests.cpp)
 target_include_directories(skey_feature_parity_tests PRIVATE ..)
 target_compile_options(skey_feature_parity_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_feature_parity_tests COMMAND skey_feature_parity_tests)
 
-add_executable(skey_hook_tests
+skey_add_test_executable(skey_hook_tests
     HookTests.cpp
     ../skey-tray/Hook/KeyClassifier.cpp
 )
@@ -161,7 +169,7 @@ target_include_directories(skey_hook_tests PRIVATE ..)
 target_compile_options(skey_hook_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_hook_tests COMMAND skey_hook_tests)
 
-add_executable(skey_macro_engine_tests
+skey_add_test_executable(skey_macro_engine_tests
     MacroEngineTests.cpp
     ../skey-tray/Engine/MacroEngine.cpp
 )
@@ -169,7 +177,7 @@ target_include_directories(skey_macro_engine_tests PRIVATE ..)
 target_compile_options(skey_macro_engine_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_macro_engine_tests COMMAND skey_macro_engine_tests)
 
-add_executable(skey_typing_pipeline_tests
+skey_add_test_executable(skey_typing_pipeline_tests
     TypingPipelineTests.cpp
     ../skey-tray/Hook/KeyClassifier.cpp
     ../skey-tray/Pipeline/TypingPipeline.cpp
@@ -184,7 +192,7 @@ if(WIN32)
 endif()
 add_test(NAME skey_typing_pipeline_tests COMMAND skey_typing_pipeline_tests)
 
-add_executable(skey_phase2_runtime_tests
+skey_add_test_executable(skey_phase2_runtime_tests
     Phase2RuntimeTests.cpp
     ../skey-tray/Hook/KeyClassifier.cpp
     ../skey-tray/Pipeline/TypingPipeline.cpp
@@ -200,7 +208,7 @@ if(WIN32)
 endif()
 add_test(NAME skey_phase2_runtime_tests COMMAND skey_phase2_runtime_tests)
 
-add_executable(skey_tsf_bridge_tests
+skey_add_test_executable(skey_tsf_bridge_tests
     TsfBridgeTests.cpp
     ../Shared/TsfBridge/TsfBridge.cpp
     ../skey-tray/Hook/KeyClassifier.cpp
@@ -218,7 +226,7 @@ endif()
 add_test(NAME skey_tsf_bridge_tests COMMAND skey_tsf_bridge_tests)
 
 if(SKEY_CORE_LIB)
-    add_executable(skey_typing_vector_tests
+    skey_add_test_executable(skey_typing_vector_tests
         TypingVectorTests.cpp
         ../skey-tray/Engine/SKeyEngineWrapper.cpp
     )
@@ -234,14 +242,14 @@ if(SKEY_CORE_LIB)
     add_test(NAME skey_typing_vector_tests COMMAND skey_typing_vector_tests)
 endif()
 
-add_executable(skey_clipboard_service_tests
+skey_add_test_executable(skey_clipboard_service_tests
     ClipboardServiceTests.cpp
 )
 target_include_directories(skey_clipboard_service_tests PRIVATE ..)
 target_compile_options(skey_clipboard_service_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_clipboard_service_tests COMMAND skey_clipboard_service_tests)
 
-add_executable(skey_clipboard_history_tests
+skey_add_test_executable(skey_clipboard_history_tests
     ClipboardHistoryTests.cpp
     ../Shared/Clipboard/ClipboardText.cpp
     ../Shared/Clipboard/ClipboardHistoryStore.cpp
@@ -250,7 +258,7 @@ target_include_directories(skey_clipboard_history_tests PRIVATE ..)
 target_compile_options(skey_clipboard_history_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_clipboard_history_tests COMMAND skey_clipboard_history_tests)
 
-add_executable(skey_translator_service_tests
+skey_add_test_executable(skey_translator_service_tests
     TranslatorServiceTests.cpp
     ../Shared/Translator/TranslatorService.cpp
 )
@@ -258,7 +266,7 @@ target_include_directories(skey_translator_service_tests PRIVATE ..)
 target_compile_options(skey_translator_service_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_translator_service_tests COMMAND skey_translator_service_tests)
 
-add_executable(skey_update_checker_tests
+skey_add_test_executable(skey_update_checker_tests
     UpdateCheckerTests.cpp
     ../Shared/Updates/UpdateChecker.cpp
     ../Shared/Translator/TranslatorService.cpp
@@ -267,7 +275,7 @@ target_include_directories(skey_update_checker_tests PRIVATE ..)
 target_compile_options(skey_update_checker_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_update_checker_tests COMMAND skey_update_checker_tests)
 
-add_executable(skey_settings_store_roundtrip_tests
+skey_add_test_executable(skey_settings_store_roundtrip_tests
     SettingsStoreRoundTripTests.cpp
     ../Shared/Settings/SettingsStore.cpp
 )
@@ -275,7 +283,7 @@ target_include_directories(skey_settings_store_roundtrip_tests PRIVATE ..)
 target_compile_options(skey_settings_store_roundtrip_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_settings_store_roundtrip_tests COMMAND skey_settings_store_roundtrip_tests)
 
-add_executable(skey_keyboard_settings_tests
+skey_add_test_executable(skey_keyboard_settings_tests
     KeyboardSettingsTests.cpp
     ../skey-settings/Shared/Shortcuts/HotkeyFormat.cpp
     ../skey-settings/Shared/Shortcuts/HotkeyStore.cpp
@@ -285,7 +293,7 @@ target_include_directories(skey_keyboard_settings_tests PRIVATE ..)
 target_compile_options(skey_keyboard_settings_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_keyboard_settings_tests COMMAND skey_keyboard_settings_tests)
 
-add_executable(skey_macro_store_tests
+skey_add_test_executable(skey_macro_store_tests
     MacroStoreTests.cpp
     ../Shared/Settings/MacroStore.cpp
 )
@@ -293,7 +301,7 @@ target_include_directories(skey_macro_store_tests PRIVATE ..)
 target_compile_options(skey_macro_store_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_macro_store_tests COMMAND skey_macro_store_tests)
 
-add_executable(skey_settings_backup_tests
+skey_add_test_executable(skey_settings_backup_tests
     SettingsBackupTests.cpp
     ../skey-settings/Shared/Settings/Backup/SettingsBackup.cpp
     ../Shared/Settings/SettingsStore.cpp
@@ -301,3 +309,7 @@ add_executable(skey_settings_backup_tests
 target_include_directories(skey_settings_backup_tests PRIVATE ..)
 target_compile_options(skey_settings_backup_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_settings_backup_tests COMMAND skey_settings_backup_tests)
+
+# A wedged test must fail fast instead of burning the CI job timeout.
+get_property(SKEY_ALL_TESTS DIRECTORY PROPERTY TESTS)
+set_tests_properties(${SKEY_ALL_TESTS} PROPERTIES TIMEOUT 120)

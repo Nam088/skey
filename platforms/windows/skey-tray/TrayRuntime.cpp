@@ -54,7 +54,12 @@ bool TrayRuntime::start_ipc(IpcHandler handler, std::string endpoint) {
     ipc_thread_ = std::thread([this, handler = std::move(handler), endpoint = std::move(endpoint)] {
         IpcServer server(handler);
 #ifdef _WIN32
-        while (running_.load()) server.serve_once(endpoint);
+        const auto alive = [this] { return running_.load(); };
+        while (running_.load()) {
+            if (!server.serve_once(endpoint, alive) && running_.load()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+        }
 #else
         (void)server; (void)endpoint;
         // Named pipes are Windows-only; lifecycle remains testable elsewhere.
