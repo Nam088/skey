@@ -1,0 +1,66 @@
+name: CI - Windows
+
+on:
+  push:
+    branches: [main, windows-ime]
+    paths:
+      - 'platforms/windows/**'
+      - 'shared/**'
+      - 'core/**'
+      - '.github/workflows/ci-windows.yml'
+  pull_request:
+    paths:
+      - 'platforms/windows/**'
+      - 'shared/**'
+      - 'core/**'
+      - '.github/workflows/ci-windows.yml'
+
+jobs:
+  contracts:
+    name: Build & Test
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init .
+          git config core.protectNTFS false
+          git remote add origin "https://github.com/${{ github.repository }}.git"
+          git fetch --depth=1 origin "${{ github.sha }}"
+          git archive FETCH_HEAD .github platforms/windows installer-windows core shared | tar -xf -
+
+      - name: Validate contracts
+        shell: bash
+        run: python3 platforms/windows/build-config/validate_contracts.py
+
+      - name: Validate package
+        shell: bash
+        run: python3 platforms/windows/build-config/validate_package.py
+
+      - name: Configure
+        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build out/windows-contract --config Release
+
+      - name: Test
+        run: ctest --test-dir out/windows-contract -C Release --output-on-failure
+
+      - name: Package
+        run: cmake --build out/windows-contract --config Release --target skey-package
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skey-windows-package
+          path: out/windows-contract/installer-windows/skey-windows.zip
+
+  rust:
+    name: Rust Core
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace --all-targets
+        working-directory: core

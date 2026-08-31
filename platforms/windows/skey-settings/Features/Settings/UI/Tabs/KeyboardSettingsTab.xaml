@@ -1,0 +1,37 @@
+<Page x:Class="SKey.Settings.KeyboardSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ScrollViewer>
+    <StackPanel Spacing="16" Padding="0,0,0,24">
+      <TextBlock Text="Keyboard" Style="{StaticResource SubtitleTextBlockStyle}"/>
+
+      <TextBlock Text="Input Method" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+      <ComboBox Header="Input method" SelectedIndex="0" HorizontalAlignment="Stretch">
+        <ComboBoxItem Content="Telex"/>
+        <ComboBoxItem Content="Simple Telex"/>
+        <ComboBoxItem Content="VNI"/>
+        <ComboBoxItem Content="VIQR"/>
+      </ComboBox>
+      <ComboBox Header="Charset" SelectedIndex="0" HorizontalAlignment="Stretch">
+        <ComboBoxItem Content="Unicode"/>
+        <ComboBoxItem Content="TCVN3"/>
+        <ComboBoxItem Content="VNI Windows"/>
+      </ComboBox>
+      <ToggleSwitch Header="Enable Vietnamese input" IsOn="True"/>
+
+      <TextBlock Text="Typing Rules" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ToggleSwitch Header="Spell check" IsOn="True"/>
+      <ToggleSwitch Header="Free marking" IsOn="True"/>
+      <ToggleSwitch Header="Modern style"/>
+      <ToggleSwitch Header="Swallowed key restore" IsOn="True"/>
+
+      <TextBlock Text="Quick Typing" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ToggleSwitch Header="Quick Telex"/>
+      <ToggleSwitch Header="Quick start consonant (f=ph, j=gi, w=qu)"/>
+      <ToggleSwitch Header="Quick end consonant (g=ng, h=nh, k=ch)"/>
+      <ToggleSwitch Header="Upper case first character"/>
+
+      <TextBlock Text="App Management" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ToggleSwitch Header="Smart app switch"/>
+      <TextBlock Text="Excluded applications" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+    </StackPanel>
+  </ScrollViewer>
+</Page>

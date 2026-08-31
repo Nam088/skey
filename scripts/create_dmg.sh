@@ -21,10 +21,10 @@ mkdir -p dist
 echo "==> 3. Copying SKey.app and Applications symlink..."
 if [[ -d "$REPO_DIR/dist/SKey.app" ]]; then
     cp -R "$REPO_DIR/dist/SKey.app" "$DMG_ROOT/"
-elif [[ -d "$REPO_DIR/macos/skey-app/SKey.app" ]]; then
-    cp -R "$REPO_DIR/macos/skey-app/SKey.app" "$DMG_ROOT/"
+elif [[ -d "$REPO_DIR/platforms/macos/skey-app/SKey.app" ]]; then
+    cp -R "$REPO_DIR/platforms/macos/skey-app/SKey.app" "$DMG_ROOT/"
 else
-    echo "Error: SKey.app not found in dist/ or macos/skey-app/!"
+    echo "Error: SKey.app not found in dist/ or platforms/macos/skey-app/!"
     exit 1
 fi
 

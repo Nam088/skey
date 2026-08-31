@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "macosFeatureGroups": ["Cleaner", "Clipboard", "Keyboard", "Settings", "Translator"],
+  "sharedGroups": ["Core", "Localization", "Logging", "Services", "Settings", "Shortcuts", "UI"],
+  "requiredSettingsTabs": ["General", "Keyboard", "Shortcuts", "Snippets", "Clipboard", "Tools", "About"]
+}

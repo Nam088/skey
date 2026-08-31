@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SKey shared settings",
+  "type": "object",
+  "required": ["schemaVersion", "locale", "theme", "inputMethod", "charset", "isVietnamese"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "minimum": 1},
+    "locale": {"enum": ["vi-VN", "en-US"]},
+    "theme": {"enum": ["system", "light", "dark"]},
+    "inputMethod": {"enum": ["telex", "vni", "viqr", "simpleTelex"]},
+    "charset": {"type": "string", "minLength": 1},
+    "isVietnamese": {"type": "boolean"},
+    "shortcuts": {"type": "object"},
+    "macros": {"type": "array"},
+    "excludedApps": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}
