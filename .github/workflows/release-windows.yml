@@ -111,7 +111,7 @@ jobs:
 
       - name: Install WiX Toolset
         run: |
-          dotnet tool install --global wix
+          dotnet tool install --global wix --version 5.0.2
 
       - name: Build MSI Installer
         shell: bash
@@ -119,7 +119,7 @@ jobs:
           cd installer-windows
           cp ../out/windows-contract/installer-windows/package/skey-ime.dll .
           cp ../out/windows-contract/installer-windows/package/skey-tray.exe .
-          wix build SKeyInstaller.wxs -o SKey-Installer.msi -arch x64 --accept-osmaintenancefee-eula
+          wix build SKeyInstaller.wxs -o SKey-Installer.msi -arch x64
 
       - name: Generate checksums
         shell: bash
