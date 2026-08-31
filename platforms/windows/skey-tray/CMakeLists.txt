@@ -26,6 +26,7 @@ if(WIN32)
         Clipboard/ClipboardPopup.cpp
         System/LaunchAtLogin.cpp
         Net/PlatformHttp.cpp
+        Translator/TranslationHud.cpp
         Engine/SKeyEngineWrapper.cpp
         Engine/MacroEngine.cpp
         ../Shared/Contracts/IpcCodec.cpp

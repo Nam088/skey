@@ -13,7 +13,9 @@
 #include "../Shared/Settings/SettingsStore.h"
 #include "Clipboard/ClipboardPaster.h"
 #include "Clipboard/ClipboardPopup.h"
+#include "Net/PlatformHttp.h"
 #include "System/LaunchAtLogin.h"
+#include "Translator/TranslationHud.h"
 #endif
 
 namespace skey::windows {
@@ -165,10 +167,10 @@ bool TrayRuntime::start_hook() {
             case HotkeyAction::cleaner:
                 pipeline_->set_cleaner_active(!pipeline_->cleaner_active());
                 break;
-            // AI / translate land in Phase 4; swallow the chord for now so
-            // it doesn't leak into the app.
-            case HotkeyAction::ai:
-            case HotkeyAction::translate: break;
+            case HotkeyAction::translate: open_translation_hud(); break;
+            // AI lands in a later phase; swallow the chord for now so it
+            // doesn't leak into the app.
+            case HotkeyAction::ai: break;
             case HotkeyAction::none: break;
             }
         });
@@ -311,6 +313,28 @@ void TrayRuntime::open_clipboard_popup() {
         ClipboardPopup::show(items, [](std::string text) {
             ClipboardPaster::paste_text(text);
         });
+        flag->store(false);
+    }).detach();
+}
+
+void TrayRuntime::open_translation_hud() {
+    if (!translation_hud_open_) {
+        translation_hud_open_ = std::make_shared<std::atomic<bool>>(false);
+    }
+    bool expected = false;
+    if (!translation_hud_open_->compare_exchange_strong(expected, true)) return;
+
+    TranslationHudConfig config;
+    {
+        std::lock_guard<std::mutex> lock(settings_mutex_);
+        config.engines = current_settings_.translator_engines;
+        config.target_language = current_settings_.translator_target_language;
+        config.auto_detect = current_settings_.translator_auto_detect;
+    }
+
+    auto flag = translation_hud_open_;
+    std::thread([config = std::move(config), flag] {
+        TranslationHud::show(config, make_platform_http());
         flag->store(false);
     }).detach();
 }

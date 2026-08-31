@@ -36,12 +36,15 @@ if(WIN32)
         ../skey-tray/Clipboard/ClipboardPaster.cpp
         ../skey-tray/Clipboard/ClipboardPopup.cpp
         ../skey-tray/System/LaunchAtLogin.cpp
+        ../skey-tray/Net/PlatformHttp.cpp
+        ../skey-tray/Translator/TranslationHud.cpp
         ../skey-tray/Engine/SKeyEngineWrapper.cpp
         ../skey-tray/Engine/MacroEngine.cpp
         ../Shared/Clipboard/ClipboardText.cpp
-        ../Shared/Clipboard/ClipboardHistoryStore.cpp)
+        ../Shared/Clipboard/ClipboardHistoryStore.cpp
+        ../Shared/Translator/TranslatorService.cpp)
     if(SKEY_CORE_LIB)
-        set(SKEY_TYPING_LIBS "${SKEY_CORE_LIB}" winmm advapi32 userenv ws2_32 bcrypt ntdll)
+        set(SKEY_TYPING_LIBS "${SKEY_CORE_LIB}" winmm advapi32 userenv ws2_32 bcrypt ntdll winhttp)
     else()
         message(WARNING
             "skey.lib not found; TrayRuntime-based tests will fail to link. "

@@ -20,6 +20,7 @@
 #include "Hook/KeyboardHook.h"
 #include "Pipeline/ForegroundAppTracker.h"
 #include "Pipeline/TypingPipeline.h"
+#include "Translator/TranslationHud.h"
 #endif
 
 namespace skey::windows {
@@ -53,6 +54,7 @@ private:
     bool foreground_is_excluded();
     void open_clipboard_popup();
     void on_clipboard_capture(std::string text);
+    void open_translation_hud();
 #endif
 
     std::atomic<bool> running_{false};
@@ -70,8 +72,9 @@ private:
     ForegroundAppTracker app_tracker_;
     std::unique_ptr<ClipboardHistoryStore> clipboard_store_;
     std::unique_ptr<ClipboardMonitor> clipboard_monitor_;
-    // Shared with the detached popup thread so it never touches `this`.
+    // Shared with the detached popup/HUD threads so they never touch `this`.
     std::shared_ptr<std::atomic<bool>> clipboard_popup_open_;
+    std::shared_ptr<std::atomic<bool>> translation_hud_open_;
     std::mutex clipboard_mutex_;
 
     std::mutex settings_mutex_;
