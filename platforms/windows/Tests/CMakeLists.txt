@@ -208,6 +208,14 @@ target_include_directories(skey_clipboard_history_tests PRIVATE ..)
 target_compile_options(skey_clipboard_history_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
 add_test(NAME skey_clipboard_history_tests COMMAND skey_clipboard_history_tests)
 
+add_executable(skey_translator_service_tests
+    TranslatorServiceTests.cpp
+    ../Shared/Translator/TranslatorService.cpp
+)
+target_include_directories(skey_translator_service_tests PRIVATE ..)
+target_compile_options(skey_translator_service_tests PRIVATE ${SKEY_TEST_COMPILE_OPTIONS})
+add_test(NAME skey_translator_service_tests COMMAND skey_translator_service_tests)
+
 add_executable(skey_settings_store_roundtrip_tests
     SettingsStoreRoundTripTests.cpp
     ../Shared/Settings/SettingsStore.cpp
