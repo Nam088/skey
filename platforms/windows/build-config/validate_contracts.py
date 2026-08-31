@@ -5,11 +5,11 @@ import json
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 
 
 def load(name):
-    with (ROOT / "shared-contracts" / name).open(encoding="utf-8") as stream:
+    with (ROOT / "shared" / name).open(encoding="utf-8") as stream:
         return json.load(stream)
 
 

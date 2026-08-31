@@ -28,24 +28,18 @@ jobs:
           git config core.protectNTFS false
           git remote add origin "https://github.com/${{ github.repository }}.git"
           git fetch --depth=1 origin "${{ github.sha }}"
-          git archive FETCH_HEAD .github platforms/windows/build-config installer-windows core/skey-capi/include shared platforms/windows | tar -xf -
-          
-          mkdir -p build-windows windows shared-contracts tests-windows port/skey-capi
-          mv platforms/windows/build-config/* build-windows/ 2>/dev/null || true
-          mv platforms/windows/* windows/ 2>/dev/null || true
-          mv shared/* shared-contracts/ 2>/dev/null || true
-          mv core/skey-capi/include port/skey-capi/ 2>/dev/null || true
+          git archive FETCH_HEAD .github platforms/windows installer-windows core shared | tar -xf -
 
       - name: Validate contracts
         shell: bash
-        run: python3 build-windows/validate_contracts.py
+        run: python3 platforms/windows/build-config/validate_contracts.py
 
       - name: Validate package
         shell: bash
-        run: python3 build-windows/validate_package.py
+        run: python3 platforms/windows/build-config/validate_package.py
 
       - name: Configure
-        run: cmake -S build-windows -B out/windows-contract -DSKEY_BUILD_TESTS=ON
+        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON
 
       - name: Build
         run: cmake --build out/windows-contract --config Release
@@ -66,16 +60,7 @@ jobs:
     name: Rust Core
     runs-on: windows-latest
     steps:
-      - name: Checkout
-        shell: bash
-        run: |
-          set -euo pipefail
-          git init .
-          git config core.protectNTFS false
-          git remote add origin "https://github.com/${{ github.repository }}.git"
-          git fetch --depth=1 origin "${{ github.sha }}"
-          git archive FETCH_HEAD core | tar -xf -
-
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test --workspace --all-targets
         working-directory: core
