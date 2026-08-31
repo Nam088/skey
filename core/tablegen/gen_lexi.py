@@ -7,7 +7,7 @@ here fails the build rather than corrupting the engine silently."""
 import os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-HEADER = os.path.join(HERE, '..', '..', 'src', 'ukengine', 'vnlexi.h')
+HEADER = os.path.join(HERE, '..', '..', 'archive', 'unikey-legacy', 'ukengine', 'vnlexi.h')
 
 
 def parse(src, enum_name):
@@ -20,7 +20,7 @@ def parse(src, enum_name):
 def main():
     src = open(HEADER).read()
     out = [
-        '// @generated from src/ukengine/vnlexi.h by port/tablegen/gen_lexi.py.',
+        '// @generated from archive/unikey-legacy/ukengine/vnlexi.h by core/tablegen/gen_lexi.py.',
         '// The enum order is load bearing: parity encodes case, each tone',
         '// level is plus two. See the compile time assertions in lexi.rs.',
         '',
