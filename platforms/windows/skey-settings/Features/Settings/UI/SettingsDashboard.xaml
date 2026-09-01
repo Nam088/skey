@@ -23,7 +23,7 @@
                 <TextBlock
                     x:Uid="settings.dashboard.title"
                     Text="Settings"
-                    Style="{StaticResource HeaderTextBlockStyle}"
+                    Style="{StaticResource TitleTextBlockStyle}"
                     FontSize="32"
                     FontWeight="SemiBold" />
                 <TextBlock
