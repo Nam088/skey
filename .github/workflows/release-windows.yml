@@ -46,6 +46,9 @@ jobs:
 
       - name: Build Rust core (skey.lib)
         shell: bash
+        env:
+          # Static CRT: shipped exes must not require the VC++ redistributable.
+          RUSTFLAGS: -C target-feature=+crt-static
         run: |
           cd core
           cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
@@ -107,7 +110,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Configure
-        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=OFF
+        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=OFF -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 
       - name: Build
         run: cmake --build out/windows-contract --config Release
