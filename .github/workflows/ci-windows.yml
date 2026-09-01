@@ -77,7 +77,6 @@ jobs:
     name: Settings UI (WinUI 3)
     runs-on: windows-latest
     timeout-minutes: 30
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -109,6 +108,22 @@ jobs:
           Write-Host "Using PlatformToolset=$toolset from $storeToolsets"
           msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:PlatformToolset=$toolset" /m /v:m
 
+      - name: Smoke test the app
+        # Linking proves nothing about startup. This catches a missing runtime
+        # DLL, a failed reg-free WinRT activation and any unhandled exception
+        # while App.OnLaunched builds MainWindow and navigates the first tab.
+        shell: pwsh
+        run: |
+          $exe = 'platforms/windows/skey-settings/x64/Release/SKey.Settings/SKey.Settings.exe'
+          if (-not (Test-Path $exe)) { throw "Build produced no $exe" }
+          $p = Start-Process -FilePath (Resolve-Path $exe) -PassThru
+          Write-Host "Started pid $($p.Id); watching for 15s"
+          if ($p.WaitForExit(15000)) {
+            throw ("App exited within 15s with code 0x{0:X8} - it did not stay up." -f $p.ExitCode)
+          }
+          Write-Host "Still running after 15s; stopping it."
+          Stop-Process -Id $p.Id -Force
+
       - name: List generated XAML output
         # The markup compiler mirrors page folders under "Generated Files";
         # on a build failure this shows exactly which headers it produced.
@@ -123,6 +138,9 @@ jobs:
           }
 
       - name: Upload artifact
+        # Keep the binary when the smoke test fails; that is when it is worth
+        # inspecting.
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: skey-settings-winui
