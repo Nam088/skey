@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ShortcutsSettingsTab.xaml.g.h"
+#include "ShortcutsSettingsTab.g.h"
 
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Input.h>

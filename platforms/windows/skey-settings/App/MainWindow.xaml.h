@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MainWindow.xaml.g.h"
+#include "MainWindow.g.h"
 
 namespace winrt::SKey::Settings::implementation {
 

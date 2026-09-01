@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SnippetsSettingsTab.xaml.g.h"
+#include "SnippetsSettingsTab.g.h"
 
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include "../../../../../Shared/Settings/MacroStore.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "KeyboardSettingsTab.xaml.g.h"
+#include "KeyboardSettingsTab.g.h"
 
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include "../../../../ViewModels/SettingsViewModel.h"

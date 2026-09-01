@@ -1,0 +1,72 @@
+// Runtime class declarations for every XAML-backed type in the Settings app.
+//
+// cppwinrt turns these into Generated Files\<Type>.g.h, which defines the
+// <Type>_base and <Type>T templates that the XAML compiler's <Type>.xaml.g.h
+// derives from. Without an entry here the build fails with
+// "'<Type>_base': is not a member of 'winrt::SKey::Settings::implementation'".
+//
+// Only the constructor has to be declared: event handlers and x:Name fields
+// live on the implementation type and never cross the ABI.
+
+namespace SKey.Settings
+{
+    [default_interface]
+    runtimeclass MainWindow : Microsoft.UI.Xaml.Window
+    {
+        MainWindow();
+    }
+
+    [default_interface]
+    runtimeclass GeneralSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        GeneralSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass KeyboardSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        KeyboardSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass ShortcutsSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        ShortcutsSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass SnippetsSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        SnippetsSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass ClipboardSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        ClipboardSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass ToolsSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        ToolsSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass AiSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        AiSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass AppearanceSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        AppearanceSettingsTab();
+    }
+
+    [default_interface]
+    runtimeclass AboutSettingsTab : Microsoft.UI.Xaml.Controls.Page
+    {
+        AboutSettingsTab();
+    }
+}

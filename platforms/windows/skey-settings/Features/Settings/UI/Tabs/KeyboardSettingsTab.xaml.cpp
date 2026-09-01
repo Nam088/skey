@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "KeyboardSettingsTab.xaml.h"
-#if __has_include("KeyboardSettingsTab.xaml.g.cpp")
-#include "KeyboardSettingsTab.xaml.g.cpp"
+#if __has_include("KeyboardSettingsTab.g.cpp")
+#include "KeyboardSettingsTab.g.cpp"
 #endif
 
 #ifdef _WIN32

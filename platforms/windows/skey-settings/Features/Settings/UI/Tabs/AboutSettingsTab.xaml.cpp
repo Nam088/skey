@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "AboutSettingsTab.xaml.h"
-#if __has_include("AboutSettingsTab.xaml.g.cpp")
-#include "AboutSettingsTab.xaml.g.cpp"
+#if __has_include("AboutSettingsTab.g.cpp")
+#include "AboutSettingsTab.g.cpp"
 #endif
 
 #ifdef _WIN32

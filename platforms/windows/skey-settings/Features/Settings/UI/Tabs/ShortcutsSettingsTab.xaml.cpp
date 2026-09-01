@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ShortcutsSettingsTab.xaml.h"
-#if __has_include("ShortcutsSettingsTab.xaml.g.cpp")
-#include "ShortcutsSettingsTab.xaml.g.cpp"
+#if __has_include("ShortcutsSettingsTab.g.cpp")
+#include "ShortcutsSettingsTab.g.cpp"
 #endif
 
 #ifdef _WIN32

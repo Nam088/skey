@@ -75,9 +75,12 @@
     <ClCompile><PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Midl Include="Project.idl" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="packages.config" />
     <None Include="Features\Settings\UI\SettingsDashboard.xaml" />
-    <None Include="Resources\ThemeResources.xaml"><DeploymentContent>true</DeploymentContent></None>
+    <Page Include="Resources\ThemeResources.xaml"><SubType>Designer</SubType></Page>
     <None Include="Resources\ThemeResources.System.xaml"><DeploymentContent>true</DeploymentContent></None>
     <None Include="Resources\ThemeResources.Light.xaml"><DeploymentContent>true</DeploymentContent></None>
     <None Include="Resources\ThemeResources.Dark.xaml"><DeploymentContent>true</DeploymentContent></None>

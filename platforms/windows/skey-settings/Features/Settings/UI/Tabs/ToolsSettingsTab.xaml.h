@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ToolsSettingsTab.xaml.g.h"
+#include "ToolsSettingsTab.g.h"
 
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include "../../../../ViewModels/SettingsViewModel.h"

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ClipboardSettingsTab.xaml.h"
-#if __has_include("ClipboardSettingsTab.xaml.g.cpp")
-#include "ClipboardSettingsTab.xaml.g.cpp"
+#if __has_include("ClipboardSettingsTab.g.cpp")
+#include "ClipboardSettingsTab.g.cpp"
 #endif
 
 #ifdef _WIN32
