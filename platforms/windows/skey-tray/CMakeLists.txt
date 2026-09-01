@@ -1,14 +1,20 @@
 if(WIN32)
     set(SKEY_CAPI_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../core/skey-capi/include")
 
-    # Rust staticlib (skey.lib) built with:
-    #   cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
-    find_library(SKEY_CORE_LIB
-        NAMES skey
-        PATHS
+    # Rust staticlib built with (in core/):
+    #   cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
+    # Resolve the archive explicitly: a plain find_library can pick up the
+    # cdylib import library, which drags a skey.dll dependency the exe
+    # cannot satisfy at runtime (STATUS_DLL_NOT_FOUND, 0xC0000135).
+    set(SKEY_CORE_LIB "")
+    foreach(skey_target_dir
             "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/x86_64-pc-windows-msvc/release"
-            "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/release"
-        NO_DEFAULT_PATH)
+            "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/release")
+        if(EXISTS "${skey_target_dir}/skey.lib")
+            set(SKEY_CORE_LIB "${skey_target_dir}/skey.lib")
+            break()
+        endif()
+    endforeach()
 
     add_executable(skey-tray WIN32
         TrayApp.cpp
@@ -53,6 +59,6 @@ if(WIN32)
     else()
         message(WARNING
             "skey.lib not found. Build it first: "
-            "cargo build --release -p skey-capi --target x86_64-pc-windows-msvc (in core/)")
+            "cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib (in core/)")
     endif()
 endif()

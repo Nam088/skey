@@ -63,7 +63,7 @@ Script sẽ tự động:
 
 ```cmd
 cd core
-cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
 cd ..\platforms\windows
 cmake -S build-config -B build -DSKEY_BUILD_TESTS=ON
 cmake --build build --config Release
@@ -128,7 +128,7 @@ winget install Kitware.CMake
 Build Rust core trước:
 ```cmd
 cd core
-cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
 ```
 
 ### Gõ không ra tiếng Việt

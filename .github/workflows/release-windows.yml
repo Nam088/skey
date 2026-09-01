@@ -48,10 +48,13 @@ jobs:
         shell: bash
         env:
           # Static CRT: shipped exes must not require the VC++ redistributable.
+          # staticlib only: a plain cargo build also emits the cdylib
+          # import library, which overwrites skey.lib and makes every exe
+          # import skey.dll (STATUS_DLL_NOT_FOUND at startup).
           RUSTFLAGS: -C target-feature=+crt-static
         run: |
           cd core
-          cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+          cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
 
       - name: Auto Tag
         id: auto_tag

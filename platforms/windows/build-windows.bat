@@ -27,7 +27,7 @@ echo Building Rust core (skey.lib)...
 where cargo >nul 2>nul
 if %errorlevel%==0 (
     pushd ..\..\core
-    cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+    cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
     if errorlevel 1 (
         echo Rust build failed!
         popd

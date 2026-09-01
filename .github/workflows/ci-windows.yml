@@ -45,12 +45,15 @@ jobs:
       - name: Build Rust core (skey.lib)
         shell: bash
         env:
-          # Static CRT so the staticlib does not drag VCRUNTIME140.dll into
-          # every exe that links it (headless runners lack the redist).
+          # Static CRT so exes do not require VCRUNTIME140.dll (headless
+          # runners lack the redistributable). --crate-type staticlib only:
+          # a plain `cargo build` also emits the cdylib import library,
+          # which overwrites skey.lib and makes every exe import skey.dll
+          # (STATUS_DLL_NOT_FOUND at startup).
           RUSTFLAGS: -C target-feature=+crt-static
         run: |
           cd core
-          cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
+          cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
 
       - name: Configure
         run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
@@ -112,15 +115,18 @@ jobs:
         run: nuget restore platforms/windows/skey-settings/SKey.Settings.sln
 
       - name: Build
-        # Detect the toolset the runner's Visual Studio ships (v180 on the
-        # current image) instead of pinning: bare msbuild resolves an empty
-        # DefaultPlatformToolset to v100 and fails with MSB8020.
+        # Discover the newest installed PlatformToolset (e.g. v145 under the
+        # v180 VC targets dir): guessing from the targets dir name yields
+        # MSB8020, and an unset toolset falls back to v100.
         shell: pwsh
         run: |
           $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
-          $toolset = Get-ChildItem "$vs\MSBuild\Microsoft\VC" -Directory |
+          $vcdir = Get-ChildItem "$vs\MSBuild\Microsoft\VC" -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $toolset = Get-ChildItem "$($vcdir.FullName)\Platforms\x64\PlatformToolsets" -Directory |
+            Where-Object { $_.Name -match '^v\d+$' } |
             Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-          Write-Host "Using PlatformToolset=$toolset from $vs"
+          Write-Host "Using PlatformToolset=$toolset from $($vcdir.FullName)"
           msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:PlatformToolset=$toolset" /m /v:m
 
       - name: Upload artifact

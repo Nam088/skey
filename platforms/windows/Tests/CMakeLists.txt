@@ -36,15 +36,26 @@ function(skey_add_test_executable name)
     add_executable(${name} ${ARGN} "${SKEY_TEST_GUARD}")
 endfunction()
 
-# Rust staticlib (skey.lib / libskey.a) built from core/skey-capi.
-find_library(SKEY_CORE_LIB
-    NAMES skey
-    PATHS
+# Rust staticlib built from core/skey-capi: libskey.a on macOS, skey.lib on
+# MSVC. Resolve the archive explicitly by path: find_library can prefer the
+# cdylib import library, which drags a skey.dll dependency the test exes
+# cannot satisfy at runtime (STATUS_DLL_NOT_FOUND, 0xC0000135).
+set(SKEY_CORE_LIB "")
+foreach(skey_target_dir
         "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/x86_64-pc-windows-msvc/release"
         "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/aarch64-apple-darwin/release"
         "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/x86_64-apple-darwin/release"
-        "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/release"
-    NO_DEFAULT_PATH)
+        "${CMAKE_CURRENT_LIST_DIR}/../../../core/target/release")
+    foreach(skey_lib_name libskey.a skey.lib)
+        if(EXISTS "${skey_target_dir}/${skey_lib_name}")
+            set(SKEY_CORE_LIB "${skey_target_dir}/${skey_lib_name}")
+            break()
+        endif()
+    endforeach()
+    if(SKEY_CORE_LIB)
+        break()
+    endif()
+endforeach()
 
 # Typing modules required by TrayRuntime on Windows.
 set(SKEY_TYPING_SOURCES "")
@@ -78,7 +89,7 @@ if(WIN32)
     else()
         message(WARNING
             "skey.lib not found; TrayRuntime-based tests will fail to link. "
-            "Build it first: cargo build --release -p skey-capi --target x86_64-pc-windows-msvc (in core/)")
+            "Build it first: cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib (in core/)")
     endif()
 endif()
 
