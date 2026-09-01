@@ -1,42 +1,101 @@
-<Page x:Class="SKey.Settings.SnippetsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
-  <ScrollViewer>
-    <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock x:Uid="settings.snippets.title" Text="Snippets" Style="{StaticResource SubtitleTextBlockStyle}"/>
+<Page x:Class="SKey.Settings.SnippetsSettingsTab"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Loaded="Page_Loaded">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16" MaxWidth="1080" HorizontalAlignment="Stretch" Padding="4,4,28,48">
+            <!-- Header -->
+            <StackPanel Spacing="4" Margin="0,0,0,12">
+                <TextBlock Text="Gõ tắt &amp; Viết tắt (Snippets)" FontSize="28" FontWeight="SemiBold" />
+                <TextBlock Text="Tự động mở rộng từ viết tắt thành đoạn văn bản dài khi gõ phím Space hoặc Tab" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13" />
+            </StackPanel>
 
-      <!-- macro.section.options -->
-      <TextBlock x:Uid="macro.section.options" Text="Operation options" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-      <ToggleSwitch x:Name="EnableToggle" x:Uid="macro.option.enable" Header="Enable Snippets / Macro" IsOn="True" Toggled="OnEnableToggled"/>
-      <TextBlock x:Uid="macro.option.enableDesc" Text="Automatically expand shortcuts when pressing Space" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,-10,0,0"/>
-      <StackPanel x:Name="MacroOptionsPanel" Spacing="16">
-        <ToggleSwitch x:Name="AutoCapsToggle" x:Uid="macro.option.autoCaps" Header="Auto-capitalize replacement" IsOn="True" Toggled="OnAutoCapsToggled"/>
-        <TextBlock x:Uid="macro.option.autoCapsDesc" Text="Capitalize replacement corresponding to shortcut casing (e.g. VN -&gt; VIỆT NAM)" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,-10,0,0"/>
-        <ToggleSwitch x:Name="EnglishModeToggle" x:Uid="macro.option.inEnglish" Header="Enable Snippets in English mode" Toggled="OnEnglishModeToggled"/>
-        <TextBlock x:Uid="macro.option.inEnglishDesc" Text="Expand shortcuts even when typing in English mode [E]" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,-10,0,0"/>
-      </StackPanel>
+            <!-- Tùy chọn hoạt động -->
+            <TextBlock Text="Tùy chọn hoạt động" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,8,0,0" />
 
-      <!-- macro.section.add -->
-      <TextBlock x:Uid="macro.section.add" Text="Add new snippet" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <Grid ColumnSpacing="8">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="200"/>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <TextBox x:Name="NewTriggerBox" x:Uid="macro.placeholder.shortcutShort" Header="Shortcut" PlaceholderText="e.g. vn" TextChanged="OnAddFieldChanged"/>
-        <TextBox x:Name="NewReplacementBox" x:Uid="macro.placeholder.replacementShort" Grid.Column="1" Header="Replacement" PlaceholderText="e.g. Việt Nam" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" TextChanged="OnAddFieldChanged"/>
-        <Button x:Name="AddButton" x:Uid="macro.action.add" Grid.Column="2" Content="Add" IsEnabled="False" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Bottom" Click="OnAddClicked"/>
-      </Grid>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE75A;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Bật tính năng Gõ tắt" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Tự động thay thế từ viết tắt thành nội dung tương ứng khi bấm phím Space" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ToggleSwitch x:Name="EnableToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" IsOn="True" OnContent="Bật" OffContent="Tắt" Toggled="OnEnableToggled" />
+                </Grid>
+            </Border>
 
-      <!-- macro.section.list -->
-      <TextBlock x:Name="ListTitle" x:Uid="macro.section.list" Text="Snippets list" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <TextBox x:Name="SearchBox" x:Uid="macro.placeholder.search" PlaceholderText="Search snippets..." TextChanged="OnSearchChanged"/>
+            <StackPanel x:Name="MacroOptionsPanel" Spacing="14">
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8E4;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Tự động viết hoa tương ứng (Auto-Caps)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Viết hoa kết quả theo chữ hoa của từ viết tắt (vd: vn -&gt; việt nam, VN -&gt; VIỆT NAM, Vn -&gt; Việt nam)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="AutoCapsToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" IsOn="True" OnContent="Bật" OffContent="Tắt" Toggled="OnAutoCapsToggled" />
+                    </Grid>
+                </Border>
 
-      <Border Padding="16" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-        <StackPanel Spacing="4">
-          <TextBlock x:Name="EmptyStateText" x:Uid="macro.status.empty" Text="No snippets added yet" Opacity="0.7" HorizontalAlignment="Center" Padding="0,16"/>
-          <StackPanel x:Name="MacroListPanel"/>
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xF2B7;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Cho phép gõ tắt cả khi ở chế độ Tiếng Anh" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Mở rộng từ viết tắt ngay cả khi bộ gõ đang ở chế độ gõ thuần tiếng Anh [E]" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="EnglishModeToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnEnglishModeToggled" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Thêm từ gõ tắt mới -->
+            <TextBlock Text="Thêm từ gõ tắt mới" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,12,0,0" />
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18">
+                <Grid ColumnSpacing="12" RowSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="NewTriggerBox" Header="Từ viết tắt (Trigger)" PlaceholderText="vd: vn, dc, sdt..." TextChanged="OnAddFieldChanged" VerticalAlignment="Top" />
+                    <TextBox x:Name="NewReplacementBox" Grid.Column="1" Header="Nội dung thay thế (Replacement)" PlaceholderText="vd: Việt Nam, được, 0912345678..." AcceptsReturn="True" TextWrapping="Wrap" MinHeight="64" TextChanged="OnAddFieldChanged" VerticalAlignment="Top" />
+                    <Button x:Name="AddButton" Grid.Column="2" Content="Thêm mới" IsEnabled="False" Style="{StaticResource AccentButtonStyle}" VerticalAlignment="Bottom" Height="36" Click="OnAddClicked" Padding="18,6" />
+                </Grid>
+            </Border>
+
+            <!-- Danh sách từ gõ tắt -->
+            <TextBlock x:Name="ListTitle" Text="Danh sách từ gõ tắt" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,12,0,0" />
+
+            <TextBox x:Name="SearchBox" PlaceholderText="Tìm kiếm từ viết tắt hoặc nội dung thay thế..." TextChanged="OnSearchChanged" />
+
+            <Border Padding="16" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <TextBlock x:Name="EmptyStateText" Text="Chưa có từ viết tắt nào trong danh sách. Hãy thêm từ viết tắt ở trên!" Opacity="0.6" HorizontalAlignment="Center" Padding="0,24" />
+                    <StackPanel x:Name="MacroListPanel" Spacing="6" />
+                </StackPanel>
+            </Border>
         </StackPanel>
-      </Border>
-    </StackPanel>
-  </ScrollViewer>
+    </ScrollViewer>
 </Page>

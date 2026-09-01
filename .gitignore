@@ -54,3 +54,22 @@ dist/
 platforms/macos/skey-app/dist/
 .build/
 platforms/macos/skey-app/.build/
+
+# Windows build outputs and IDE files
+out/
+build/
+platforms/windows/build/
+platforms/windows/skey-settings/bin/
+platforms/windows/skey-settings/obj/
+platforms/windows/skey-settings/packages/
+platforms/windows/skey-settings/win32/
+platforms/windows/skey-settings/Generated Files/
+platforms/windows/skey-settings/XamlMetaDataProvider.*
+*.user
+*.suo
+*.VC.db
+*.opensdf
+*.opendb
+*.sdf
+*.log
+

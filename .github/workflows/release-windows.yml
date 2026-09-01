@@ -112,25 +112,41 @@ jobs:
           VERSION="${TAG#win-v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - uses: nuget/setup-nuget@v2
+
+      - uses: microsoft/setup-msbuild@v2
+
       - name: Configure
         run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=OFF -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 
-      - name: Build
+      - name: Build Core & Tray
         run: cmake --build out/windows-contract --config Release
 
+      - name: Restore Settings UI packages
+        run: nuget restore platforms/windows/skey-settings/SKey.Settings.sln
+
+      - name: Build Settings UI (WinUI 3)
+        shell: pwsh
+        run: |
+          msbuild platforms/windows/skey-settings/SKey.Settings.sln /p:Configuration=Release /p:Platform=x64 /m /v:m
+
       - name: Package
-        run: cmake --build out/windows-contract --config Release --target skey-package
+        shell: pwsh
+        run: |
+          cmake --build out/windows-contract --config Release --target skey-package
+          Copy-Item 'platforms/windows/skey-settings/bin/x64/Release/*' 'out/windows-contract/installer-windows/package/' -Recurse -Force
+          Copy-Item 'platforms/windows/skey-settings/bin/x64/Release/SKey.Settings.exe' 'out/windows-contract/installer-windows/package/skey-settings.exe' -Force
+          Compress-Archive -Path 'out/windows-contract/installer-windows/package/*' -DestinationPath 'out/windows-contract/installer-windows/skey-windows.zip' -Force
 
       - name: Install WiX Toolset
         run: |
           dotnet tool install --global wix --version 5.0.2
 
       - name: Build MSI Installer
-        shell: bash
+        shell: pwsh
         run: |
           cd installer-windows
-          cp ../out/windows-contract/installer-windows/package/skey-tray.exe .
-          cp ../out/windows-contract/installer-windows/package/skey-tsf.dll .
+          Copy-Item '../out/windows-contract/installer-windows/package/*' . -Recurse -Force
           wix build SKeyInstaller.wxs -o SKey-Installer.msi -arch x64
 
       - name: Generate checksums

@@ -1,101 +1,366 @@
-<Page x:Class="SKey.Settings.KeyboardSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
-  <ScrollViewer>
-    <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock x:Uid="settings.keyboard.title" Text="Keyboard" Style="{StaticResource SubtitleTextBlockStyle}"/>
+<Page x:Class="SKey.Settings.KeyboardSettingsTab"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Loaded="Page_Loaded">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16" MaxWidth="1080" HorizontalAlignment="Stretch" Padding="4,4,28,48">
+            <!-- Header -->
+            <StackPanel Spacing="4" Margin="0,0,0,12">
+                <TextBlock Text="Bàn phím &amp; Kiểu gõ" FontSize="28" FontWeight="SemiBold" />
+                <TextBlock Text="Cấu hình phương thức nhập tiếng Việt, bảng mã, quy tắc bỏ dấu và ứng dụng loại trừ" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13" />
+            </StackPanel>
 
-      <StackPanel Orientation="Horizontal" Spacing="8">
-        <Button x:Name="SubTabInputMethod" x:Uid="settings.subtab.inputMethod" Content="Input Method" Click="OnSubTabInputMethodClicked"/>
-        <Button x:Name="SubTabTypingRules" x:Uid="settings.subtab.typingRules" Content="Typing Rules" Click="OnSubTabTypingRulesClicked"/>
-        <Button x:Name="SubTabAppManagement" x:Uid="settings.subtab.appManagement" Content="App Management" Click="OnSubTabAppManagementClicked"/>
-      </StackPanel>
+            <!-- Segmented SubTab Bar -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="4" HorizontalAlignment="Left" Margin="0,0,0,4">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button x:Name="SubTabInputMethod" Content="Kiểu gõ &amp; Bảng mã" Click="OnSubTabInputMethodClicked" CornerRadius="6" Style="{StaticResource AccentButtonStyle}" Padding="16,6" />
+                    <Button x:Name="SubTabTypingRules" Content="Quy tắc gõ &amp; Dấu" Click="OnSubTabTypingRulesClicked" CornerRadius="6" Padding="16,6" />
+                    <Button x:Name="SubTabAppManagement" Content="Quản lý ứng dụng" Click="OnSubTabAppManagementClicked" CornerRadius="6" Padding="16,6" />
+                </StackPanel>
+            </Border>
 
-      <StackPanel x:Name="InputMethodPanel" Spacing="12">
-        <TextBlock x:Uid="settings.keyboard.input_method" Text="Input Method" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-        <ComboBox x:Name="InputMethodCombo" x:Uid="keyboard.option.primaryMethod" Header="Primary input method" SelectedIndex="0" SelectionChanged="OnInputMethodChanged" HorizontalAlignment="Stretch">
-          <ComboBoxItem Content="Telex"/>
-          <ComboBoxItem Content="Simple Telex"/>
-          <ComboBoxItem Content="VNI"/>
-          <ComboBoxItem Content="VIQR"/>
-        </ComboBox>
-        <TextBlock x:Uid="keyboard.option.primaryMethodDesc" Text="Default Vietnamese typing method" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ComboBox x:Name="CharsetCombo" x:Uid="keyboard.option.charset" Header="Charset" SelectedIndex="0" SelectionChanged="OnCharsetChanged" HorizontalAlignment="Stretch">
-          <ComboBoxItem Content="Unicode"/>
-          <ComboBoxItem Content="TCVN3"/>
-          <ComboBoxItem Content="VNI Windows"/>
-        </ComboBox>
-        <TextBlock x:Uid="keyboard.option.charsetDesc" Text="Output character encoding" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <!-- Panel 1: Kiểu gõ & Bảng mã -->
+            <StackPanel x:Name="InputMethodPanel" Spacing="14">
+                <TextBlock Text="Phương thức nhập liệu &amp; Bảng mã" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,6,0,0" />
 
-        <TextBlock x:Uid="keyboard.section.mode" Text="Typing Mode" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-        <ToggleSwitch x:Name="VietnameseToggle" x:Uid="keyboard.option.enableVietnamese" Header="Enable Vietnamese input" IsOn="True" Toggled="OnVietnameseToggled"/>
-        <TextBlock x:Uid="keyboard.option.enableVietnameseDesc" Text="Turn the Vietnamese input engine on or off" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <Grid ColumnSpacing="12">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-            <TextBlock x:Uid="keyboard.shortcut.toggleTitle" Text="Language toggle shortcut"/>
-            <TextBlock x:Uid="keyboard.shortcut.toggleSubtitle" Text="Quickly switch between Vietnamese and English" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-          </StackPanel>
-          <Border Grid.Column="1" Padding="8,4" VerticalAlignment="Center" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-            <TextBlock x:Name="LanguageToggleHotkeyText" Text="Alt+Z" Style="{StaticResource CaptionTextBlockStyle}"/>
-          </Border>
-          <ComboBox Grid.Column="2" x:Name="LanguageTogglePresetCombo" x:Uid="shortcut.presets" SelectionChanged="OnLanguageTogglePresetChanged" SelectedIndex="0" VerticalAlignment="Center" MinWidth="160">
-            <ComboBoxItem Content="Alt + Z"/>
-            <ComboBoxItem Content="Ctrl + Shift"/>
-            <ComboBoxItem Content="Ctrl + Alt + Z"/>
-            <ComboBoxItem Content="Shift + Win"/>
-            <ComboBoxItem Content="Alt + Shift"/>
-            <ComboBoxItem Content="Ctrl + Space"/>
-          </ComboBox>
-        </Grid>
-      </StackPanel>
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE765;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Kiểu gõ tiếng Việt" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Chọn kiểu gõ Telex chuẩn, Simple Telex, VNI hoặc VIQR theo thói quen" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ComboBox x:Name="InputMethodCombo" Grid.Column="2" SelectionChanged="OnInputMethodChanged" MinWidth="190" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Telex (Chuẩn)" />
+                            <ComboBoxItem Content="Simple Telex" />
+                            <ComboBoxItem Content="VNI" />
+                            <ComboBoxItem Content="VIQR" />
+                        </ComboBox>
+                    </Grid>
+                </Border>
 
-      <StackPanel x:Name="TypingRulesPanel" Spacing="12" Visibility="Collapsed">
-        <TextBlock x:Uid="keyboard.section.rules" Text="Typing Rules &amp; Tone Marks" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-        <ToggleSwitch x:Name="SpellCheckToggle" x:Uid="settings.keyboard.spell_check" Header="Spell check" IsOn="True" Toggled="OnSpellCheckToggled"/>
-        <TextBlock x:Uid="keyboard.option.spellCheckDesc" Text="Automatically undo tone marks for words not in the Vietnamese dictionary" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="FreeMarkingToggle" x:Uid="keyboard.options.free_marking" Header="Free marking" IsOn="True" Toggled="OnFreeMarkingToggled"/>
-        <TextBlock x:Uid="keyboard.option.freeMarkingDesc" Text="Allow tone marks at any position in a word (e.g. toanf -&gt; toàn)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="ModernStyleToggle" x:Uid="keyboard.options.modern_style" Header="Modern tone mark style" Toggled="OnModernStyleToggled"/>
-        <TextBlock x:Uid="keyboard.option.modernStyleDesc" Text="Place tone marks on the second vowel instead of the traditional style" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="SwallowedKeyRestoreToggle" x:Uid="keyboard.advanced.swallowed_restore" Header="Restore swallowed keystrokes" IsOn="True" Toggled="OnSwallowedKeyRestoreToggled"/>
-        <TextBlock x:Uid="keyboard.option.swallowedKeyDesc" Text="Recover characters wrongly deleted when switching to an English word" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="ZfwjToggle" x:Uid="keyboard.options.allow_zfwj" Header="Allow z/f/w/j as consonants" Toggled="OnZfwjToggled"/>
-        <TextBlock x:Uid="keyboard.option.zfwjDesc" Text="Treat z, f, w, j as real consonants instead of Telex tone shortcuts" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8D2;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Bảng mã ký tự" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Bảng mã đầu ra: Unicode dựng sẵn cho hệ thống hiện đại, hoặc TCVN3, VNI Windows cho tài liệu cũ" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ComboBox x:Name="CharsetCombo" Grid.Column="2" SelectionChanged="OnCharsetChanged" MinWidth="190" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Unicode (Mặc định)" />
+                            <ComboBoxItem Content="TCVN3 (ABC)" />
+                            <ComboBoxItem Content="VNI Windows" />
+                            <ComboBoxItem Content="Unicode Tổ hợp" />
+                        </ComboBox>
+                    </Grid>
+                </Border>
 
-        <TextBlock x:Uid="keyboard.section.quickTelex" Text="Quick Typing" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-        <ToggleSwitch x:Name="QuickTelexToggle" x:Uid="keyboard.advanced.quick_telex" Header="Quick Telex (cc=ch, gg=gi, uu=uo)" Toggled="OnQuickTelexToggled"/>
-        <TextBlock x:Uid="keyboard.option.quickTelexDesc" Text="Auto replace cc-&gt;ch, gg-&gt;gi, uu-&gt;ươ, tt-&gt;th" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="QuickStartConsonantToggle" x:Uid="keyboard.option.quickStartConsonant" Header="Quick start consonant (f=ph, j=gi, w=qu)" Toggled="OnQuickStartConsonantToggled"/>
-        <TextBlock x:Uid="keyboard.option.quickStartConsonantDesc" Text="Auto replace f-&gt;ph, j-&gt;gi, w-&gt;qu" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="QuickEndConsonantToggle" x:Uid="keyboard.option.quickEndConsonant" Header="Quick end consonant (g=ng, h=nh, k=ch)" Toggled="OnQuickEndConsonantToggled"/>
-        <TextBlock x:Uid="keyboard.option.quickEndConsonantDesc" Text="Auto replace g-&gt;ng, h-&gt;nh, k-&gt;ch" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="UpperCaseFirstToggle" x:Uid="keyboard.option.upperCaseFirst" Header="Upper case first character" Toggled="OnUpperCaseFirstCharToggled"/>
-        <TextBlock x:Uid="keyboard.option.upperCaseFirstDesc" Text="Auto capitalize the letter after punctuation (. ? !)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-      </StackPanel>
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE975;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Trạng thái gõ Tiếng Việt [V/E]" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Bật / tắt chế độ xử lý tiếng Việt trên toàn hệ thống" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="VietnameseToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật [V]" OffContent="Tắt [E]" Toggled="OnVietnameseToggled" />
+                    </Grid>
+                </Border>
 
-      <StackPanel x:Name="AppManagementPanel" Spacing="12" Visibility="Collapsed">
-        <TextBlock x:Uid="keyboard.section.smartSwitch" Text="Smart Environment Switching" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-        <ToggleSwitch x:Name="SmartAppSwitchToggle" x:Uid="keyboard.option.smartSwitch" Header="Enable Smart App Switch" Toggled="OnSmartAppSwitchToggled"/>
-        <TextBlock x:Uid="keyboard.option.smartSwitchDesc" Text="Auto switch to English in IDE / Terminal and restore when switching back" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ToggleSwitch x:Name="ImeBrowsersToggle" x:Uid="keyboard.option.imeBrowsers" Header="Use IME for browsers" IsOn="True" Toggled="OnImeBrowsersToggled"/>
-        <TextBlock x:Uid="keyboard.option.imeBrowsersDesc" Text="Type through the TSF bridge in Chrome/Edge/Firefox so address bars never double characters" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE75A;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Phím tắt chuyển [V/E] nhanh" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tổ hợp phím tắt nhanh để đổi qua lại giữa tiếng Việt và tiếng Anh" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ComboBox x:Name="LanguageTogglePresetCombo" Grid.Column="2" SelectionChanged="OnLanguageTogglePresetChanged" MinWidth="190" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Alt + Z" />
+                            <ComboBoxItem Content="Ctrl + Shift" />
+                            <ComboBoxItem Content="Ctrl + Alt + Z" />
+                            <ComboBoxItem Content="Shift + Win" />
+                            <ComboBoxItem Content="Alt + Shift" />
+                            <ComboBoxItem Content="Ctrl + Space" />
+                        </ComboBox>
+                    </Grid>
+                </Border>
+            </StackPanel>
 
-        <TextBlock x:Uid="keyboard.section.excludedApps" Text="Excluded Applications" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-        <ToggleSwitch x:Name="ExclusionEnabledToggle" x:Uid="keyboard.excluded.enableMaster" Header="Enable app exclusion" IsOn="True" Toggled="OnExclusionEnabledToggled"/>
-        <TextBlock x:Uid="keyboard.excluded.enableMasterDesc" Text="Automatically bypass the Vietnamese engine in selected applications" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <!-- Panel 2: Quy tắc gõ & Bỏ dấu -->
+            <StackPanel x:Name="TypingRulesPanel" Spacing="14" Visibility="Collapsed">
+                <TextBlock Text="Quy tắc bỏ dấu &amp; Kiểm tra chính tả" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,6,0,0" />
 
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <TextBox x:Name="AddExcludedAppBox" x:Uid="keyboard.excluded.processNamePlaceholder" PlaceholderText="notepad.exe" MinWidth="220"/>
-          <Button x:Name="AddExcludedAppButton" x:Uid="keyboard.excluded.addApp" Content="Add application" Click="OnAddExcludedAppClicked"/>
-          <Button x:Name="RemoveExcludedAppButton" x:Uid="keyboard.excluded.removeSelected" Content="Remove selected" Click="OnRemoveSelectedExcludedAppClicked"/>
-          <Button x:Name="ClearExcludedAppsButton" x:Uid="keyboard.excluded.clearAll" Content="Clear all" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Click="OnClearExcludedAppsClicked"/>
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE73E;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Kiểm tra chính tả tự động" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động hủy bỏ dấu thanh nếu từ vừa gõ không đúng ngữ pháp tiếng Việt" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="SpellCheckToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnSpellCheckToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Cho phép bỏ dấu tự do (Free Marking)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Có thể gõ phím bỏ dấu ở bất kỳ vị trí nào khi đang gõ từ" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="FreeMarkingToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnFreeMarkingToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8D2;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Quy tắc bỏ dấu kiểu mới (Modern Style)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Đặt dấu thanh trên nguyên âm chính (vd: hoà thay vì hòa, thuỷ thay vì thủy)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="ModernStyleToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnModernStyleToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE777;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Khôi phục phím khi gõ sai (Swallowed Keys Restore)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động khôi phục lại ký tự nguyên bản khi xóa hoặc gõ tiếp" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="RestoreKeysToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnSwallowedKeyRestoreToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8E4;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Cho phép các phụ âm Z, F, W, J" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Gõ các ký tự ngoại lai mà không bị cản trở bởi bộ kiểm tra chính tả" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="ZfwjToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnZfwjToggled" />
+                    </Grid>
+                </Border>
+
+                <TextBlock Text="Gõ nhanh &amp; Viết tắt" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,8,0,0" />
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE945;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Gõ tắt Telex (cc -&gt; ch, gg -&gt; gi, uu -&gt; ươ)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động thay thế nhanh các cặp phụ âm / nguyên âm kép tiện lợi" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="QuickTelexToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnQuickTelexToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8B9;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Gõ nhanh phụ âm đầu (f -&gt; ph, j -&gt; gi, w -&gt; qu)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động thay thế phụ âm đầu bằng 1 phím bấm tiện lợi" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="QuickStartConsonantToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnQuickStartConsonantToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8B9;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Gõ nhanh phụ âm cuối (g -&gt; ng, h -&gt; nh, k -&gt; ch)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động chuyển đổi phụ âm cuối nhanh chóng" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="QuickEndConsonantToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnQuickEndConsonantToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8E4;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Tự động viết hoa chữ cái đầu câu" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động viết hoa chữ cái sau các dấu chấm câu (. ? !)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="UpperCaseFirstToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnUpperCaseFirstCharToggled" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Panel 3: Quản lý ứng dụng -->
+            <StackPanel x:Name="AppManagementPanel" Spacing="14" Visibility="Collapsed">
+                <TextBlock Text="Chuyển đổi môi trường thông minh" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,6,0,0" />
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE756;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Bật Smart App Switch" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động chuyển sang Tiếng Anh khi vào IDE / Terminal và tự khôi phục lại khi chuyển ứng dụng khác" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="SmartAppSwitchToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnSmartAppSwitchToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE774;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Dùng TSF Bridge cho trình duyệt web" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Gõ qua TSF bridge trong Chrome/Edge/Firefox để không bị nhảy hay lặp chữ trên thanh địa chỉ" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="ImeBrowsersToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" IsOn="True" OnContent="Bật" OffContent="Tắt" Toggled="OnImeBrowsersToggled" />
+                    </Grid>
+                </Border>
+
+                <TextBlock Text="Danh sách ứng dụng loại trừ" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,10,0,0" />
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE71A;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Bật tính năng loại trừ ứng dụng" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tự động tắt bộ gõ tiếng Việt khi đang làm việc trong các phần mềm / trò chơi bên dưới" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="ExclusionEnabledToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" IsOn="True" OnContent="Bật" OffContent="Tắt" Toggled="OnExclusionEnabledToggled" />
+                    </Grid>
+                </Border>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18">
+                    <StackPanel Spacing="14">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="AddExcludedAppBox" PlaceholderText="Nhập tên tiến trình (vd: code.exe, game.exe, photoshop.exe)..." VerticalAlignment="Center" />
+                            <Button x:Name="AddExcludedAppButton" Grid.Column="1" Content="Thêm ứng dụng" Style="{StaticResource AccentButtonStyle}" Click="OnAddExcludedAppClicked" VerticalAlignment="Center" />
+                            <Button x:Name="RemoveExcludedAppButton" Grid.Column="2" Content="Xóa đã chọn" Click="OnRemoveSelectedExcludedAppClicked" VerticalAlignment="Center" />
+                            <Button x:Name="ClearExcludedAppsButton" Grid.Column="3" Content="Xóa tất cả" Foreground="{ThemeResource SystemFillColorCriticalBrush}" Click="OnClearExcludedAppsClicked" VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock x:Name="ExcludedAppsCountText" Text="Chưa có ứng dụng nào được loại trừ" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        <ListView x:Name="ExcludedAppsList" SelectionMode="Single" MinHeight="160" MaxHeight="320" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </StackPanel>
-        <TextBlock x:Name="ExcludedAppsCountText" x:Uid="keyboard.excluded.noApps" Text="No excluded applications" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        <ListView x:Name="ExcludedAppsList" SelectionMode="Single" MinHeight="160" MaxHeight="280"/>
-      </StackPanel>
-    </StackPanel>
-  </ScrollViewer>
+    </ScrollViewer>
 </Page>

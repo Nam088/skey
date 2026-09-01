@@ -114,7 +114,7 @@ jobs:
         # while App.OnLaunched builds MainWindow and navigates the first tab.
         shell: pwsh
         run: |
-          $exe = 'platforms/windows/skey-settings/x64/Release/SKey.Settings/SKey.Settings.exe'
+          $exe = 'platforms/windows/skey-settings/bin/x64/Release/SKey.Settings.exe'
           if (-not (Test-Path $exe)) { throw "Build produced no $exe" }
           $p = Start-Process -FilePath (Resolve-Path $exe) -PassThru
           Write-Host "Started pid $($p.Id); watching for 15s"
@@ -144,7 +144,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: skey-settings-winui
-          path: platforms/windows/skey-settings/x64/Release/**
+          path: platforms/windows/skey-settings/bin/x64/Release/**
           if-no-files-found: warn
 
   rust:

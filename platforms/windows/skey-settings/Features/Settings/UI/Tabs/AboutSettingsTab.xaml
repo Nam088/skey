@@ -1,45 +1,92 @@
-<Page x:Class="SKey.Settings.AboutSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
-  <ScrollViewer>
-    <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock x:Uid="settings.about.title" Text="About SKey" Style="{StaticResource SubtitleTextBlockStyle}"/>
+<Page x:Class="SKey.Settings.AboutSettingsTab"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Loaded="Page_Loaded">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16" MaxWidth="1080" HorizontalAlignment="Stretch" Padding="4,4,28,48">
+            <!-- Header -->
+            <StackPanel Spacing="4" Margin="0,0,0,12">
+                <TextBlock Text="Thông tin ứng dụng" FontSize="28" FontWeight="SemiBold" />
+                <TextBlock Text="Bộ gõ tiếng Việt thế hệ mới xây dựng trên nền tảng Rust và Windows App SDK (WinUI 3)" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13" />
+            </StackPanel>
 
-      <Border Padding="24,20" CornerRadius="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" HorizontalAlignment="Stretch">
-        <StackPanel Spacing="12" HorizontalAlignment="Center">
-          <Border Width="64" Height="64" CornerRadius="32" Background="{StaticResource SKeyAccentBrush}" HorizontalAlignment="Center">
-            <TextBlock Text="S" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="32" FontWeight="Bold" Foreground="White"/>
-          </Border>
-          <TextBlock Text="SKey" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-          <TextBlock HorizontalAlignment="Center" Opacity="0.7">
-            <Run x:Uid="about.version.label" Text="Version "/><Run Text="0.1.0"/>
-          </TextBlock>
-          <TextBlock x:Uid="about.description" Text="Bộ gõ tiếng Việt dành cho Windows" HorizontalAlignment="Center" Opacity="0.7" TextWrapping="Wrap"/>
+            <!-- Hero Banner Card -->
+            <Border Padding="32,28" CornerRadius="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <StackPanel Spacing="16" HorizontalAlignment="Center">
+                    <Border Width="72" Height="72" CornerRadius="36" Background="{ThemeResource AccentFillColorDefaultBrush}" HorizontalAlignment="Center">
+                        <TextBlock Text="S" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="38" FontWeight="Bold" Foreground="White" />
+                    </Border>
+                    <StackPanel Spacing="4" HorizontalAlignment="Center">
+                        <TextBlock Text="SKey for Windows" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                        <Border Background="{ThemeResource AccentFillColorTertiaryBrush}" CornerRadius="12" Padding="12,4" HorizontalAlignment="Center">
+                            <TextBlock Text="Phiên bản 0.1.0 (Bản thử nghiệm)" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" FontSize="12" FontWeight="SemiBold" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="Bộ gõ tiếng Việt hiệu năng cao dành cho Windows 10 &amp; Windows 11. Xây dựng bằng lõi Rust siêu tốc, thuật toán gõ phím thông minh và giao diện Fluent Design hiện đại, mượt mà." HorizontalAlignment="Center" TextAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" MaxWidth="620" FontSize="13" />
+                    <Button x:Name="CheckUpdatesButton" Content="Kiểm tra bản cập nhật mới" Style="{StaticResource AccentButtonStyle}" Click="OnCheckUpdatesClicked" HorizontalAlignment="Center" Margin="0,6,0,0" Padding="20,8" />
+                </StackPanel>
+            </Border>
+
+            <!-- Thông tin phát triển & Bản quyền -->
+            <TextBlock Text="Thông tin phát triển &amp; Nền tảng" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,8,0,0" />
+
+            <Border Padding="18,14" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <StackPanel Spacing="12">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE77B;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Tác giả &amp; Nhóm phát triển" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Phát triển bởi Nam088 và cộng đồng mã nguồn mở" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" Text="Nam088" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <MenuFlyoutSeparator />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE774;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Kho mã nguồn mở (GitHub)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Đóng góp ý kiến, báo lỗi hoặc gửi Pull Request tại kho GitHub chính thức" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <HyperlinkButton Grid.Column="2" Content="github.com/Nam088/skey" NavigateUri="https://github.com/Nam088/skey" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <MenuFlyoutSeparator />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE82D;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Giấy phép phần mềm (License)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Phát hành theo giấy phép phần mềm mã nguồn mở MIT License" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" Text="MIT License" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="© 2024-2026 SKey Contributors. Mọi quyền được bảo lưu." TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}" HorizontalAlignment="Center" Margin="0,16,0,0" />
         </StackPanel>
-      </Border>
-
-      <Border Padding="20,16" CornerRadius="10" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-        <StackPanel Spacing="8">
-          <Grid ColumnSpacing="12">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="140"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" x:Uid="about.author" Text="Author" Opacity="0.7"/>
-            <TextBlock Grid.Column="1" Text="Nam088"/>
-          </Grid>
-          <Grid ColumnSpacing="12">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="140"/>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" x:Uid="about.opensource" Text="Open source" Opacity="0.7"/>
-            <HyperlinkButton Grid.Column="1" Content="GitHub" NavigateUri="https://github.com/Nam088/skey" Padding="0"/>
-          </Grid>
-        </StackPanel>
-      </Border>
-
-      <Button x:Name="CheckUpdatesButton" x:Uid="about.checkUpdateBtn" Content="Check for updates" Click="OnCheckUpdatesClicked"/>
-
-      <TextBlock x:Uid="about.copyright" Text="© 2024 SKey Contributors. Licensed under MIT." TextWrapping="Wrap" FontSize="12" Opacity="0.5" Margin="0,16,0,0"/>
-    </StackPanel>
-  </ScrollViewer>
+    </ScrollViewer>
 </Page>

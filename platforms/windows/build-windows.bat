@@ -55,8 +55,38 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Build complete.
 cd ..
+
+echo Building WinUI 3 Settings (skey-settings.exe)...
+set "MSBUILD_EXE="
+for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -find MSBuild\**\Bin\amd64\MSBuild.exe 2^>nul`) do (
+    set "MSBUILD_EXE=%%i"
+)
+if "!MSBUILD_EXE!"=="" (
+    where msbuild.exe >nul 2>nul && set "MSBUILD_EXE=msbuild.exe"
+)
+if not "!MSBUILD_EXE!"=="" (
+    pushd skey-settings
+    "!MSBUILD_EXE!" SKey.Settings.sln /p:Configuration=%CONFIG% /p:Platform=x64 /v:m
+    if errorlevel 1 (
+        echo WinUI 3 Settings build failed!
+        popd
+        exit /b 1
+    )
+    popd
+    if exist skey-settings\bin\x64\%CONFIG%\SKey.Settings.exe (
+        copy /y skey-settings\bin\x64\%CONFIG%\* %BUILD_DIR%\skey-tray\%CONFIG%\ >nul 2>&1
+        copy /y skey-settings\bin\x64\%CONFIG%\SKey.Settings.exe %BUILD_DIR%\skey-tray\%CONFIG%\skey-settings.exe >nul 2>&1
+        if exist %BUILD_DIR%\installer-windows\package (
+            copy /y skey-settings\bin\x64\%CONFIG%\* %BUILD_DIR%\installer-windows\package\ >nul 2>&1
+            copy /y skey-settings\bin\x64\%CONFIG%\SKey.Settings.exe %BUILD_DIR%\installer-windows\package\skey-settings.exe >nul 2>&1
+        )
+    )
+) else (
+    echo MSBuild not found - skipping WinUI 3 Settings build.
+)
+
+echo Build complete.
 exit /b 0
 
 :test

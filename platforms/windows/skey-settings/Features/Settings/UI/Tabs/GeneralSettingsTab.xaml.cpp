@@ -3,26 +3,41 @@
 #if __has_include("GeneralSettingsTab.g.cpp")
 #include "GeneralSettingsTab.g.cpp"
 #endif
+#if __has_include("GeneralSettingsTab.xaml.g.hpp")
+#include "GeneralSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
+#include <windows.h>
+#include <commdlg.h>
+#pragma comment(lib, "comdlg32.lib")
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Windows.Storage.Pickers.h>
 
 #include "../../../../Shared/Settings/Backup/SettingsBackup.h"
-
 #include "../../../../ViewModels/SharedViewModel.h"
+#include "../../../../Shared/Logging/AppLogger.h"
+#include "../../../App/MainWindow.xaml.h"
 
 namespace winrt::SKey::Settings::implementation {
 
 GeneralSettingsTab::GeneralSettingsTab() {
+    SKEY_LOG_INFO("GeneralSettingsTab() constructing...");
+    try {
+        vm_ = &skey::windows::shared_view_model();
+        SKEY_LOG_INFO("shared_view_model resolved.");
+    } catch (...) {
+        SKEY_LOG_ERROR("Failed to resolve shared_view_model!");
+    }
     InitializeComponent();
-    vm_ = &skey::windows::shared_view_model();
+    SKEY_LOG_INFO("GeneralSettingsTab::InitializeComponent() succeeded.");
 }
 
 using namespace winrt::Microsoft::UI::Xaml::Controls;
 
 void GeneralSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                       winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    SKEY_LOG_INFO("GeneralSettingsTab::Page_Loaded() starting...");
     if (!vm_) return;
     loading_ = true;
     const auto& s = vm_->settings();
@@ -42,6 +57,7 @@ void GeneralSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable co
     CheckUpdatesToggle().IsOn(s.check_updates);
     DebugModeToggle().IsOn(s.debug_mode);
     loading_ = false;
+    SKEY_LOG_INFO("GeneralSettingsTab::Page_Loaded() completed.");
 }
 
 void GeneralSettingsTab::OnLaunchAtLoginToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
@@ -67,11 +83,15 @@ void GeneralSettingsTab::OnThemeChanged(winrt::Windows::Foundation::IInspectable
                                         winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&) {
     if (!vm_ || loading_) return;
     auto combo = sender.as<ComboBox>();
-    switch (combo.SelectedIndex()) {
-    case 1: vm_->set_theme(skey::windows::ThemeMode::light); break;
-    case 2: vm_->set_theme(skey::windows::ThemeMode::dark); break;
-    default: vm_->set_theme(skey::windows::ThemeMode::system); break;
-    }
+    const auto theme = [&]() {
+        switch (combo.SelectedIndex()) {
+        case 1: return skey::windows::ThemeMode::light;
+        case 2: return skey::windows::ThemeMode::dark;
+        default: return skey::windows::ThemeMode::system;
+        }
+    }();
+    vm_->set_theme(theme);
+    MainWindow::ApplyTheme(theme);
 }
 
 void GeneralSettingsTab::OnDebugModeToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
@@ -83,28 +103,46 @@ void GeneralSettingsTab::OnDebugModeToggled(winrt::Windows::Foundation::IInspect
 void GeneralSettingsTab::OnExportClicked(winrt::Windows::Foundation::IInspectable const&,
                                           winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
     if (!vm_) return;
-    // FileSavePicker resolves the destination (NSSavePanel equivalent) and requires
-    // the WinUI 3 runtime; feed the chosen path here.
-    const auto destination = std::filesystem::temp_directory_path()
-        / skey::windows::SettingsBackup::default_backup_filename();
-    (void)skey::windows::SettingsBackup::export_to_file(vm_->settings(), destination);
+    wchar_t filename[MAX_PATH] = L"skey_settings_backup.json";
+    OPENFILENAMEW ofn{};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFilter = L"JSON Files (*.json)\0*.json\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = filename;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrTitle = L"Sao lưu cấu hình SKey";
+    ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
+    ofn.lpstrDefExt = L"json";
+    if (GetSaveFileNameW(&ofn)) {
+        skey::windows::SettingsBackup::export_to_file(vm_->settings(), std::filesystem::path(filename));
+    }
 }
 
 void GeneralSettingsTab::OnImportClicked(winrt::Windows::Foundation::IInspectable const&,
                                           winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
     if (!vm_) return;
-    // FileOpenPicker resolves the source (NSOpenPanel equivalent) and requires
-    // the WinUI 3 runtime; feed the chosen path here.
-    const auto source = std::filesystem::temp_directory_path() / "skey_backup.json";
-    skey::windows::SettingsModel imported{};
-    if (skey::windows::SettingsBackup::import_from_file(source, imported)) {
-        vm_->apply(imported);
+    wchar_t filename[MAX_PATH] = {0};
+    OPENFILENAMEW ofn{};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFilter = L"JSON Files (*.json)\0*.json\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = filename;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrTitle = L"Nhập cấu hình SKey từ file";
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+    if (GetOpenFileNameW(&ofn)) {
+        skey::windows::SettingsModel imported{};
+        if (skey::windows::SettingsBackup::import_from_file(std::filesystem::path(filename), imported)) {
+            vm_->apply(imported);
+            Page_Loaded(nullptr, nullptr);
+        }
     }
 }
 
 void GeneralSettingsTab::OnFactoryResetClicked(winrt::Windows::Foundation::IInspectable const&,
                                                 winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
-    if (vm_) vm_->factory_reset();
+    if (vm_) {
+        vm_->factory_reset();
+        Page_Loaded(nullptr, nullptr);
+    }
 }
 
 } // namespace winrt::SKey::Settings::implementation

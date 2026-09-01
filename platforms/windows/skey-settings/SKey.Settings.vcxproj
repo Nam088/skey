@@ -18,10 +18,9 @@
          imports them, so every xaml.g.h include fails with C1083. Desktop WinUI 3
          apps still declare this type, with AppContainerApplication off. -->
     <AppContainerApplication>false</AppContainerApplication>
-    <ApplicationType>Windows Store</ApplicationType>
-    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <AppxPackage>false</AppxPackage>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
@@ -38,19 +37,35 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <DesktopCompatible>true</DesktopCompatible>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <DesktopCompatible>true</DesktopCompatible>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <WindowsSdkPath>C:\Program Files (x86)\Windows Kits\10\</WindowsSdkPath>
+    <OutputPath>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutputPath>
+    <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>C:\Users\nam\AppData\Local\Temp\SKeySettings\obj\$(Platform)\$(Configuration)\</IntDir>
+    <MarkupCompilePass1DependsOn>ResolveAssemblyReferences;$(MarkupCompilePass1DependsOn)</MarkupCompilePass1DependsOn>
+    <BeforeClCompileTargets>MarkupCompilePass1;MarkupCompilePass2;$(BeforeClCompileTargets)</BeforeClCompileTargets>
+  </PropertyGroup>
   <ItemDefinitionGroup>
+    <Page>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <ApplicationDefinition>
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -61,12 +76,15 @@
            name (#include "MainWindow.xaml.g.h"), so every folder holding a Page
            or ApplicationDefinition needs its mirror on the include path. Add a
            line here when XAML moves into a new folder. -->
-      <AdditionalIncludeDirectories>$(ProjectDir);$(GeneratedFilesDir);$(GeneratedFilesDir)App;$(GeneratedFilesDir)Features\Settings\UI\Tabs;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(GeneratedFilesDir);$(IntDir);$(IntDir)App;$(IntDir)Features\Settings\UI\Tabs;$(IntDir)Resources;$(GeneratedFilesDir)App;$(GeneratedFilesDir)Features\Settings\UI\Tabs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>$(OutDir)SKey.Settings.map</MapFileName>
+      <AdditionalDependencies>shell32.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
@@ -178,6 +196,10 @@
     <ClCompile Include="..\Shared\Localization\LocalizationService.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClInclude Include="..\Shared\Logging\AppLogger.h" />
+    <ClCompile Include="..\Shared\Logging\AppLogger.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
@@ -186,6 +208,13 @@
     <Import Project="$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2651.64\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2651.64\build\native\Microsoft.Web.WebView2.targets')" />
     <Import Project="$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.targets" Condition="Exists('$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.targets')" />
   </ImportGroup>
+  <Target Name="_AddWinmdReferencesToCompile" BeforeTargets="MarkupCompilePass2">
+    <ItemGroup>
+      <WinMDReferenceToCompile Include="@(ReferencePath)" Condition="'%(Extension)'=='.winmd'" />
+      <XamlReferencesToCompile Include="@(ReferencePath)" Condition="'%(Extension)'=='.winmd'" />
+    </ItemGroup>
+  </Target>
+  <Target Name="AddProcessedXamlFilesToCopyLocal" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Restore them with: nuget restore SKey.Settings.sln. The missing file is {0}.</ErrorText>

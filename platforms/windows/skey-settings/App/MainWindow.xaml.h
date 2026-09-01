@@ -1,6 +1,8 @@
 #pragma once
 
 #include "MainWindow.g.h"
+#include <winrt/Microsoft.UI.Xaml.Controls.h>
+#include "../../../Shared/Contracts/SettingsModel.h"
 
 namespace winrt::SKey::Settings::implementation {
 
@@ -8,6 +10,7 @@ struct MainWindow : MainWindowT<MainWindow> {
     MainWindow();
 
     void NavigateForTag(winrt::hstring const& tag);
+    static void ApplyTheme(skey::windows::ThemeMode theme);
 
     void RootNavigation_SelectionChanged(winrt::Microsoft::UI::Xaml::Controls::NavigationView const& sender,
                                          winrt::Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);

@@ -3,6 +3,9 @@
 #if __has_include("ShortcutsSettingsTab.g.cpp")
 #include "ShortcutsSettingsTab.g.cpp"
 #endif
+#if __has_include("ShortcutsSettingsTab.xaml.g.hpp")
+#include "ShortcutsSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
@@ -16,12 +19,18 @@
 #include <string>
 
 #include "../../../../ViewModels/SharedViewModel.h"
+#include "../../../../Shared/Logging/AppLogger.h"
 
 namespace winrt::SKey::Settings::implementation {
 
 ShortcutsSettingsTab::ShortcutsSettingsTab() {
+    SKEY_LOG_INFO("ShortcutsSettingsTab() constructing...");
+    loading_ = true;
+    try {
+        vm_ = &skey::windows::shared_view_model();
+    } catch (...) {}
     InitializeComponent();
-    vm_ = &skey::windows::shared_view_model();
+    SKEY_LOG_INFO("ShortcutsSettingsTab::InitializeComponent() succeeded.");
 }
 
 using namespace winrt::Microsoft::UI::Xaml;
@@ -29,12 +38,22 @@ using namespace winrt::Microsoft::UI::Xaml::Controls;
 
 void ShortcutsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                         winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    SKEY_LOG_INFO("ShortcutsSettingsTab::Page_Loaded() starting...");
     if (!vm_) return;
     loading_ = true;
-    CleanerEnabledToggle().IsOn(vm_->settings().cleaner_enabled);
-    RefreshAllRows();
-    UpdateRecordButtons();
+    try {
+        if (auto toggle = CleanerEnabledToggle()) {
+            toggle.IsOn(vm_->settings().cleaner_enabled);
+        }
+        RefreshAllRows();
+        UpdateRecordButtons();
+    } catch (std::exception const& ex) {
+        SKEY_LOG_ERROR(std::string("ShortcutsSettingsTab::Page_Loaded exception: ") + ex.what());
+    } catch (...) {
+        SKEY_LOG_ERROR("ShortcutsSettingsTab::Page_Loaded unknown exception");
+    }
     loading_ = false;
+    SKEY_LOG_INFO("ShortcutsSettingsTab::Page_Loaded() completed.");
 }
 
 void ShortcutsSettingsTab::OnCleanerEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender,
@@ -182,6 +201,13 @@ bool ShortcutsSettingsTab::IsModifierKey(unsigned vk) {
         || (vk >= 0xA0 && vk <= 0xA5);
 }
 
+void ShortcutsSettingsTab::OnTranslatePresetChanged(winrt::Windows::Foundation::IInspectable const& sender,
+                                                    winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const&) {
+    if (!vm_ || loading_) return;
+    auto combo = sender.as<ComboBox>();
+    ApplyPreset(skey::windows::hotkey_action::translate, combo.SelectedIndex());
+}
+
 void ShortcutsSettingsTab::RefreshAllRows() {
     if (!vm_) return;
     const auto language = RefreshRow(skey::windows::hotkey_action::toggle_language,
@@ -195,7 +221,8 @@ void ShortcutsSettingsTab::RefreshAllRows() {
     SelectPresetIndex(PresetCleanerCombo(), skey::windows::hotkey_action::cleaner, cleaner);
     const auto ai = RefreshRow(skey::windows::hotkey_action::ai, HotkeyAiText(), ConflictAiText());
     SelectPresetIndex(PresetAiCombo(), skey::windows::hotkey_action::ai, ai);
-    RefreshRow(skey::windows::hotkey_action::translate, HotkeyTranslateText(), ConflictTranslateText());
+    const auto translate = RefreshRow(skey::windows::hotkey_action::translate, HotkeyTranslateText(), ConflictTranslateText());
+    SelectPresetIndex(PresetTranslateCombo(), skey::windows::hotkey_action::translate, translate);
 }
 
 skey::windows::HotkeyRecord ShortcutsSettingsTab::RefreshRow(std::string_view action,

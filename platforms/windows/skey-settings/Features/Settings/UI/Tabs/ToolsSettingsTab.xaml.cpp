@@ -3,29 +3,47 @@
 #if __has_include("ToolsSettingsTab.g.cpp")
 #include "ToolsSettingsTab.g.cpp"
 #endif
+#if __has_include("ToolsSettingsTab.xaml.g.hpp")
+#include "ToolsSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 
 #include "../../../../ViewModels/SharedViewModel.h"
+#include "../../../../Shared/Logging/AppLogger.h"
 
 namespace winrt::SKey::Settings::implementation {
 
 ToolsSettingsTab::ToolsSettingsTab() {
+    SKEY_LOG_INFO("ToolsSettingsTab() constructing...");
+    loading_ = true;
+    try {
+        vm_ = &skey::windows::shared_view_model();
+    } catch (...) {}
     InitializeComponent();
-    vm_ = &skey::windows::shared_view_model();
+    SKEY_LOG_INFO("ToolsSettingsTab::InitializeComponent() succeeded.");
 }
 
 using namespace winrt::Microsoft::UI::Xaml::Controls;
 
 void ToolsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                     winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    SKEY_LOG_INFO("ToolsSettingsTab::Page_Loaded() starting...");
     if (!vm_) return;
     loading_ = true;
-    const auto& s = vm_->settings();
-
-    CleanerEnabledToggle().IsOn(s.cleaner_enabled);
+    try {
+        const auto& s = vm_->settings();
+        if (auto toggle = CleanerEnabledToggle()) {
+            toggle.IsOn(s.cleaner_enabled);
+        }
+    } catch (std::exception const& ex) {
+        SKEY_LOG_ERROR(std::string("ToolsSettingsTab::Page_Loaded exception: ") + ex.what());
+    } catch (...) {
+        SKEY_LOG_ERROR("ToolsSettingsTab::Page_Loaded unknown exception");
+    }
     loading_ = false;
+    SKEY_LOG_INFO("ToolsSettingsTab::Page_Loaded() completed.");
 }
 
 void ToolsSettingsTab::OnCleanerEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {

@@ -3,6 +3,9 @@
 #if __has_include("SnippetsSettingsTab.g.cpp")
 #include "SnippetsSettingsTab.g.cpp"
 #endif
+#if __has_include("SnippetsSettingsTab.xaml.g.hpp")
+#include "SnippetsSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
 #include <winrt/Microsoft.UI.Xaml.h>
@@ -14,14 +17,19 @@
 #include <filesystem>
 
 #include "../../../../../Shared/Settings/SettingsPaths.h"
-
 #include "../../../../ViewModels/SharedViewModel.h"
+#include "../../../../Shared/Logging/AppLogger.h"
 
 namespace winrt::SKey::Settings::implementation {
 
 SnippetsSettingsTab::SnippetsSettingsTab() {
+    SKEY_LOG_INFO("SnippetsSettingsTab() constructing...");
+    syncing_ = true;
+    try {
+        vm_ = &skey::windows::shared_view_model();
+    } catch (...) {}
     InitializeComponent();
-    vm_ = &skey::windows::shared_view_model();
+    SKEY_LOG_INFO("SnippetsSettingsTab::InitializeComponent() succeeded.");
 }
 
 using namespace winrt::Microsoft::UI::Xaml;
@@ -53,13 +61,16 @@ bool contains_ci(const std::string& haystack, const std::string& needle) {
 }
 
 Media::Brush theme_brush(const wchar_t* key) {
-    const auto resource = Application::Current().Resources().TryLookup(winrt::box_value(key));
-    return resource ? resource.as<Media::Brush>() : Media::Brush{nullptr};
+    try {
+        const auto resource = Application::Current().Resources().TryLookup(winrt::box_value(key));
+        if (resource) return resource.as<Media::Brush>();
+    } catch (...) {}
+    return Media::SolidColorBrush{Windows::UI::Color{0, 0, 0, 0}};
 }
 
 ColumnDefinition column(GridUnitType type, double value) {
     ColumnDefinition definition;
-    definition.Width(GridLengthHelper::FromValueAndType(value, type));
+    definition.Width(winrt::Microsoft::UI::Xaml::GridLength{value, type});
     return definition;
 }
 
@@ -67,8 +78,11 @@ ColumnDefinition column(GridUnitType type, double value) {
 
 void SnippetsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                       RoutedEventArgs const&) {
+    SKEY_LOG_INFO("SnippetsSettingsTab::Page_Loaded() starting...");
     if (!store_) {
-        store_.emplace(skey::windows::SettingsPaths::macros_file());
+        try {
+            store_.emplace(skey::windows::SettingsPaths::macros_file());
+        } catch (...) {}
     }
     if (vm_) {
         const auto& model = vm_->settings();
@@ -76,17 +90,22 @@ void SnippetsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable c
         EnableToggle().IsOn(model.macro_enabled);
         AutoCapsToggle().IsOn(model.macro_auto_caps);
         EnglishModeToggle().IsOn(model.macro_in_english_mode);
+        if (auto panel = MacroOptionsPanel()) {
+            panel.Visibility(model.macro_enabled ? Visibility::Visible : Visibility::Collapsed);
+        }
         syncing_ = false;
-        MacroOptionsPanel().Visibility(model.macro_enabled ? Visibility::Visible : Visibility::Collapsed);
     }
     RefreshList();
+    SKEY_LOG_INFO("SnippetsSettingsTab::Page_Loaded() completed.");
 }
 
 void SnippetsSettingsTab::OnEnableToggled(winrt::Windows::Foundation::IInspectable const& sender, RoutedEventArgs const&) {
     const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || syncing_) return;
     vm_->set_macro_enabled(toggle.IsOn());
-    MacroOptionsPanel().Visibility(toggle.IsOn() ? Visibility::Visible : Visibility::Collapsed);
+    if (auto panel = MacroOptionsPanel()) {
+        panel.Visibility(toggle.IsOn() ? Visibility::Visible : Visibility::Collapsed);
+    }
 }
 
 void SnippetsSettingsTab::OnAutoCapsToggled(winrt::Windows::Foundation::IInspectable const& sender, RoutedEventArgs const&) {
@@ -124,30 +143,41 @@ void SnippetsSettingsTab::OnSearchChanged(winrt::Windows::Foundation::IInspectab
 
 void SnippetsSettingsTab::RefreshList() {
     if (!store_) return;
-    const auto entries = store_->load();
+    try {
+        const auto entries = store_->load();
 
-    ListTitle().Text(winrt::to_hstring("Snippets (" + std::to_string(entries.size()) + ")"));
-
-    auto list = MacroListPanel();
-    list.Children().Clear();
-
-    const auto query = lowercased(trimmed(search_text_));
-    std::size_t shown = 0;
-    for (const auto& entry : entries) {
-        if (!query.empty() && !contains_ci(entry.trigger, query) && !contains_ci(entry.replacement, query)) {
-            continue;
+        if (auto title = ListTitle()) {
+            title.Text(winrt::to_hstring("Danh sách từ gõ tắt (" + std::to_string(entries.size()) + ")"));
         }
-        if (shown > 0) {
-            Border divider;
-            divider.Height(1);
-            divider.Margin(Thickness{14, 4, 0, 4});
-            divider.Background(theme_brush(L"DividerStrokeColorDefaultBrush"));
-            list.Children().Append(divider);
+
+        auto list = MacroListPanel();
+        if (!list) return;
+        list.Children().Clear();
+
+        const auto query = lowercased(trimmed(search_text_));
+        std::size_t shown = 0;
+        for (const auto& entry : entries) {
+            if (!query.empty() && !contains_ci(entry.trigger, query) && !contains_ci(entry.replacement, query)) {
+                continue;
+            }
+            if (shown > 0) {
+                Border divider;
+                divider.Height(1);
+                divider.Margin(Thickness{14, 4, 0, 4});
+                divider.Background(theme_brush(L"DividerStrokeColorDefaultBrush"));
+                list.Children().Append(divider);
+            }
+            list.Children().Append(BuildRow(entry));
+            ++shown;
         }
-        list.Children().Append(BuildRow(entry));
-        ++shown;
+        if (auto empty = EmptyStateText()) {
+            empty.Visibility(shown == 0 ? Visibility::Visible : Visibility::Collapsed);
+        }
+    } catch (std::exception const& ex) {
+        SKEY_LOG_ERROR(std::string("RefreshList exception: ") + ex.what());
+    } catch (...) {
+        SKEY_LOG_ERROR("RefreshList unknown exception");
     }
-    EmptyStateText().Visibility(shown == 0 ? Visibility::Visible : Visibility::Collapsed);
 }
 
 UIElement SnippetsSettingsTab::BuildRow(const skey::windows::MacroEntry& entry) {

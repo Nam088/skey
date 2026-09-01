@@ -1,51 +1,187 @@
-<Page x:Class="SKey.Settings.AiSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
-  <ScrollViewer>
-    <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock x:Uid="settings.ai.title" Text="AI" Style="{StaticResource SubtitleTextBlockStyle}"/>
+<Page x:Class="SKey.Settings.AiSettingsTab"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Loaded="Page_Loaded">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16" MaxWidth="1080" HorizontalAlignment="Stretch" Padding="4,4,28,48">
+            <!-- Header -->
+            <StackPanel Spacing="4" Margin="0,0,0,12">
+                <TextBlock Text="Trợ lý AI &amp; Dịch thuật" FontSize="28" FontWeight="SemiBold" />
+                <TextBlock Text="Tích hợp các mô hình AI (Gemini, Groq, DeepL...) để hỗ trợ viết, sửa lỗi và dịch thuật nhanh" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13" />
+            </StackPanel>
 
-      <TextBlock x:Uid="ai.section.provider" Text="Provider" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-      <ComboBox x:Name="PreferredEngineCombo" x:Uid="ai.option.service" Header="Translation service" SelectedIndex="0" SelectionChanged="OnPreferredEngineChanged" HorizontalAlignment="Stretch">
-        <ComboBoxItem Content="Google Translate"/>
-        <ComboBoxItem Content="Apple Translate"/>
-        <ComboBoxItem Content="Gemini"/>
-        <ComboBoxItem Content="DeepL"/>
-        <ComboBoxItem Content="Groq"/>
-      </ComboBox>
-      <PasswordBox x:Name="PreferredEngineApiKeyBox" x:Uid="ai.option.apiKey" Header="API key" PlaceholderText="sk-..." PasswordChanged="OnPreferredEngineApiKeyChanged"/>
+            <!-- Dịch vụ chính -->
+            <TextBlock Text="Cấu hình Dịch vụ AI &amp; Dịch thuật chính" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,8,0,0" />
 
-      <TextBlock x:Uid="settings.subtab.translator" Text="Translation" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <ComboBox x:Name="TargetLanguageCombo" x:Uid="tools.translator.targetLang" Header="Target language" SelectedIndex="0" SelectionChanged="OnTargetLanguageChanged" HorizontalAlignment="Stretch">
-        <ComboBoxItem x:Uid="lang.vi" Content="Vietnamese"/>
-        <ComboBoxItem x:Uid="lang.en" Content="English"/>
-        <ComboBoxItem x:Uid="lang.ja" Content="Japanese"/>
-        <ComboBoxItem x:Uid="lang.zh" Content="Chinese"/>
-        <ComboBoxItem x:Uid="lang.ko" Content="Korean"/>
-        <ComboBoxItem x:Uid="lang.fr" Content="French"/>
-        <ComboBoxItem x:Uid="lang.de" Content="German"/>
-      </ComboBox>
-      <ToggleSwitch x:Name="AutoDetectToggle" x:Uid="tools.translator.autoDetect" Header="Auto-detect source language" IsOn="True" Toggled="OnAutoDetectToggled"/>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE945;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Dịch vụ AI / Dịch thuật mặc định" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Chọn engine xử lý văn bản khi kích hoạt qua phím tắt nhanh (Alt+Space hoặc Alt+T)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ComboBox x:Name="PreferredEngineCombo" Grid.Column="2" SelectedIndex="0" SelectionChanged="OnPreferredEngineChanged" MinWidth="190" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Google Translate" />
+                        <ComboBoxItem Content="Apple Translate" />
+                        <ComboBoxItem Content="Gemini AI (Google)" />
+                        <ComboBoxItem Content="DeepL Translate" />
+                        <ComboBoxItem Content="Groq AI (Llama 3)" />
+                    </ComboBox>
+                </Grid>
+            </Border>
 
-      <TextBlock x:Uid="settings.subtab.aiModel" Text="Engines" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <StackPanel Spacing="10">
-        <StackPanel Spacing="4">
-          <ToggleSwitch x:Name="EngineGoogleToggle" Header="Google Translate" IsOn="True" Tag="google" Toggled="OnEngineEnabledToggled"/>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="280" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE8D7;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="API Key cho dịch vụ chính" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Mã khóa API cá nhân cho dịch vụ AI hoặc dịch thuật đã chọn ở trên" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <PasswordBox x:Name="PreferredEngineApiKeyBox" Grid.Column="2" PlaceholderText="Nhập API Key của bạn..." PasswordChanged="OnPreferredEngineApiKeyChanged" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Tùy chọn dịch thuật -->
+            <TextBlock Text="Tùy chọn dịch thuật văn bản" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,12,0,0" />
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xF2B7;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Ngôn ngữ dịch đích mặc định" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Ngôn ngữ mục tiêu bạn muốn chuyển ngữ sang khi bấm phím tắt dịch nhanh" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ComboBox x:Name="TargetLanguageCombo" Grid.Column="2" SelectedIndex="0" SelectionChanged="OnTargetLanguageChanged" MinWidth="190" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Tiếng Việt (Vietnamese)" />
+                        <ComboBoxItem Content="Tiếng Anh (English)" />
+                        <ComboBoxItem Content="Tiếng Nhật (Japanese)" />
+                        <ComboBoxItem Content="Tiếng Trung (Chinese)" />
+                        <ComboBoxItem Content="Tiếng Hàn (Korean)" />
+                        <ComboBoxItem Content="Tiếng Pháp (French)" />
+                        <ComboBoxItem Content="Tiếng Đức (German)" />
+                    </ComboBox>
+                </Grid>
+            </Border>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE8B9;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Tự động nhận diện ngôn ngữ nguồn" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Tự phát hiện ngôn ngữ gốc của đoạn văn bản đã chọn (Auto-detect source language)" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ToggleSwitch x:Name="AutoDetectToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" IsOn="True" OnContent="Bật" OffContent="Tắt" Toggled="OnAutoDetectToggled" />
+                </Grid>
+            </Border>
+
+            <!-- Quản lý các Engine -->
+            <TextBlock Text="Quản lý cấu hình từng Engine" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,12,0,0" />
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18">
+                <StackPanel Spacing="16">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Google Translate" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Miễn phí, dịch nhanh qua Google Translation Web API" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="EngineGoogleToggle" Grid.Column="1" IsOn="True" Tag="google" Toggled="OnEngineEnabledToggled" VerticalAlignment="Center" Margin="0,-6,0,-6" />
+                    </Grid>
+
+                    <MenuFlyoutSeparator />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Apple Translate" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Dịch thuật qua Apple Translation Service" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ToggleSwitch x:Name="EngineAppleToggle" Grid.Column="1" IsOn="True" Tag="apple" Toggled="OnEngineEnabledToggled" VerticalAlignment="Center" Margin="0,-6,0,-6" />
+                    </Grid>
+
+                    <MenuFlyoutSeparator />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Gemini AI (Google)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Mô hình AI đa năng, sửa văn phong và dịch thuật nâng cao" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <PasswordBox x:Name="EngineGeminiApiKeyBox" Grid.Column="1" PlaceholderText="Gemini API Key (AIzaSy...)" Tag="gemini" PasswordChanged="OnEngineApiKeyChanged" VerticalAlignment="Center" />
+                        <ToggleSwitch x:Name="EngineGeminiToggle" Grid.Column="2" IsOn="True" Tag="gemini" Toggled="OnEngineEnabledToggled" VerticalAlignment="Center" Margin="0,-6,0,-6" />
+                    </Grid>
+
+                    <MenuFlyoutSeparator />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="DeepL Translation" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Dịch thuật ngữ cảnh chất lượng cao" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <PasswordBox x:Name="EngineDeeplApiKeyBox" Grid.Column="1" PlaceholderText="DeepL Auth Key..." Tag="deepl" PasswordChanged="OnEngineApiKeyChanged" VerticalAlignment="Center" />
+                        <ToggleSwitch x:Name="EngineDeeplToggle" Grid.Column="2" IsOn="True" Tag="deepl" Toggled="OnEngineEnabledToggled" VerticalAlignment="Center" Margin="0,-6,0,-6" />
+                    </Grid>
+
+                    <MenuFlyoutSeparator />
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="260" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Groq AI (Siêu tốc Llama 3)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Tốc độ phản hồi cực nhanh dưới 500ms" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <PasswordBox x:Name="EngineGroqApiKeyBox" Grid.Column="1" PlaceholderText="Groq API Key (gsk_...)" Tag="groq" PasswordChanged="OnEngineApiKeyChanged" VerticalAlignment="Center" />
+                        <ToggleSwitch x:Name="EngineGroqToggle" Grid.Column="2" IsOn="True" Tag="groq" Toggled="OnEngineEnabledToggled" VerticalAlignment="Center" Margin="0,-6,0,-6" />
+                    </Grid>
+                </StackPanel>
+            </Border>
         </StackPanel>
-        <StackPanel Spacing="4">
-          <ToggleSwitch x:Name="EngineAppleToggle" Header="Apple Translate" IsOn="True" Tag="apple" Toggled="OnEngineEnabledToggled"/>
-        </StackPanel>
-        <StackPanel Spacing="4">
-          <ToggleSwitch x:Name="EngineGeminiToggle" Header="Gemini" IsOn="True" Tag="gemini" Toggled="OnEngineEnabledToggled"/>
-          <PasswordBox x:Name="EngineGeminiApiKeyBox" x:Uid="ai.option.engineApiKey" PlaceholderText="API key" Tag="gemini" PasswordChanged="OnEngineApiKeyChanged" Margin="0,0,0,0"/>
-        </StackPanel>
-        <StackPanel Spacing="4">
-          <ToggleSwitch x:Name="EngineDeeplToggle" Header="DeepL" IsOn="True" Tag="deepl" Toggled="OnEngineEnabledToggled"/>
-          <PasswordBox x:Name="EngineDeeplApiKeyBox" x:Uid="ai.option.engineApiKey" PlaceholderText="API key" Tag="deepl" PasswordChanged="OnEngineApiKeyChanged"/>
-        </StackPanel>
-        <StackPanel Spacing="4">
-          <ToggleSwitch x:Name="EngineGroqToggle" Header="Groq" IsOn="True" Tag="groq" Toggled="OnEngineEnabledToggled"/>
-          <PasswordBox x:Name="EngineGroqApiKeyBox" x:Uid="ai.option.engineApiKey" PlaceholderText="API key" Tag="groq" PasswordChanged="OnEngineApiKeyChanged"/>
-        </StackPanel>
-      </StackPanel>
-    </StackPanel>
-  </ScrollViewer>
+    </ScrollViewer>
 </Page>

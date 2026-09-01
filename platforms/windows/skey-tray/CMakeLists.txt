@@ -47,7 +47,8 @@ if(WIN32)
         ../Shared/Clipboard/ClipboardHistoryStore.cpp
         ../Shared/Translator/TranslatorService.cpp
         ../Shared/TsfBridge/TsfBridge.cpp
-        ../Shared/Updates/UpdateChecker.cpp)
+        ../Shared/Updates/UpdateChecker.cpp
+        ../Shared/Logging/AppLogger.cpp)
     target_include_directories(skey-tray PRIVATE ../ "${SKEY_CAPI_INCLUDE_DIR}")
     # NOMINMAX: windows.h min/max macros break std::min/std::max.
     # UNICODE/_UNICODE: resource constants (IDC_ARROW, ...) must be wide.

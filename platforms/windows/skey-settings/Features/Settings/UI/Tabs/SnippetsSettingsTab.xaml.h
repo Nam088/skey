@@ -37,7 +37,7 @@ struct SnippetsSettingsTab : SnippetsSettingsTabT<SnippetsSettingsTab> {
     std::optional<skey::windows::MacroStore> store_;
     std::string search_text_;
     std::optional<std::string> editing_trigger_;
-    bool syncing_{false};
+    bool syncing_{true};
 };
 
 } // namespace winrt::SKey::Settings::implementation

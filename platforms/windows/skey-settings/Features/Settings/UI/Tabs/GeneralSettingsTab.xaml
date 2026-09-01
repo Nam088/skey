@@ -1,31 +1,156 @@
-<Page x:Class="SKey.Settings.GeneralSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
-  <ScrollViewer>
-    <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock x:Uid="settings.general.title" Text="General" Style="{StaticResource SubtitleTextBlockStyle}"/>
+<Page x:Class="SKey.Settings.GeneralSettingsTab"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Loaded="Page_Loaded">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16" MaxWidth="1080" HorizontalAlignment="Stretch" Padding="4,4,28,48">
+            <!-- Header -->
+            <StackPanel Spacing="4" Margin="0,0,0,12">
+                <TextBlock Text="Cài đặt chung" FontSize="28" FontWeight="SemiBold" />
+                <TextBlock Text="Tùy chỉnh hành vi khởi động, ngôn ngữ hiển thị, giao diện và sao lưu dữ liệu" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13" />
+            </StackPanel>
 
-      <TextBlock x:Uid="settings.subtab.basic" Text="Basic" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-      <ToggleSwitch x:Name="LaunchAtLoginToggle" x:Uid="general.option.launchAtLogin" Header="Launch at startup" Toggled="OnLaunchAtLoginToggled"/>
-      <ComboBox x:Name="LanguageCombo" x:Uid="general.option.appLanguage" Header="App language" SelectedIndex="0" SelectionChanged="OnLanguageChanged" HorizontalAlignment="Stretch">
-        <ComboBoxItem x:Uid="language.option.vietnamese" Content="Tiếng Việt"/>
-        <ComboBoxItem x:Uid="language.option.english" Content="English"/>
-      </ComboBox>
-      <ComboBox x:Name="ThemeCombo" x:Uid="settings.theme" Header="Theme" SelectedIndex="0" SelectionChanged="OnThemeChanged" HorizontalAlignment="Stretch">
-        <ComboBoxItem x:Uid="settings.theme.system" Content="System"/>
-        <ComboBoxItem x:Uid="settings.theme.light" Content="Light"/>
-        <ComboBoxItem x:Uid="settings.theme.dark" Content="Dark"/>
-      </ComboBox>
-      <ToggleSwitch x:Name="CheckUpdatesToggle" x:Uid="general.option.checkUpdates" Header="Check for updates" IsOn="True" Toggled="OnCheckUpdatesToggled"/>
+            <!-- Section 1: Hệ thống & Khởi động -->
+            <TextBlock Text="Hệ thống &amp; Trải nghiệm" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,8,0,0" />
 
-      <TextBlock x:Uid="settings.subtab.backup" Text="Backup" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <StackPanel Orientation="Horizontal" Spacing="8">
-        <Button x:Uid="general.action.exportSettingsBtn" Content="Export settings" Click="OnExportClicked"/>
-        <Button x:Uid="general.action.importSettingsBtn" Content="Import settings" Click="OnImportClicked"/>
-      </StackPanel>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE7E8;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Khởi động cùng Windows" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Tự động chạy SKey khi đăng nhập vào hệ thống để luôn sẵn sàng gõ tiếng Việt" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ToggleSwitch x:Name="LaunchAtLoginToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnLaunchAtLoginToggled" />
+                </Grid>
+            </Border>
 
-      <TextBlock x:Uid="settings.subtab.logs" Text="Logs &amp; data" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <ToggleSwitch x:Name="DebugModeToggle" x:Uid="general.option.debugMode" Header="Debug mode" Toggled="OnDebugModeToggled"/>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xF2B7;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Ngôn ngữ ứng dụng" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Chọn ngôn ngữ giao diện của bảng điều khiển cài đặt SKey" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ComboBox x:Name="LanguageCombo" Grid.Column="2" SelectedIndex="0" SelectionChanged="OnLanguageChanged" MinWidth="180" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Tiếng Việt (Vietnamese)" />
+                        <ComboBoxItem Content="English (Mỹ)" />
+                    </ComboBox>
+                </Grid>
+            </Border>
 
-      <Button x:Uid="general.action.resetDefaults" Content="Factory reset" Click="OnFactoryResetClicked" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
-    </StackPanel>
-  </ScrollViewer>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE771;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Chủ đề hiển thị (Theme)" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Tự động đồng bộ theo màu hệ thống hoặc chủ động chọn Sáng / Tối" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ComboBox x:Name="ThemeCombo" Grid.Column="2" SelectedIndex="0" SelectionChanged="OnThemeChanged" MinWidth="180" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Theo hệ thống Windows" />
+                        <ComboBoxItem Content="Giao diện Sáng (Light)" />
+                        <ComboBoxItem Content="Giao diện Tối (Dark)" />
+                    </ComboBox>
+                </Grid>
+            </Border>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE895;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Tự động kiểm tra bản cập nhật" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Nhận thông báo tự động khi có bản phát hành tính năng mới hoặc bản vá lỗi" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ToggleSwitch x:Name="CheckUpdatesToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" IsOn="True" OnContent="Bật" OffContent="Tắt" Toggled="OnCheckUpdatesToggled" />
+                </Grid>
+            </Border>
+
+            <!-- Section 2: Sao lưu & Dữ liệu -->
+            <TextBlock Text="Sao lưu &amp; Dữ liệu cấu hình" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,14,0,0" />
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE8F1;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Cấu hình &amp; Phím tắt" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Xuất toàn bộ cấu hình ra file JSON để sao lưu hoặc khôi phục sang máy tính khác" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Button Content="Xuất cấu hình" Click="OnExportClicked" />
+                        <Button Content="Nhập cấu hình" Click="OnImportClicked" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xEBE8;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Nhật ký gỡ lỗi (Debug Mode)" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Ghi log chi tiết các sự kiện gõ phím để hỗ trợ chẩn đoán và khắc phục sự cố" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ToggleSwitch x:Name="DebugModeToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" OnContent="Bật" OffContent="Tắt" Toggled="OnDebugModeToggled" />
+                </Grid>
+            </Border>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE7BA;" FontSize="18" Foreground="{ThemeResource SystemFillColorCriticalBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Khôi phục cài đặt gốc" FontWeight="SemiBold" FontSize="14" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <TextBlock Text="Xóa toàn bộ cài đặt tùy chỉnh và đưa SKey về trạng thái mặc định ban đầu" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <Button Grid.Column="2" Content="Đặt lại mặc định" Click="OnFactoryResetClicked" Foreground="{ThemeResource SystemFillColorCriticalBrush}" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

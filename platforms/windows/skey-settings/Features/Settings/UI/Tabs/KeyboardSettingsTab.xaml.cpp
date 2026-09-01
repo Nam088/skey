@@ -3,8 +3,12 @@
 #if __has_include("KeyboardSettingsTab.g.cpp")
 #include "KeyboardSettingsTab.g.cpp"
 #endif
+#if __has_include("KeyboardSettingsTab.xaml.g.hpp")
+#include "KeyboardSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
+#include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 
 #include "../../../../Shared/Shortcuts/HotkeyStore.h"
@@ -12,12 +16,18 @@
 #include <string>
 
 #include "../../../../ViewModels/SharedViewModel.h"
+#include "../../../../Shared/Logging/AppLogger.h"
 
 namespace winrt::SKey::Settings::implementation {
 
 KeyboardSettingsTab::KeyboardSettingsTab() {
+    SKEY_LOG_INFO("KeyboardSettingsTab() constructing...");
+    loading_ = true;
+    try {
+        vm_ = &skey::windows::shared_view_model();
+    } catch (...) {}
     InitializeComponent();
-    vm_ = &skey::windows::shared_view_model();
+    SKEY_LOG_INFO("KeyboardSettingsTab::InitializeComponent() succeeded.");
 }
 
 using namespace winrt::Microsoft::UI::Xaml;
@@ -25,19 +35,21 @@ using namespace winrt::Microsoft::UI::Xaml::Controls;
 
 void KeyboardSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                        winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    SKEY_LOG_INFO("KeyboardSettingsTab::Page_Loaded() starting...");
     if (!vm_) return;
     loading_ = true;
-    const auto& s = vm_->settings();
+    try {
+        const auto& s = vm_->settings();
 
-    const auto method_index = [](skey::windows::InputMethod method) {
-        switch (method) {
-        case skey::windows::InputMethod::simple_telex: return 1;
-        case skey::windows::InputMethod::vni: return 2;
-        case skey::windows::InputMethod::viqr: return 3;
-        default: return 0;
-        }
-    };
-    InputMethodCombo().SelectedIndex(method_index(s.input_method));
+        const auto method_index = [](skey::windows::InputMethod method) {
+            switch (method) {
+            case skey::windows::InputMethod::simple_telex: return 1;
+            case skey::windows::InputMethod::vni: return 2;
+            case skey::windows::InputMethod::viqr: return 3;
+            default: return 0;
+            }
+        };
+        InputMethodCombo().SelectedIndex(method_index(s.input_method));
 
     const auto charset_index = [](const std::string& charset) {
         if (charset == "tcvn3") return 1;
@@ -63,7 +75,13 @@ void KeyboardSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable c
     SelectSubTab(0);
     RefreshLanguageToggleRow();
     RefreshExcludedApps();
+    } catch (std::exception const& ex) {
+        SKEY_LOG_ERROR(std::string("KeyboardSettingsTab::Page_Loaded exception: ") + ex.what());
+    } catch (...) {
+        SKEY_LOG_ERROR("KeyboardSettingsTab::Page_Loaded unknown exception");
+    }
     loading_ = false;
+    SKEY_LOG_INFO("KeyboardSettingsTab::Page_Loaded() completed.");
 }
 
 void KeyboardSettingsTab::OnSubTabInputMethodClicked(winrt::Windows::Foundation::IInspectable const&,
@@ -82,9 +100,17 @@ void KeyboardSettingsTab::OnSubTabAppManagementClicked(winrt::Windows::Foundatio
 }
 
 void KeyboardSettingsTab::SelectSubTab(int index) {
-    InputMethodPanel().Visibility(index == 0 ? Visibility::Visible : Visibility::Collapsed);
-    TypingRulesPanel().Visibility(index == 1 ? Visibility::Visible : Visibility::Collapsed);
-    AppManagementPanel().Visibility(index == 2 ? Visibility::Visible : Visibility::Collapsed);
+    if (auto p0 = InputMethodPanel()) p0.Visibility(index == 0 ? Visibility::Visible : Visibility::Collapsed);
+    if (auto p1 = TypingRulesPanel()) p1.Visibility(index == 1 ? Visibility::Visible : Visibility::Collapsed);
+    if (auto p2 = AppManagementPanel()) p2.Visibility(index == 2 ? Visibility::Visible : Visibility::Collapsed);
+
+    try {
+        auto accentItem = Application::Current().Resources().TryLookup(winrt::box_value(L"AccentButtonStyle"));
+        auto accentStyle = accentItem ? accentItem.as<winrt::Microsoft::UI::Xaml::Style>() : nullptr;
+        if (auto b0 = SubTabInputMethod()) b0.Style(index == 0 ? accentStyle : nullptr);
+        if (auto b1 = SubTabTypingRules()) b1.Style(index == 1 ? accentStyle : nullptr);
+        if (auto b2 = SubTabAppManagement()) b2.Style(index == 2 ? accentStyle : nullptr);
+    } catch (...) {}
 }
 
 void KeyboardSettingsTab::OnInputMethodChanged(winrt::Windows::Foundation::IInspectable const& sender,

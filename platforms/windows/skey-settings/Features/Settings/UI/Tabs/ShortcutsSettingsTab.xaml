@@ -1,117 +1,203 @@
-<Page x:Class="SKey.Settings.ShortcutsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded" PreviewKeyDown="OnRecorderKeyDown" PreviewKeyUp="OnRecorderKeyUp">
-  <ScrollViewer>
-    <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock x:Uid="settings.shortcuts.title" Text="Shortcuts" Style="{StaticResource SubtitleTextBlockStyle}"/>
+<Page x:Class="SKey.Settings.ShortcutsSettingsTab"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Loaded="Page_Loaded"
+      PreviewKeyDown="OnRecorderKeyDown"
+      PreviewKeyUp="OnRecorderKeyUp">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="16" MaxWidth="1080" HorizontalAlignment="Stretch" Padding="4,4,28,48">
+            <!-- Header -->
+            <StackPanel Spacing="4" Margin="0,0,0,12">
+                <TextBlock Text="Phím tắt nhanh" FontSize="28" FontWeight="SemiBold" />
+                <TextBlock Text="Thiết lập các tổ hợp phím tắt để kích hoạt nhanh các tính năng trên toàn hệ thống" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13" />
+            </StackPanel>
 
-      <ToggleSwitch x:Name="CleanerEnabledToggle" x:Uid="cleaner.option.enabled" Header="Enable keyboard cleaner shortcut" IsOn="True" Toggled="OnCleanerEnabledToggled"/>
+            <TextBlock Text="Phím tắt hệ thống &amp; Tiện ích" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,8,0,0" />
 
-      <StackPanel Spacing="4">
-        <Grid ColumnSpacing="12">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" x:Uid="keyboard.shortcut.toggleTitle" Text="Toggle Vietnamese/English" VerticalAlignment="Center"/>
-          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
-            <TextBlock x:Name="HotkeyToggleLanguageText" Text="Alt+Z" Style="{StaticResource CaptionTextBlockStyle}"/>
-          </Border>
-          <ComboBox Grid.Column="2" x:Name="PresetToggleLanguageCombo" SelectionChanged="OnToggleLanguagePresetChanged" MinWidth="170" VerticalAlignment="Center">
-            <ComboBoxItem Content="Alt + Z"/>
-            <ComboBoxItem Content="Ctrl + Shift"/>
-            <ComboBoxItem Content="Ctrl + Alt + Z"/>
-            <ComboBoxItem Content="Shift + Win"/>
-            <ComboBoxItem Content="Alt + Shift"/>
-            <ComboBoxItem Content="Ctrl + Space"/>
-          </ComboBox>
-          <Button Grid.Column="3" x:Name="RecordToggleLanguageButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordToggleLanguageClicked"/>
-        </Grid>
-        <TextBlock x:Name="ConflictToggleLanguageText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
-      </StackPanel>
+            <!-- Card 1: Chuyển đổi ngôn ngữ -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE75A;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Chuyển đổi Tiếng Việt / Tiếng Anh" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Bật / tắt nhanh bộ gõ tiếng Việt [V/E] khi đang nhập liệu" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Border Grid.Column="2" Padding="12,6" Background="{ThemeResource SystemFillColorNeutralSubtleBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" VerticalAlignment="Center">
+                            <TextBlock x:Name="HotkeyToggleLanguageText" Text="Alt+Z" FontWeight="SemiBold" FontSize="13" />
+                        </Border>
+                        <ComboBox x:Name="PresetToggleLanguageCombo" Grid.Column="3" SelectionChanged="OnToggleLanguagePresetChanged" MinWidth="150" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Alt + Z" />
+                            <ComboBoxItem Content="Ctrl + Shift" />
+                            <ComboBoxItem Content="Ctrl + Alt + Z" />
+                            <ComboBoxItem Content="Shift + Win" />
+                            <ComboBoxItem Content="Alt + Shift" />
+                            <ComboBoxItem Content="Ctrl + Space" />
+                        </ComboBox>
+                        <Button x:Name="RecordToggleLanguageButton" Grid.Column="4" Content="Đổi phím..." Click="OnRecordToggleLanguageClicked" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock x:Name="ConflictToggleLanguageText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}" Margin="54,0,0,0" />
+                </StackPanel>
+            </Border>
 
-      <StackPanel Spacing="4">
-        <Grid ColumnSpacing="12">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" x:Uid="clipboard.option.shortcut" Text="Open clipboard history" VerticalAlignment="Center"/>
-          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
-            <TextBlock x:Name="HotkeyClipboardText" Text="Alt+V" Style="{StaticResource CaptionTextBlockStyle}"/>
-          </Border>
-          <ComboBox Grid.Column="2" x:Name="PresetClipboardCombo" SelectionChanged="OnClipboardPresetChanged" MinWidth="170" VerticalAlignment="Center">
-            <ComboBoxItem Content="Alt + V"/>
-            <ComboBoxItem Content="Shift + Win + V"/>
-            <ComboBoxItem Content="Ctrl + Alt + V"/>
-            <ComboBoxItem Content="Alt + C"/>
-          </ComboBox>
-          <Button Grid.Column="3" x:Name="RecordClipboardButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordClipboardClicked"/>
-        </Grid>
-        <TextBlock x:Name="ConflictClipboardText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
-      </StackPanel>
+            <!-- Card 2: Lịch sử Clipboard -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE8C8;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Mở bảng lịch sử Clipboard" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Hiện danh sách các văn bản và hình ảnh đã sao chép gần đây" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Border Grid.Column="2" Padding="12,6" Background="{ThemeResource SystemFillColorNeutralSubtleBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" VerticalAlignment="Center">
+                            <TextBlock x:Name="HotkeyClipboardText" Text="Alt+V" FontWeight="SemiBold" FontSize="13" />
+                        </Border>
+                        <ComboBox x:Name="PresetClipboardCombo" Grid.Column="3" SelectionChanged="OnClipboardPresetChanged" MinWidth="150" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Alt + V" />
+                            <ComboBoxItem Content="Shift + Win + V" />
+                            <ComboBoxItem Content="Ctrl + Alt + V" />
+                            <ComboBoxItem Content="Alt + C" />
+                        </ComboBox>
+                        <Button x:Name="RecordClipboardButton" Grid.Column="4" Content="Đổi phím..." Click="OnRecordClipboardClicked" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock x:Name="ConflictClipboardText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}" Margin="54,0,0,0" />
+                </StackPanel>
+            </Border>
 
-      <StackPanel Spacing="4">
-        <Grid ColumnSpacing="12">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" x:Uid="cleaner.option.shortcut" Text="Keyboard cleaner" VerticalAlignment="Center"/>
-          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
-            <TextBlock x:Name="HotkeyCleanerText" Text="Alt+Shift+K" Style="{StaticResource CaptionTextBlockStyle}"/>
-          </Border>
-          <ComboBox Grid.Column="2" x:Name="PresetCleanerCombo" SelectionChanged="OnCleanerPresetChanged" MinWidth="170" VerticalAlignment="Center">
-            <ComboBoxItem Content="Alt + Shift + K"/>
-            <ComboBoxItem Content="Alt + Shift + C"/>
-            <ComboBoxItem Content="Ctrl + Alt + K"/>
-          </ComboBox>
-          <Button Grid.Column="3" x:Name="RecordCleanerButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordCleanerClicked"/>
-        </Grid>
-        <TextBlock x:Name="ConflictCleanerText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
-      </StackPanel>
+            <!-- Card 3: Vệ sinh bàn phím -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE90F;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Khóa bàn phím để vệ sinh (Cleaner)" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Khóa tạm thời toàn bộ phím để lau chùi bàn phím an toàn" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Border Grid.Column="2" Padding="12,6" Background="{ThemeResource SystemFillColorNeutralSubtleBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" VerticalAlignment="Center">
+                            <TextBlock x:Name="HotkeyCleanerText" Text="Alt+Shift+K" FontWeight="SemiBold" FontSize="13" />
+                        </Border>
+                        <ComboBox x:Name="PresetCleanerCombo" Grid.Column="3" SelectionChanged="OnCleanerPresetChanged" MinWidth="150" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Alt + Shift + K" />
+                            <ComboBoxItem Content="Alt + Shift + C" />
+                            <ComboBoxItem Content="Ctrl + Alt + K" />
+                        </ComboBox>
+                        <Button x:Name="RecordCleanerButton" Grid.Column="4" Content="Đổi phím..." Click="OnRecordCleanerClicked" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock x:Name="ConflictCleanerText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}" Margin="54,0,0,0" />
+                </StackPanel>
+            </Border>
 
-      <StackPanel Spacing="4">
-        <Grid ColumnSpacing="12">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" x:Uid="ai.option.shortcut" Text="AI assistant" VerticalAlignment="Center"/>
-          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
-            <TextBlock x:Name="HotkeyAiText" Text="Alt+Space" Style="{StaticResource CaptionTextBlockStyle}"/>
-          </Border>
-          <ComboBox Grid.Column="2" x:Name="PresetAiCombo" SelectionChanged="OnAiPresetChanged" MinWidth="170" VerticalAlignment="Center">
-            <ComboBoxItem Content="Alt + Space"/>
-            <ComboBoxItem Content="Ctrl + Alt + Space"/>
-            <ComboBoxItem Content="Shift + Win + Space"/>
-          </ComboBox>
-          <Button Grid.Column="3" x:Name="RecordAiButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordAiClicked"/>
-        </Grid>
-        <TextBlock x:Name="ConflictAiText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
-      </StackPanel>
+            <!-- Card 4: Trợ lý AI -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE945;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Kích hoạt Trợ lý AI trên đoạn văn" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Sửa lỗi ngữ pháp, viết lại hoặc mở rộng đoạn văn bản đang bôi đen" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Border Grid.Column="2" Padding="12,6" Background="{ThemeResource SystemFillColorNeutralSubtleBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" VerticalAlignment="Center">
+                            <TextBlock x:Name="HotkeyAiText" Text="Alt+Space" FontWeight="SemiBold" FontSize="13" />
+                        </Border>
+                        <ComboBox x:Name="PresetAiCombo" Grid.Column="3" SelectionChanged="OnAiPresetChanged" MinWidth="150" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Alt + Space" />
+                            <ComboBoxItem Content="Ctrl + Alt + Space" />
+                            <ComboBoxItem Content="Shift + Win + Space" />
+                        </ComboBox>
+                        <Button x:Name="RecordAiButton" Grid.Column="4" Content="Đổi phím..." Click="OnRecordAiClicked" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock x:Name="ConflictAiText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}" Margin="54,0,0,0" />
+                </StackPanel>
+            </Border>
 
-      <StackPanel Spacing="4">
-        <Grid ColumnSpacing="12">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <TextBlock Grid.Column="0" x:Uid="translator.option.shortcut" Text="Quick translate" VerticalAlignment="Center"/>
-          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
-            <TextBlock x:Name="HotkeyTranslateText" Text="Alt+T" Style="{StaticResource CaptionTextBlockStyle}"/>
-          </Border>
-          <Button Grid.Column="2" x:Name="RecordTranslateButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordTranslateClicked"/>
-        </Grid>
-        <TextBlock x:Name="ConflictTranslateText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
-      </StackPanel>
-    </StackPanel>
-  </ScrollViewer>
+            <!-- Card 5: Dịch nhanh -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <StackPanel Spacing="8">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xF2B7;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="Dịch thuật văn bản tức thì" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Text="Mở cửa sổ dịch nhanh nội dung văn bản đang chọn" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Border Grid.Column="2" Padding="12,6" Background="{ThemeResource SystemFillColorNeutralSubtleBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" VerticalAlignment="Center">
+                            <TextBlock x:Name="HotkeyTranslateText" Text="Alt+T" FontWeight="SemiBold" FontSize="13" />
+                        </Border>
+                        <ComboBox x:Name="PresetTranslateCombo" Grid.Column="3" SelectionChanged="OnTranslatePresetChanged" MinWidth="150" VerticalAlignment="Center">
+                            <ComboBoxItem Content="Alt + T" />
+                            <ComboBoxItem Content="Ctrl + Alt + T" />
+                            <ComboBoxItem Content="Shift + Win + T" />
+                        </ComboBox>
+                        <Button x:Name="RecordTranslateButton" Grid.Column="4" Content="Đổi phím..." Click="OnRecordTranslateClicked" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock x:Name="ConflictTranslateText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}" Margin="54,0,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- Tùy chọn bổ trợ -->
+            <TextBlock Text="Tùy chọn bổ trợ" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" Margin="0,14,0,0" />
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="38" Height="38" CornerRadius="8" Background="{ThemeResource AccentFillColorTertiaryBrush}" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE90F;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                        <TextBlock Text="Bật tính năng phím tắt vệ sinh bàn phím" FontWeight="SemiBold" FontSize="14" />
+                        <TextBlock Text="Cho phép bấm tổ hợp phím để kích hoạt màn hình khóa phím" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ToggleSwitch x:Name="CleanerEnabledToggle" Grid.Column="2" VerticalAlignment="Center" Margin="0,-6,0,-6" IsOn="True" OnContent="Bật" OffContent="Tắt" Toggled="OnCleanerEnabledToggled" />
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

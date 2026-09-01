@@ -3,6 +3,9 @@
 #if __has_include("ClipboardSettingsTab.g.cpp")
 #include "ClipboardSettingsTab.g.cpp"
 #endif
+#if __has_include("ClipboardSettingsTab.xaml.g.hpp")
+#include "ClipboardSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
@@ -12,8 +15,8 @@
 namespace winrt::SKey::Settings::implementation {
 
 ClipboardSettingsTab::ClipboardSettingsTab() {
-    InitializeComponent();
     vm_ = &skey::windows::shared_view_model();
+    InitializeComponent();
 }
 
 using namespace winrt::Microsoft::UI::Xaml::Controls;

@@ -3,6 +3,9 @@
 #if __has_include("AiSettingsTab.g.cpp")
 #include "AiSettingsTab.g.cpp"
 #endif
+#if __has_include("AiSettingsTab.xaml.g.hpp")
+#include "AiSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
@@ -10,12 +13,18 @@
 #include <string>
 
 #include "../../../../ViewModels/SharedViewModel.h"
+#include "../../../../Shared/Logging/AppLogger.h"
 
 namespace winrt::SKey::Settings::implementation {
 
 AiSettingsTab::AiSettingsTab() {
+    SKEY_LOG_INFO("AiSettingsTab() constructing...");
+    loading_ = true;
+    try {
+        vm_ = &skey::windows::shared_view_model();
+    } catch (...) {}
     InitializeComponent();
-    vm_ = &skey::windows::shared_view_model();
+    SKEY_LOG_INFO("AiSettingsTab::InitializeComponent() succeeded.");
 }
 
 using namespace winrt::Microsoft::UI::Xaml::Controls;
@@ -48,13 +57,15 @@ const char* language_at(int index) {
 
 void AiSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                  winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    SKEY_LOG_INFO("AiSettingsTab::Page_Loaded() starting...");
     if (!vm_) return;
     loading_ = true;
-    const auto& s = vm_->settings();
+    try {
+        const auto& s = vm_->settings();
 
-    const auto engine_index = [](const std::string& provider) {
-        if (provider == "apple") return 1;
-        if (provider == "gemini") return 2;
+        const auto engine_index = [](const std::string& provider) {
+            if (provider == "apple") return 1;
+            if (provider == "gemini") return 2;
         if (provider == "deepl") return 3;
         if (provider == "groq") return 4;
         return 0;
@@ -98,7 +109,13 @@ void AiSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
     EngineDeeplApiKeyBox().Password(winrt::to_hstring(engine_api_key("deepl")));
     EngineGroqToggle().IsOn(engine_enabled("groq"));
     EngineGroqApiKeyBox().Password(winrt::to_hstring(engine_api_key("groq")));
+    } catch (std::exception const& ex) {
+        SKEY_LOG_ERROR(std::string("AiSettingsTab::Page_Loaded exception: ") + ex.what());
+    } catch (...) {
+        SKEY_LOG_ERROR("AiSettingsTab::Page_Loaded unknown exception");
+    }
     loading_ = false;
+    SKEY_LOG_INFO("AiSettingsTab::Page_Loaded() completed.");
 }
 
 void AiSettingsTab::OnPreferredEngineChanged(winrt::Windows::Foundation::IInspectable const& sender,

@@ -3,6 +3,7 @@
 #include <shellapi.h>
 
 #include "../Shared/Localization/LocalizationService.h"
+#include "../Shared/Logging/AppLogger.h"
 #include "TrayIpcHandler.h"
 #include "TrayRuntime.h"
 
@@ -165,6 +166,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     using namespace skey::windows;
+
+    AppLogger::instance().initialize("skey-tray");
+    SKEY_LOG_INFO("==================================================");
+    SKEY_LOG_INFO("skey-tray process started.");
 
     WNDCLASSW wc{};
     wc.lpfnWndProc = WndProc;

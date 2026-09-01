@@ -3,21 +3,31 @@
 #if __has_include("AboutSettingsTab.g.cpp")
 #include "AboutSettingsTab.g.cpp"
 #endif
+#if __has_include("AboutSettingsTab.xaml.g.hpp")
+#include "AboutSettingsTab.xaml.g.hpp"
+#endif
 
 #ifdef _WIN32
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 
 #include "../../../../ViewModels/SharedViewModel.h"
+#include "../../../../Shared/Logging/AppLogger.h"
 
 namespace winrt::SKey::Settings::implementation {
 
 AboutSettingsTab::AboutSettingsTab() {
+    SKEY_LOG_INFO("AboutSettingsTab() constructing...");
+    try {
+        vm_ = &skey::windows::shared_view_model();
+    } catch (...) {}
     InitializeComponent();
-    vm_ = &skey::windows::shared_view_model();
+    SKEY_LOG_INFO("AboutSettingsTab::InitializeComponent() succeeded.");
 }
 
 void AboutSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
-                                    winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {}
+                                    winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    SKEY_LOG_INFO("AboutSettingsTab::Page_Loaded() completed.");
+}
 
 void AboutSettingsTab::OnCheckUpdatesClicked(winrt::Windows::Foundation::IInspectable const&,
                                               winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
