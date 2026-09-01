@@ -14,7 +14,9 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" x:Uid="keyboard.shortcut.toggleTitle" Text="Toggle Vietnamese/English" VerticalAlignment="Center"/>
-          <TextBlock Grid.Column="1" x:Name="HotkeyToggleLanguageText" Text="Alt+Z" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
+            <TextBlock x:Name="HotkeyToggleLanguageText" Text="Alt+Z" Style="{StaticResource CaptionTextBlockStyle}"/>
+          </Border>
           <ComboBox Grid.Column="2" x:Name="PresetToggleLanguageCombo" SelectionChanged="OnToggleLanguagePresetChanged" MinWidth="170" VerticalAlignment="Center">
             <ComboBoxItem Content="Alt + Z"/>
             <ComboBoxItem Content="Ctrl + Shift"/>
@@ -37,7 +39,9 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" x:Uid="clipboard.option.shortcut" Text="Open clipboard history" VerticalAlignment="Center"/>
-          <TextBlock Grid.Column="1" x:Name="HotkeyClipboardText" Text="Alt+V" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
+            <TextBlock x:Name="HotkeyClipboardText" Text="Alt+V" Style="{StaticResource CaptionTextBlockStyle}"/>
+          </Border>
           <ComboBox Grid.Column="2" x:Name="PresetClipboardCombo" SelectionChanged="OnClipboardPresetChanged" MinWidth="170" VerticalAlignment="Center">
             <ComboBoxItem Content="Alt + V"/>
             <ComboBoxItem Content="Shift + Win + V"/>
@@ -58,7 +62,9 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" x:Uid="cleaner.option.shortcut" Text="Keyboard cleaner" VerticalAlignment="Center"/>
-          <TextBlock Grid.Column="1" x:Name="HotkeyCleanerText" Text="Alt+Shift+K" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
+            <TextBlock x:Name="HotkeyCleanerText" Text="Alt+Shift+K" Style="{StaticResource CaptionTextBlockStyle}"/>
+          </Border>
           <ComboBox Grid.Column="2" x:Name="PresetCleanerCombo" SelectionChanged="OnCleanerPresetChanged" MinWidth="170" VerticalAlignment="Center">
             <ComboBoxItem Content="Alt + Shift + K"/>
             <ComboBoxItem Content="Alt + Shift + C"/>
@@ -78,7 +84,9 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" x:Uid="ai.option.shortcut" Text="AI assistant" VerticalAlignment="Center"/>
-          <TextBlock Grid.Column="1" x:Name="HotkeyAiText" Text="Alt+Space" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
+            <TextBlock x:Name="HotkeyAiText" Text="Alt+Space" Style="{StaticResource CaptionTextBlockStyle}"/>
+          </Border>
           <ComboBox Grid.Column="2" x:Name="PresetAiCombo" SelectionChanged="OnAiPresetChanged" MinWidth="170" VerticalAlignment="Center">
             <ComboBoxItem Content="Alt + Space"/>
             <ComboBoxItem Content="Ctrl + Alt + Space"/>
@@ -97,7 +105,9 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <TextBlock Grid.Column="0" x:Uid="translator.option.shortcut" Text="Quick translate" VerticalAlignment="Center"/>
-          <TextBlock Grid.Column="1" x:Name="HotkeyTranslateText" Text="Alt+T" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" Padding="8,4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" VerticalAlignment="Center">
+            <TextBlock x:Name="HotkeyTranslateText" Text="Alt+T" Style="{StaticResource CaptionTextBlockStyle}"/>
+          </Border>
           <Button Grid.Column="2" x:Name="RecordTranslateButton" x:Uid="shortcuts.record" Content="Change..." Click="OnRecordTranslateClicked"/>
         </Grid>
         <TextBlock x:Name="ConflictTranslateText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>

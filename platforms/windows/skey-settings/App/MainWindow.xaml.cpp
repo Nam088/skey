@@ -17,6 +17,8 @@
 
 #include <winrt/Microsoft.UI.Xaml.Interop.h>
 #include <winrt/Microsoft.UI.Xaml.Media.Animation.h>
+#include <winrt/Microsoft.UI.Windowing.h>
+#include <winrt/Windows.Graphics.h>
 
 #include <string_view>
 
@@ -28,6 +30,9 @@ using namespace winrt::Microsoft::UI::Xaml::Interop;
 
 MainWindow::MainWindow() {
     InitializeComponent();
+    // Microsoft.UI.Xaml.Window exposes no Width/Height; the initial size
+    // has to go through AppWindow, which takes physical pixels.
+    AppWindow().Resize({900, 680});
 }
 
 void MainWindow::NavigateForTag(winrt::hstring const& tag) {

@@ -38,7 +38,9 @@
             <TextBlock x:Uid="keyboard.shortcut.toggleTitle" Text="Language toggle shortcut"/>
             <TextBlock x:Uid="keyboard.shortcut.toggleSubtitle" Text="Quickly switch between Vietnamese and English" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
           </StackPanel>
-          <TextBlock Grid.Column="1" x:Name="LanguageToggleHotkeyText" Text="Alt+Z" Style="{StaticResource CaptionTextBlockStyle}" Padding="8,4" VerticalAlignment="Center" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+          <Border Grid.Column="1" Padding="8,4" VerticalAlignment="Center" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <TextBlock x:Name="LanguageToggleHotkeyText" Text="Alt+Z" Style="{StaticResource CaptionTextBlockStyle}"/>
+          </Border>
           <ComboBox Grid.Column="2" x:Name="LanguageTogglePresetCombo" x:Uid="shortcut.presets" SelectionChanged="OnLanguageTogglePresetChanged" SelectedIndex="0" VerticalAlignment="Center" MinWidth="160">
             <ComboBoxItem Content="Alt + Z"/>
             <ComboBoxItem Content="Ctrl + Shift"/>
