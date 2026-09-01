@@ -109,6 +109,19 @@ jobs:
           Write-Host "Using PlatformToolset=$toolset from $storeToolsets"
           msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:PlatformToolset=$toolset" /m /v:m
 
+      - name: List generated XAML output
+        # The markup compiler mirrors page folders under "Generated Files";
+        # on a build failure this shows exactly which headers it produced.
+        if: failure()
+        shell: pwsh
+        run: |
+          $gen = 'platforms/windows/skey-settings/Generated Files'
+          if (Test-Path $gen) {
+            Get-ChildItem $gen -Recurse -Filter *.g.h | ForEach-Object { $_.FullName }
+          } else {
+            Write-Host "No '$gen' directory"
+          }
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

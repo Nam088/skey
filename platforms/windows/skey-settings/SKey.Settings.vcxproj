@@ -56,7 +56,12 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PreprocessorDefinitions>UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(GeneratedFilesDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- The XAML compiler mirrors each page's project-relative folder under
+           $(GeneratedFilesDir), but the generated headers are included by bare
+           name (#include "MainWindow.xaml.g.h"), so every folder holding a Page
+           or ApplicationDefinition needs its mirror on the include path. Add a
+           line here when XAML moves into a new folder. -->
+      <AdditionalIncludeDirectories>$(ProjectDir);$(GeneratedFilesDir);$(GeneratedFilesDir)App;$(GeneratedFilesDir)Features\Settings\UI\Tabs;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
