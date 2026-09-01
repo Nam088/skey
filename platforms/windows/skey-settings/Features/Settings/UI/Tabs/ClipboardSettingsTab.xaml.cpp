@@ -96,7 +96,7 @@ void ClipboardSettingsTab::OnSaveImagesToggled(ToggleSwitch const& sender, winrt
     vm_->set_clipboard_save_images(sender.IsOn());
 }
 
-void ClipboardSettingsTab::OnMaxItemsChanged(Slider const& sender, RangeChangedEventArgs const&) {
+void ClipboardSettingsTab::OnMaxItemsChanged(Slider const& sender, Primitives::RangeBaseValueChangedEventArgs const&) {
     if (!vm_ || loading_) return;
     vm_->set_clipboard_max_items(static_cast<std::size_t>(sender.Value()));
 }
@@ -135,7 +135,7 @@ void ClipboardSettingsTab::OnPinToChanged(winrt::Windows::Foundation::IInspectab
         : skey::windows::ClipboardPinTo::bottom);
 }
 
-void ClipboardSettingsTab::OnThumbHeightChanged(Slider const& sender, RangeChangedEventArgs const&) {
+void ClipboardSettingsTab::OnThumbHeightChanged(Slider const& sender, Primitives::RangeBaseValueChangedEventArgs const&) {
     if (!vm_ || loading_) return;
     vm_->set_clipboard_image_thumb_height(static_cast<std::size_t>(sender.Value()));
 }

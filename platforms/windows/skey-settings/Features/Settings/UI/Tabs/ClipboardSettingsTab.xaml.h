@@ -25,7 +25,7 @@ struct ClipboardSettingsTab : ClipboardSettingsTabT<ClipboardSettingsTab> {
     void OnSaveImagesToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
                              winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnMaxItemsChanged(winrt::Microsoft::UI::Xaml::Controls::Slider const& sender,
-                           winrt::Microsoft::UI::Xaml::Controls::RangeChangedEventArgs const& args);
+                           winrt::Microsoft::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs const& args);
     void OnSortOrderChanged(winrt::Windows::Foundation::IInspectable const& sender,
                             winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
     void OnClearHistoryClicked(winrt::Windows::Foundation::IInspectable const& sender,
@@ -35,7 +35,7 @@ struct ClipboardSettingsTab : ClipboardSettingsTabT<ClipboardSettingsTab> {
     void OnPinToChanged(winrt::Windows::Foundation::IInspectable const& sender,
                         winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
     void OnThumbHeightChanged(winrt::Microsoft::UI::Xaml::Controls::Slider const& sender,
-                              winrt::Microsoft::UI::Xaml::Controls::RangeChangedEventArgs const& args);
+                              winrt::Microsoft::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs const& args);
     void OnHoverPreviewToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
                                winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnShowAppIconsToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,

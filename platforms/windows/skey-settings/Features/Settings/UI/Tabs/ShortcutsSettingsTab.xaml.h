@@ -37,9 +37,9 @@ struct ShortcutsSettingsTab : ShortcutsSettingsTabT<ShortcutsSettingsTab> {
                            winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnRecordTranslateClicked(winrt::Windows::Foundation::IInspectable const& sender,
                                   winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnPreviewKeyDown(winrt::Windows::Foundation::IInspectable const& sender,
+    void OnRecorderKeyDown(winrt::Windows::Foundation::IInspectable const& sender,
                           winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args);
-    void OnPreviewKeyUp(winrt::Windows::Foundation::IInspectable const& sender,
+    void OnRecorderKeyUp(winrt::Windows::Foundation::IInspectable const& sender,
                         winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args);
 
     void ApplyPreset(std::string_view action, int index);

@@ -8,6 +8,9 @@
 #endif
 
 #include <windows.h>
+// <windows.h> defines GetCurrentTime as GetTickCount, which mangles
+// Storyboard.GetCurrentTime in Microsoft.UI.Xaml.Media.Animation.h.
+#undef GetCurrentTime
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
 #include <hstring.h>

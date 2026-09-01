@@ -157,6 +157,10 @@
     </ClCompile>
     <ClInclude Include="Shared\UI\UiState.h" />
     <ClInclude Include="..\Shared\Contracts\SettingsModel.h" />
+    <ClInclude Include="..\Shared\Settings\SettingsPaths.h" />
+    <ClCompile Include="..\Shared\Settings\SettingsPaths.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClInclude Include="..\Shared\Settings\SettingsStore.h" />
     <ClCompile Include="..\Shared\Settings\SettingsStore.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>

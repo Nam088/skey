@@ -54,7 +54,7 @@ bool contains_ci(const std::string& haystack, const std::string& needle) {
 
 Media::Brush theme_brush(const wchar_t* key) {
     const auto resource = Application::Current().Resources().TryLookup(winrt::box_value(key));
-    return resource ? resource.as<Media::Brush>() : Media::Brush{};
+    return resource ? resource.as<Media::Brush>() : Media::Brush{nullptr};
 }
 
 ColumnDefinition column(GridUnitType type, double value) {
@@ -68,7 +68,7 @@ ColumnDefinition column(GridUnitType type, double value) {
 void SnippetsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable const&,
                                       RoutedEventArgs const&) {
     if (!store_) {
-        store_.emplace(SettingsPaths::macros_file());
+        store_.emplace(skey::windows::SettingsPaths::macros_file());
     }
     if (vm_) {
         const auto& model = vm_->settings();
@@ -159,7 +159,7 @@ UIElement SnippetsSettingsTab::BuildRow(const skey::windows::MacroEntry& entry) 
     row.ColumnDefinitions().Append(column(GridUnitType::Auto, 0));
 
     Border badge;
-    badge.CornerRadius(CornerRadius{4, 4, 4, 4});
+    badge.CornerRadius(winrt::Microsoft::UI::Xaml::CornerRadius{4, 4, 4, 4});
     badge.Padding(Thickness{8, 3, 8, 3});
     badge.VerticalAlignment(VerticalAlignment::Top);
     badge.Background(theme_brush(L"ControlFillColorDefaultBrush"));

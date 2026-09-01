@@ -93,7 +93,7 @@ void ShortcutsSettingsTab::OnRecordTranslateClicked(winrt::Windows::Foundation::
     StartRecording(std::string{skey::windows::hotkey_action::translate});
 }
 
-void ShortcutsSettingsTab::OnPreviewKeyDown(winrt::Windows::Foundation::IInspectable const&,
+void ShortcutsSettingsTab::OnRecorderKeyDown(winrt::Windows::Foundation::IInspectable const&,
                                              winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args) {
     if (recording_action_.empty()) return;
     const auto vk = static_cast<unsigned>(args.Key());
@@ -105,7 +105,7 @@ void ShortcutsSettingsTab::OnPreviewKeyDown(winrt::Windows::Foundation::IInspect
     if (ended) FinishRecording();
 }
 
-void ShortcutsSettingsTab::OnPreviewKeyUp(winrt::Windows::Foundation::IInspectable const&,
+void ShortcutsSettingsTab::OnRecorderKeyUp(winrt::Windows::Foundation::IInspectable const&,
                                            winrt::Microsoft::UI::Xaml::Input::KeyRoutedEventArgs const& args) {
     if (recording_action_.empty()) return;
     const auto vk = static_cast<unsigned>(args.Key());

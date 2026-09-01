@@ -1,4 +1,4 @@
-<Page x:Class="SKey.Settings.ShortcutsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded" PreviewKeyDown="OnPreviewKeyDown" PreviewKeyUp="OnPreviewKeyUp">
+<Page x:Class="SKey.Settings.ShortcutsSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded" PreviewKeyDown="OnRecorderKeyDown" PreviewKeyUp="OnRecorderKeyUp">
   <ScrollViewer>
     <StackPanel Spacing="16" Padding="0,0,0,24">
       <TextBlock x:Uid="settings.shortcuts.title" Text="Shortcuts" Style="{StaticResource SubtitleTextBlockStyle}"/>
