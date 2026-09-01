@@ -1,5 +1,14 @@
 # Kế hoạch xây dựng bộ gõ Windows
 
+> **Cập nhật kiến trúc (2026-08):** Hướng TSF/IMM32 bên dưới đã được thay bằng
+> kiến trúc keyboard hook cổ điển: `skey-tray.exe` cài
+> `WH_KEYBOARD_LL`, xử lý qua pipeline 10 tầng và gửi lại kết quả bằng
+> `SendInput`. Lý do: TSF phức tạp (COM registration, language profile,
+> composition underline) trong khi hook đơn giản, không gạch chân khi gõ và
+> khớp với ABI `{handled, backspaces, len}` của `skey-capi`. Mục 2
+> (các dòng về TSF/IMM32/tách process IME) không còn áp dụng; xem
+> `platforms/windows/WINDOWS_DEV_GUIDE.md` cho kiến trúc hiện tại.
+
 ## 1. Mục tiêu
 
 Xây dựng bộ gõ tiếng Việt cho Windows dựa trên behavior reference của mã macOS hiện tại và dùng Rust core làm lõi đa nền tảng.

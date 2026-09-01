@@ -19,6 +19,7 @@ jobs:
   contracts:
     name: Build & Test
     runs-on: windows-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         shell: bash
@@ -38,8 +39,24 @@ jobs:
         shell: bash
         run: python3 platforms/windows/build-config/validate_package.py
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust core (skey.lib)
+        shell: bash
+        env:
+          # Static CRT so exes do not require VCRUNTIME140.dll (headless
+          # runners lack the redistributable). --crate-type staticlib only:
+          # a plain `cargo build` also emits the cdylib import library,
+          # which overwrites skey.lib and makes every exe import skey.dll
+          # (STATUS_DLL_NOT_FOUND at startup).
+          RUSTFLAGS: -C target-feature=+crt-static
+        run: |
+          cd core
+          cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
+
       - name: Configure
-        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON
+        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 
       - name: Build
         run: cmake --build out/windows-contract --config Release
@@ -55,6 +72,80 @@ jobs:
         with:
           name: skey-windows-package
           path: out/windows-contract/installer-windows/skey-windows.zip
+
+  settings-ui:
+    name: Settings UI (WinUI 3)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: nuget/setup-nuget@v2
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Restore packages
+        run: nuget restore platforms/windows/skey-settings/SKey.Settings.sln
+
+      - name: Build
+        # Discover the newest installed PlatformToolset (e.g. v145 under the
+        # v180 VC targets dir): guessing from the targets dir name yields
+        # MSB8020, and an unset toolset falls back to v100. The project declares
+        # ApplicationType "Windows Store", so the toolset must exist under that
+        # application type, not just the desktop one.
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+          $vcdir = Get-ChildItem "$vs\MSBuild\Microsoft\VC" -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $storeToolsets = Join-Path $vcdir.FullName 'Application Type\Windows Store\10.0\Platforms\x64\PlatformToolsets'
+          if (-not (Test-Path $storeToolsets)) {
+            throw "Missing $storeToolsets - the VS 'Universal Windows Platform tools' C++ component is required to build WinUI 3."
+          }
+          $toolset = Get-ChildItem $storeToolsets -Directory |
+            Where-Object { $_.Name -match '^v\d+$' } |
+            Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
+          Write-Host "Using PlatformToolset=$toolset from $storeToolsets"
+          msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:PlatformToolset=$toolset" /m /v:m
+
+      - name: Smoke test the app
+        # Linking proves nothing about startup. This catches a missing runtime
+        # DLL, a failed reg-free WinRT activation and any unhandled exception
+        # while App.OnLaunched builds MainWindow and navigates the first tab.
+        shell: pwsh
+        run: |
+          $exe = 'platforms/windows/skey-settings/x64/Release/SKey.Settings/SKey.Settings.exe'
+          if (-not (Test-Path $exe)) { throw "Build produced no $exe" }
+          $p = Start-Process -FilePath (Resolve-Path $exe) -PassThru
+          Write-Host "Started pid $($p.Id); watching for 15s"
+          if ($p.WaitForExit(15000)) {
+            throw ("App exited within 15s with code 0x{0:X8} - it did not stay up." -f $p.ExitCode)
+          }
+          Write-Host "Still running after 15s; stopping it."
+          Stop-Process -Id $p.Id -Force
+
+      - name: List generated XAML output
+        # The markup compiler mirrors page folders under "Generated Files";
+        # on a build failure this shows exactly which headers it produced.
+        if: failure()
+        shell: pwsh
+        run: |
+          $gen = 'platforms/windows/skey-settings/Generated Files'
+          if (Test-Path $gen) {
+            Get-ChildItem $gen -Recurse -Filter *.g.h | ForEach-Object { $_.FullName }
+          } else {
+            Write-Host "No '$gen' directory"
+          }
+
+      - name: Upload artifact
+        # Keep the binary when the smoke test fails; that is when it is worth
+        # inspecting.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skey-settings-winui
+          path: platforms/windows/skey-settings/x64/Release/**
+          if-no-files-found: warn
 
   rust:
     name: Rust Core

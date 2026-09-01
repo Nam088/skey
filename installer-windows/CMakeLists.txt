@@ -9,21 +9,18 @@ add_custom_target(skey-package ALL
     COMMAND ${CMAKE_COMMAND} -E echo "SKey Windows package staging: ${SKEY_PACKAGE_DIR}"
     COMMENT "Stage Windows binaries for installer packaging"
 )
-if(TARGET skey-ime-core)
-    add_dependencies(skey-package skey-ime-core)
-endif()
-if(TARGET skey-ime)
-    add_dependencies(skey-package skey-ime)
-endif()
 if(TARGET skey-tray)
     add_dependencies(skey-package skey-tray)
+endif()
+if(TARGET skey-tsf)
+    add_dependencies(skey-package skey-tsf)
 endif()
 
 add_custom_command(TARGET skey-package POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$<TARGET_FILE:skey-tray>" "${SKEY_PACKAGE_DIR}/skey-tray.exe"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE:skey-ime>" "${SKEY_PACKAGE_DIR}/skey-ime.dll"
+            "$<TARGET_FILE:skey-tsf>" "${SKEY_PACKAGE_DIR}/skey-tsf.dll"
     COMMAND ${CMAKE_COMMAND} -E tar cf "${CMAKE_CURRENT_BINARY_DIR}/skey-windows.zip" --format=zip --
             "${SKEY_PACKAGE_DIR}"
     VERBATIM

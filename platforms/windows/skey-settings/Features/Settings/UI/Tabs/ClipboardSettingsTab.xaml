@@ -1,18 +1,51 @@
-<Page x:Class="SKey.Settings.ClipboardSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Page x:Class="SKey.Settings.ClipboardSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
   <ScrollViewer>
     <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock Text="Clipboard" Style="{StaticResource SubtitleTextBlockStyle}"/>
+      <TextBlock x:Uid="settings.clipboard.title" Text="Clipboard" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-      <TextBlock Text="General" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-      <ToggleSwitch Header="Enable clipboard history" IsOn="True"/>
-      <ToggleSwitch Header="Auto paste" IsOn="True"/>
-      <ToggleSwitch Header="Paste as plain text"/>
+      <TextBlock x:Uid="settings.subtab.general" Text="General" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+      <ToggleSwitch x:Name="EnableToggle" x:Uid="settings.clipboard.enable" Header="Enable clipboard history" IsOn="True" Toggled="OnEnableToggled"/>
+      <ComboBox x:Name="SearchModeCombo" x:Uid="clipboard.option.searchType" Header="Search type" SelectedIndex="0" SelectionChanged="OnSearchModeChanged" HorizontalAlignment="Stretch">
+        <ComboBoxItem x:Uid="clipboard.search.fuzzy" Content="Fuzzy"/>
+        <ComboBoxItem x:Uid="clipboard.search.exact" Content="Exact"/>
+      </ComboBox>
 
-      <TextBlock Text="Storage" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
-      <ToggleSwitch Header="Save text" IsOn="True"/>
-      <ToggleSwitch Header="Save images"/>
-      <NumberBox Header="Maximum items" Value="100" Minimum="1" Maximum="10000"/>
-      <Button Content="Clear all history" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+      <TextBlock x:Uid="clipboard.section.pasteActions" Text="Paste actions" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ToggleSwitch x:Name="AutoPasteToggle" x:Uid="clipboard.option.autoPaste" Header="Auto paste" IsOn="True" Toggled="OnAutoPasteToggled"/>
+      <ToggleSwitch x:Name="PastePlainTextToggle" x:Uid="clipboard.option.plainText" Header="Paste as plain text (Shift+Enter)" Toggled="OnPastePlainTextToggled"/>
+
+      <TextBlock x:Uid="settings.subtab.storage" Text="Storage" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ToggleSwitch x:Name="SaveTextToggle" x:Uid="clipboard.option.saveText" Header="Save text" IsOn="True" Toggled="OnSaveTextToggled"/>
+      <ToggleSwitch x:Name="SaveImagesToggle" x:Uid="clipboard.option.saveImages" Header="Save images" Toggled="OnSaveImagesToggled"/>
+      <Slider x:Name="MaxItemsSlider" x:Uid="clipboard.option.maxItems" Header="Maximum items" Minimum="50" Maximum="1000" StepFrequency="50" Value="100" ValueChanged="OnMaxItemsChanged"/>
+      <ComboBox x:Name="SortOrderCombo" x:Uid="clipboard.option.sortOrder" Header="Sort order" SelectedIndex="0" SelectionChanged="OnSortOrderChanged" HorizontalAlignment="Stretch">
+        <ComboBoxItem x:Uid="clipboard.sort.lastCopy" Content="Last copy time"/>
+        <ComboBoxItem x:Uid="clipboard.sort.firstCopy" Content="First copy time"/>
+        <ComboBoxItem x:Uid="clipboard.sort.copies" Content="Number of copies"/>
+      </ComboBox>
+      <Button x:Uid="clipboard.action.clear_all" Content="Clear all history" Click="OnClearHistoryClicked" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+
+      <TextBlock x:Uid="settings.subtab.appearance" Text="Appearance" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ComboBox x:Name="PopupPositionCombo" x:Uid="clipboard.option.popupPosition" Header="Popup position" SelectedIndex="0" SelectionChanged="OnPopupPositionChanged" HorizontalAlignment="Stretch">
+        <ComboBoxItem x:Uid="clipboard.pos.cursor" Content="Near cursor"/>
+        <ComboBoxItem x:Uid="clipboard.pos.statusItem" Content="Status item"/>
+      </ComboBox>
+      <ComboBox x:Name="PinToCombo" x:Uid="clipboard.option.pinLocation" Header="Pin location" SelectedIndex="0" SelectionChanged="OnPinToChanged" HorizontalAlignment="Stretch">
+        <ComboBoxItem x:Uid="clipboard.pin.top" Content="Top"/>
+        <ComboBoxItem x:Uid="clipboard.pin.bottom" Content="Bottom"/>
+      </ComboBox>
+      <Slider x:Name="ThumbHeightSlider" x:Uid="clipboard.option.thumbHeight" Header="Image thumbnail height (px)" Minimum="30" Maximum="80" StepFrequency="5" Value="40" ValueChanged="OnThumbHeightChanged"/>
+      <ToggleSwitch x:Name="HoverPreviewToggle" x:Uid="clipboard.option.hoverPreview" Header="Open preview on hover" IsOn="True" Toggled="OnHoverPreviewToggled"/>
+      <ToggleSwitch x:Name="ShowAppIconsToggle" x:Uid="clipboard.option.appIcons" Header="Show application icons" IsOn="True" Toggled="OnShowAppIconsToggled"/>
+      <ToggleSwitch x:Name="ShowHexSwatchToggle" x:Uid="clipboard.option.colorSwatch" Header="Show hex color swatch" IsOn="True" Toggled="OnShowHexSwatchToggled"/>
+
+      <TextBlock x:Uid="settings.subtab.privacy" Text="Privacy" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <StackPanel Spacing="4">
+        <TextBlock x:Uid="clipboard.privacy.onePassword" Text="1Password — protected" Opacity="0.7"/>
+        <TextBlock x:Uid="clipboard.privacy.bitwarden" Text="Bitwarden — protected" Opacity="0.7"/>
+        <TextBlock x:Uid="clipboard.privacy.credentialManager" Text="Windows Credential Manager — protected" Opacity="0.7"/>
+        <TextBlock x:Uid="clipboard.privacy.keepassxc" Text="KeePassXC — protected" Opacity="0.7"/>
+      </StackPanel>
     </StackPanel>
   </ScrollViewer>
 </Page>

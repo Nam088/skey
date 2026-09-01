@@ -20,7 +20,11 @@ private:
 class IpcServer final {
 public:
     explicit IpcServer(IpcHandler handler);
-    bool serve_once(const std::string& endpoint = kIpcPipeName) const;
+    // Blocks until one request is served. `alive` is polled while waiting for
+    // a client so the server thread can be joined on shutdown; when it turns
+    // false the pending accept is cancelled and false is returned.
+    bool serve_once(const std::string& endpoint = kIpcPipeName,
+                    const std::function<bool()>& alive = nullptr) const;
 private:
     IpcHandler handler_;
 };

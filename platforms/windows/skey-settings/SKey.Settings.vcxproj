@@ -1,12 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations"><ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration><ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration></ItemGroup>
-  <PropertyGroup Label="Globals"><ProjectGuid>{D8B0A1C5-65B7-4A3F-8E45-9A2D8A6A1101}</ProjectGuid><Keyword>Win32Proj</Keyword><RootNamespace>SKey.Settings</RootNamespace><WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion></PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D8B0A1C5-65B7-4A3F-8E45-9A2D8A6A1101}</ProjectGuid>
+    <RootNamespace>SKey.Settings</RootNamespace>
+    <!-- $(TargetName) must match $(RootNamespace) so the .exe/.pri names line up
+         with the generated .winmd. -->
+    <TargetName>$(RootNamespace)</TargetName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
+    <!-- The native XAML build rules (Microsoft.Windows.UI.Xaml.Cpp.targets, which
+         generate the *.xaml.g.h headers) live under the "Windows Store" 10.0
+         application type in $(VCTargetsPath). A plain desktop C++ project never
+         imports them, so every xaml.g.h include fails with C1083. Desktop WinUI 3
+         apps still declare this type, with AppContainerApplication off. -->
+    <AppContainerApplication>false</AppContainerApplication>
+    <ApplicationType>Windows Store</ApplicationType>
+    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
+    <AppxPackage>false</AppxPackage>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <CppWinRTOptimized>true</CppWinRTOptimized>
+    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+    <MinimalCoreWin>true</MinimalCoreWin>
+    <ProjectName>SKey.Settings</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(ProjectDir)packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(ProjectDir)packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <Import Project="$(ProjectDir)packages\Microsoft.WindowsAppSDK.1.6.241114003\build\native\Microsoft.WindowsAppSDK.props" Condition="Exists('$(ProjectDir)packages\Microsoft.WindowsAppSDK.1.6.241114003\build\native\Microsoft.WindowsAppSDK.props')" />
+  <Import Project="$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.props" Condition="Exists('$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.props')" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration"><ConfigurationType>Application</ConfigurationType><UseDebugLibraries>true</UseDebugLibraries><PlatformToolset>v143</PlatformToolset></PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration"><ConfigurationType>Application</ConfigurationType><UseDebugLibraries>false</UseDebugLibraries><PlatformToolset>v143</PlatformToolset></PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <DesktopCompatible>true</DesktopCompatible>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <DesktopCompatible>true</DesktopCompatible>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ItemGroup><None Include="App\App.xaml" /><None Include="App\MainWindow.xaml" /><None Include="Features\Settings\UI\SettingsDashboard.xaml" /><None Include="Resources\Strings\en\Resources.resw" /><None Include="Resources\Strings\vi\Resources.resw" /></ItemGroup>
-  <ItemGroup><ClInclude Include="App\App.xaml.h" /><ClInclude Include="App\MainWindow.xaml.h" /><ClCompile Include="App\App.xaml.cpp" /><ClCompile Include="App\MainWindow.xaml.cpp" /></ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <!-- The XAML compiler mirrors each page's project-relative folder under
+           $(GeneratedFilesDir), but the generated headers are included by bare
+           name (#include "MainWindow.xaml.g.h"), so every folder holding a Page
+           or ApplicationDefinition needs its mirror on the include path. Add a
+           line here when XAML moves into a new folder. -->
+      <AdditionalIncludeDirectories>$(ProjectDir);$(GeneratedFilesDir);$(GeneratedFilesDir)App;$(GeneratedFilesDir)Features\Settings\UI\Tabs;$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level4</WarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile><PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile><PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="Project.idl" />
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Features\Settings\UI\SettingsDashboard.xaml" />
+    <Page Include="Resources\ThemeResources.xaml"><SubType>Designer</SubType></Page>
+    <None Include="Resources\ThemeResources.System.xaml"><DeploymentContent>true</DeploymentContent></None>
+    <None Include="Resources\ThemeResources.Light.xaml"><DeploymentContent>true</DeploymentContent></None>
+    <None Include="Resources\ThemeResources.Dark.xaml"><DeploymentContent>true</DeploymentContent></None>
+    <PRIResource Include="Resources\Strings\en\Resources.resw" />
+    <PRIResource Include="Resources\Strings\vi\Resources.resw" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App\App.xaml"><SubType>Designer</SubType></ApplicationDefinition>
+    <ClInclude Include="App\App.xaml.h"><DependentUpon>App\App.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="App\App.xaml.cpp"><DependentUpon>App\App.xaml</DependentUpon></ClCompile>
+    <Page Include="App\MainWindow.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="App\MainWindow.xaml.h"><DependentUpon>App\MainWindow.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="App\MainWindow.xaml.cpp"><DependentUpon>App\MainWindow.xaml</DependentUpon></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Features\Settings\UI\Tabs\GeneralSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\GeneralSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\GeneralSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\GeneralSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\GeneralSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\KeyboardSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\KeyboardSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\KeyboardSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\KeyboardSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\KeyboardSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\ShortcutsSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\ShortcutsSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\ShortcutsSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\ShortcutsSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\ShortcutsSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\SnippetsSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\SnippetsSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\SnippetsSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\SnippetsSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\SnippetsSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\ClipboardSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\ClipboardSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\ClipboardSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\ClipboardSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\ClipboardSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\ToolsSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\ToolsSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\ToolsSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\ToolsSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\ToolsSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\AiSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\AiSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\AiSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\AiSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\AiSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\AppearanceSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\AppearanceSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\AppearanceSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\AppearanceSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\AppearanceSettingsTab.xaml</DependentUpon></ClCompile>
+    <Page Include="Features\Settings\UI\Tabs\AboutSettingsTab.xaml"><SubType>Designer</SubType></Page>
+    <ClInclude Include="Features\Settings\UI\Tabs\AboutSettingsTab.xaml.h"><DependentUpon>Features\Settings\UI\Tabs\AboutSettingsTab.xaml</DependentUpon></ClInclude>
+    <ClCompile Include="Features\Settings\UI\Tabs\AboutSettingsTab.xaml.cpp"><DependentUpon>Features\Settings\UI\Tabs\AboutSettingsTab.xaml</DependentUpon></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="ViewModels\SettingsViewModel.h" />
+    <ClInclude Include="ViewModels\SharedViewModel.h" />
+    <ClCompile Include="ViewModels\SharedViewModel.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="Features\Settings\UI\Tabs\SettingsTabs.h" />
+    <ClInclude Include="Shared\Core\Feature.h" />
+    <ClInclude Include="Shared\Logging\LogEntry.h" />
+    <ClInclude Include="Shared\Logging\LoggingService.h" />
+    <ClInclude Include="Shared\Services\ServiceRegistry.h" />
+    <ClInclude Include="Shared\Settings\Modules\SettingsModules.h" />
+    <ClInclude Include="Shared\Settings\Modules\SettingsTab.h" />
+    <ClInclude Include="Shared\Shortcuts\ShortcutModel.h" />
+    <ClInclude Include="Shared\Shortcuts\ShortcutRecorderModel.h" />
+    <ClInclude Include="Shared\Shortcuts\HotkeyFormat.h" />
+    <ClCompile Include="Shared\Shortcuts\HotkeyFormat.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="Shared\Shortcuts\HotkeyStore.h" />
+    <ClCompile Include="Shared\Shortcuts\HotkeyStore.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="Shared\Settings\Backup\SettingsBackup.h" />
+    <ClCompile Include="Shared\Settings\Backup\SettingsBackup.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="Shared\UI\UiState.h" />
+    <ClInclude Include="..\Shared\Contracts\SettingsModel.h" />
+    <ClInclude Include="..\Shared\Settings\SettingsPaths.h" />
+    <ClCompile Include="..\Shared\Settings\SettingsPaths.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="..\Shared\Settings\SettingsStore.h" />
+    <ClCompile Include="..\Shared\Settings\SettingsStore.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="..\Shared\Settings\MacroStore.h" />
+    <ClCompile Include="..\Shared\Settings\MacroStore.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="..\Shared\Localization\LocalizationService.h" />
+    <ClCompile Include="..\Shared\Localization\LocalizationService.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(ProjectDir)packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(ProjectDir)packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="$(ProjectDir)packages\Microsoft.WindowsAppSDK.1.6.241114003\build\native\Microsoft.WindowsAppSDK.targets" Condition="Exists('$(ProjectDir)packages\Microsoft.WindowsAppSDK.1.6.241114003\build\native\Microsoft.WindowsAppSDK.targets')" />
+    <Import Project="$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2651.64\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2651.64\build\native\Microsoft.Web.WebView2.targets')" />
+    <Import Project="$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.targets" Condition="Exists('$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Restore them with: nuget restore SKey.Settings.sln. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(ProjectDir)packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(ProjectDir)packages\Microsoft.Windows.CppWinRT.2.0.240405.15\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('$(ProjectDir)packages\Microsoft.WindowsAppSDK.1.6.241114003\build\native\Microsoft.WindowsAppSDK.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(ProjectDir)packages\Microsoft.WindowsAppSDK.1.6.241114003\build\native\Microsoft.WindowsAppSDK.targets'))" />
+    <Error Condition="!Exists('$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2651.64\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(ProjectDir)packages\Microsoft.Web.WebView2.1.0.2651.64\build\native\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(ProjectDir)packages\Microsoft.Windows.SDK.BuildTools.10.0.22621.756\build\Microsoft.Windows.SDK.BuildTools.targets'))" />
+  </Target>
 </Project>

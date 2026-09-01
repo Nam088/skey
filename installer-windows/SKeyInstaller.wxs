@@ -18,6 +18,32 @@
       <ComponentRef Id="ApplicationShortcut" />
     </Feature>
 
+    <!-- Phase 5: register the TSF bridge DLL. The deferred system-context run
+         writes the CLSID + TSF category (HKLM); the immediate impersonated
+         run registers the "SKey Vietnamese" language profile (HKCU). -->
+    <CustomAction Id="RegisterTsfSystem"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand='[System64Folder]regsvr32.exe /s "[INSTALLFOLDER]skey-tsf.dll"'
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+    <CustomAction Id="RegisterTsfUser"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand='[System64Folder]regsvr32.exe /s "[INSTALLFOLDER]skey-tsf.dll"'
+                  Return="ignore" />
+    <CustomAction Id="UnregisterTsfSystem"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand='[System64Folder]regsvr32.exe /s /u "[INSTALLFOLDER]skey-tsf.dll"'
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="RegisterTsfUser" After="InstallFiles" />
+      <Custom Action="RegisterTsfSystem" After="RegisterTsfUser" />
+      <Custom Action="UnregisterTsfSystem" Before="RemoveFiles" Condition='REMOVE="ALL"' />
+    </InstallExecuteSequence>
+
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="SKey">
         <Component Id="ApplicationShortcut" Guid="*">
@@ -39,31 +65,16 @@
     </StandardDirectory>
 
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="skeyime.dll" Guid="*">
-        <File Id="skey_ime.dll" Source="skey-ime.dll" KeyPath="yes" />
-      </Component>
       <Component Id="skeytray.exe" Guid="*">
         <File Id="skey_tray.exe" Source="skey-tray.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="skeytsf.dll" Guid="*">
+        <File Id="skey_tsf.dll" Source="skey-tsf.dll" KeyPath="yes" />
       </Component>
       <Component Id="AppxManifest.xml" Guid="*">
         <File Id="AppxManifest.xml" Source="AppxManifest.xml" KeyPath="yes" />
       </Component>
     </ComponentGroup>
-
-    <InstallExecuteSequence>
-      <Custom Action="RegisterIME" After="InstallFiles" Condition="NOT Installed" />
-      <Custom Action="UnregisterIME" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
-    </InstallExecuteSequence>
-
-    <CustomAction Id="RegisterIME"
-                  Directory="INSTALLFOLDER"
-                  ExeCommand="regsvr32 /s &quot;[INSTALLFOLDER]skey-ime.dll&quot;"
-                  Return="ignore" />
-
-    <CustomAction Id="UnregisterIME"
-                  Directory="INSTALLFOLDER"
-                  ExeCommand="regsvr32 /s /u &quot;[INSTALLFOLDER]skey-ime.dll&quot;"
-                  Return="ignore" />
 
   </Package>
 </Wix>

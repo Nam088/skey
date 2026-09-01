@@ -44,6 +44,18 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      - name: Build Rust core (skey.lib)
+        shell: bash
+        env:
+          # Static CRT: shipped exes must not require the VC++ redistributable.
+          # staticlib only: a plain cargo build also emits the cdylib
+          # import library, which overwrites skey.lib and makes every exe
+          # import skey.dll (STATUS_DLL_NOT_FOUND at startup).
+          RUSTFLAGS: -C target-feature=+crt-static
+        run: |
+          cd core
+          cargo rustc --release -p skey-capi --target x86_64-pc-windows-msvc --crate-type staticlib
+
       - name: Auto Tag
         id: auto_tag
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -101,7 +113,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Configure
-        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=OFF
+        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=OFF -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 
       - name: Build
         run: cmake --build out/windows-contract --config Release
@@ -117,8 +129,8 @@ jobs:
         shell: bash
         run: |
           cd installer-windows
-          cp ../out/windows-contract/installer-windows/package/skey-ime.dll .
           cp ../out/windows-contract/installer-windows/package/skey-tray.exe .
+          cp ../out/windows-contract/installer-windows/package/skey-tsf.dll .
           wix build SKeyInstaller.wxs -o SKey-Installer.msi -arch x64
 
       - name: Generate checksums

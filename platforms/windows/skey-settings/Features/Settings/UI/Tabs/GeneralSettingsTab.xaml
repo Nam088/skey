@@ -1,23 +1,31 @@
-<Page x:Class="SKey.Settings.GeneralSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Page x:Class="SKey.Settings.GeneralSettingsTab" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Loaded="Page_Loaded">
   <ScrollViewer>
     <StackPanel Spacing="16" Padding="0,0,0,24">
-      <TextBlock Text="General" Style="{StaticResource SubtitleTextBlockStyle}"/>
+      <TextBlock x:Uid="settings.general.title" Text="General" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-      <TextBlock Text="Basic" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-      <ToggleSwitch Header="Launch at startup"/>
-      <ToggleSwitch Header="Check for updates" IsOn="True"/>
-      <ComboBox Header="App language" SelectedIndex="0" HorizontalAlignment="Stretch">
-        <ComboBoxItem Content="Tiếng Việt"/>
-        <ComboBoxItem Content="English"/>
+      <TextBlock x:Uid="settings.subtab.basic" Text="Basic" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+      <ToggleSwitch x:Name="LaunchAtLoginToggle" x:Uid="general.option.launchAtLogin" Header="Launch at startup" Toggled="OnLaunchAtLoginToggled"/>
+      <ComboBox x:Name="LanguageCombo" x:Uid="general.option.appLanguage" Header="App language" SelectedIndex="0" SelectionChanged="OnLanguageChanged" HorizontalAlignment="Stretch">
+        <ComboBoxItem x:Uid="language.option.vietnamese" Content="Tiếng Việt"/>
+        <ComboBoxItem x:Uid="language.option.english" Content="English"/>
       </ComboBox>
+      <ComboBox x:Name="ThemeCombo" x:Uid="settings.theme" Header="Theme" SelectedIndex="0" SelectionChanged="OnThemeChanged" HorizontalAlignment="Stretch">
+        <ComboBoxItem x:Uid="settings.theme.system" Content="System"/>
+        <ComboBoxItem x:Uid="settings.theme.light" Content="Light"/>
+        <ComboBoxItem x:Uid="settings.theme.dark" Content="Dark"/>
+      </ComboBox>
+      <ToggleSwitch x:Name="CheckUpdatesToggle" x:Uid="general.option.checkUpdates" Header="Check for updates" IsOn="True" Toggled="OnCheckUpdatesToggled"/>
 
-      <TextBlock Text="Data" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <TextBlock x:Uid="settings.subtab.backup" Text="Backup" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
       <StackPanel Orientation="Horizontal" Spacing="8">
-        <Button Content="Export settings"/>
-        <Button Content="Import settings"/>
+        <Button x:Uid="general.action.exportSettingsBtn" Content="Export settings" Click="OnExportClicked"/>
+        <Button x:Uid="general.action.importSettingsBtn" Content="Import settings" Click="OnImportClicked"/>
       </StackPanel>
-      <ToggleSwitch Header="Debug mode"/>
-      <Button Content="Factory reset" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+
+      <TextBlock x:Uid="settings.subtab.logs" Text="Logs &amp; data" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0"/>
+      <ToggleSwitch x:Name="DebugModeToggle" x:Uid="general.option.debugMode" Header="Debug mode" Toggled="OnDebugModeToggled"/>
+
+      <Button x:Uid="general.action.resetDefaults" Content="Factory reset" Click="OnFactoryResetClicked" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
     </StackPanel>
   </ScrollViewer>
 </Page>

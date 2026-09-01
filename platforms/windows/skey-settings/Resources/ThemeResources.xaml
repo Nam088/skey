@@ -1,5 +1,13 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <!-- WinUI 3 ships no control styles by default. This dictionary is what
+             defines CaptionTextBlockStyle, BodyStrongTextBlockStyle,
+             SubtitleTextBlockStyle, AccentButtonStyle and the CardBackground /
+             TextFillColor theme brushes the tabs reference; without it every
+             one of those lookups throws at startup. -->
+        <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+    </ResourceDictionary.MergedDictionaries>
     <Color x:Key="SKeyLightBackground">#FFFFFFFF</Color>
     <Color x:Key="SKeyDarkBackground">#FF1C1C1E</Color>
     <Color x:Key="SKeyLightForeground">#FF1A1A1A</Color>
