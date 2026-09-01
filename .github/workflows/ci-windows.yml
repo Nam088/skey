@@ -91,16 +91,22 @@ jobs:
       - name: Build
         # Discover the newest installed PlatformToolset (e.g. v145 under the
         # v180 VC targets dir): guessing from the targets dir name yields
-        # MSB8020, and an unset toolset falls back to v100.
+        # MSB8020, and an unset toolset falls back to v100. The project declares
+        # ApplicationType "Windows Store", so the toolset must exist under that
+        # application type, not just the desktop one.
         shell: pwsh
         run: |
           $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
           $vcdir = Get-ChildItem "$vs\MSBuild\Microsoft\VC" -Directory |
             Sort-Object Name -Descending | Select-Object -First 1
-          $toolset = Get-ChildItem "$($vcdir.FullName)\Platforms\x64\PlatformToolsets" -Directory |
+          $storeToolsets = Join-Path $vcdir.FullName 'Application Type\Windows Store\10.0\Platforms\x64\PlatformToolsets'
+          if (-not (Test-Path $storeToolsets)) {
+            throw "Missing $storeToolsets - the VS 'Universal Windows Platform tools' C++ component is required to build WinUI 3."
+          }
+          $toolset = Get-ChildItem $storeToolsets -Directory |
             Where-Object { $_.Name -match '^v\d+$' } |
             Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
-          Write-Host "Using PlatformToolset=$toolset from $($vcdir.FullName)"
+          Write-Host "Using PlatformToolset=$toolset from $storeToolsets"
           msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:PlatformToolset=$toolset" /m /v:m
 
       - name: Upload artifact

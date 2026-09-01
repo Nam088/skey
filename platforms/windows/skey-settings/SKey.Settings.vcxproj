@@ -6,11 +6,25 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D8B0A1C5-65B7-4A3F-8E45-9A2D8A6A1101}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
     <RootNamespace>SKey.Settings</RootNamespace>
+    <!-- $(TargetName) must match $(RootNamespace) so the .exe/.pri names line up
+         with the generated .winmd. -->
+    <TargetName>$(RootNamespace)</TargetName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
+    <!-- The native XAML build rules (Microsoft.Windows.UI.Xaml.Cpp.targets, which
+         generate the *.xaml.g.h headers) live under the "Windows Store" 10.0
+         application type in $(VCTargetsPath). A plain desktop C++ project never
+         imports them, so every xaml.g.h include fails with C1083. Desktop WinUI 3
+         apps still declare this type, with AppContainerApplication off. -->
+    <AppContainerApplication>false</AppContainerApplication>
+    <ApplicationType>Windows Store</ApplicationType>
+    <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
+    <AppxPackage>false</AppxPackage>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <CppWinRTOptimized>true</CppWinRTOptimized>
@@ -26,11 +40,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <DesktopCompatible>true</DesktopCompatible>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <DesktopCompatible>true</DesktopCompatible>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
