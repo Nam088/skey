@@ -28,20 +28,6 @@ using namespace winrt::Microsoft::UI::Xaml;
 using namespace winrt::Microsoft::UI::Xaml::Controls;
 using namespace winrt::Microsoft::UI::Xaml::Interop;
 
-namespace {
-
-// cppwinrt generates the winrt::xaml_typename<T>() helper only for the UWP
-// Windows.UI.Xaml.Interop projection, so Frame.Navigate in a WinUI 3 app needs
-// the Microsoft.UI.Xaml.Interop.TypeName built by hand. Going through
-// name_of<T>() keeps this tied to the runtime class declared in Project.idl
-// rather than a string literal that would rot silently.
-template <typename T>
-TypeName page_type() {
-    return TypeName{winrt::hstring{winrt::name_of<T>()}, TypeKind::Metadata};
-}
-
-} // namespace
-
 MainWindow::MainWindow() {
     InitializeComponent();
     // Microsoft.UI.Xaml.Window exposes no Width/Height; the initial size
@@ -52,23 +38,23 @@ MainWindow::MainWindow() {
 void MainWindow::NavigateForTag(winrt::hstring const& tag) {
     const auto view = std::wstring_view{tag};
     if (view == L"general") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::GeneralSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::GeneralSettingsTab>());
     } else if (view == L"keyboard") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::KeyboardSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::KeyboardSettingsTab>());
     } else if (view == L"shortcuts") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::ShortcutsSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::ShortcutsSettingsTab>());
     } else if (view == L"snippets") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::SnippetsSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::SnippetsSettingsTab>());
     } else if (view == L"clipboard") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::ClipboardSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::ClipboardSettingsTab>());
     } else if (view == L"tools") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::ToolsSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::ToolsSettingsTab>());
     } else if (view == L"ai") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::AiSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::AiSettingsTab>());
     } else if (view == L"appearance") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::AppearanceSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::AppearanceSettingsTab>());
     } else if (view == L"about") {
-        ContentFrame().Navigate(page_type<winrt::SKey::Settings::AboutSettingsTab>());
+        ContentFrame().Navigate(winrt::xaml_typename<winrt::SKey::Settings::AboutSettingsTab>());
     }
 }
 

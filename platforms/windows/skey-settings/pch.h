@@ -17,6 +17,9 @@
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+// Frame.Navigate takes Windows.UI.Xaml.Interop.TypeName even in WinUI 3,
+// and this is the header cppwinrt emits xaml_typename into.
+#include <winrt/Windows.UI.Xaml.Interop.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
