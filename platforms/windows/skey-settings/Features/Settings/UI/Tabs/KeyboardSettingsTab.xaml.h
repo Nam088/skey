@@ -22,33 +22,33 @@ struct KeyboardSettingsTab : KeyboardSettingsTabT<KeyboardSettingsTab> {
                               winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
     void OnCharsetChanged(winrt::Windows::Foundation::IInspectable const& sender,
                           winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
-    void OnVietnameseToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnVietnameseToggled(winrt::Windows::Foundation::IInspectable const& sender,
                              winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnLanguageTogglePresetChanged(winrt::Windows::Foundation::IInspectable const& sender,
                                        winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
-    void OnSpellCheckToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnSpellCheckToggled(winrt::Windows::Foundation::IInspectable const& sender,
                              winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnFreeMarkingToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnFreeMarkingToggled(winrt::Windows::Foundation::IInspectable const& sender,
                               winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnModernStyleToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnModernStyleToggled(winrt::Windows::Foundation::IInspectable const& sender,
                               winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnSwallowedKeyRestoreToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnSwallowedKeyRestoreToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                       winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnZfwjToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnZfwjToggled(winrt::Windows::Foundation::IInspectable const& sender,
                        winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnQuickTelexToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnQuickTelexToggled(winrt::Windows::Foundation::IInspectable const& sender,
                              winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnQuickStartConsonantToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnQuickStartConsonantToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                       winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnQuickEndConsonantToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnQuickEndConsonantToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                     winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnUpperCaseFirstCharToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnUpperCaseFirstCharToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                      winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnSmartAppSwitchToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnSmartAppSwitchToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                  winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnImeBrowsersToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnImeBrowsersToggled(winrt::Windows::Foundation::IInspectable const& sender,
                               winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnExclusionEnabledToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnExclusionEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                    winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnAddExcludedAppClicked(winrt::Windows::Foundation::IInspectable const& sender,
                                  winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);

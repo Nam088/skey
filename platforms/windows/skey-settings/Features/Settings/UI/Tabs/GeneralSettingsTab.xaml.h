@@ -12,15 +12,15 @@ struct GeneralSettingsTab : GeneralSettingsTabT<GeneralSettingsTab> {
     void Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender,
                      winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
 
-    void OnLaunchAtLoginToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnLaunchAtLoginToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                 winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnCheckUpdatesToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnCheckUpdatesToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnLanguageChanged(winrt::Windows::Foundation::IInspectable const& sender,
                            winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
     void OnThemeChanged(winrt::Windows::Foundation::IInspectable const& sender,
                         winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
-    void OnDebugModeToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnDebugModeToggled(winrt::Windows::Foundation::IInspectable const& sender,
                             winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnExportClicked(winrt::Windows::Foundation::IInspectable const& sender,
                          winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);

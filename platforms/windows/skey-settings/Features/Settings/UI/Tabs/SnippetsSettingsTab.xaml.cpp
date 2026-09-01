@@ -82,18 +82,21 @@ void SnippetsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable c
     RefreshList();
 }
 
-void SnippetsSettingsTab::OnEnableToggled(ToggleSwitch const& sender, RoutedEventArgs const&) {
+void SnippetsSettingsTab::OnEnableToggled(winrt::Windows::Foundation::IInspectable const& sender, RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || syncing_) return;
-    vm_->set_macro_enabled(sender.IsOn());
-    MacroOptionsPanel().Visibility(sender.IsOn() ? Visibility::Visible : Visibility::Collapsed);
+    vm_->set_macro_enabled(toggle.IsOn());
+    MacroOptionsPanel().Visibility(toggle.IsOn() ? Visibility::Visible : Visibility::Collapsed);
 }
 
-void SnippetsSettingsTab::OnAutoCapsToggled(ToggleSwitch const& sender, RoutedEventArgs const&) {
-    if (vm_ && !syncing_) vm_->set_macro_auto_caps(sender.IsOn());
+void SnippetsSettingsTab::OnAutoCapsToggled(winrt::Windows::Foundation::IInspectable const& sender, RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
+    if (vm_ && !syncing_) vm_->set_macro_auto_caps(toggle.IsOn());
 }
 
-void SnippetsSettingsTab::OnEnglishModeToggled(ToggleSwitch const& sender, RoutedEventArgs const&) {
-    if (vm_ && !syncing_) vm_->set_macro_in_english_mode(sender.IsOn());
+void SnippetsSettingsTab::OnEnglishModeToggled(winrt::Windows::Foundation::IInspectable const& sender, RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
+    if (vm_ && !syncing_) vm_->set_macro_in_english_mode(toggle.IsOn());
 }
 
 void SnippetsSettingsTab::OnAddFieldChanged(winrt::Windows::Foundation::IInspectable const&,

@@ -44,14 +44,16 @@ void GeneralSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable co
     loading_ = false;
 }
 
-void GeneralSettingsTab::OnLaunchAtLoginToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void GeneralSettingsTab::OnLaunchAtLoginToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_launch_at_login(sender.IsOn());
+    vm_->set_launch_at_login(toggle.IsOn());
 }
 
-void GeneralSettingsTab::OnCheckUpdatesToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void GeneralSettingsTab::OnCheckUpdatesToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_check_updates(sender.IsOn());
+    vm_->set_check_updates(toggle.IsOn());
 }
 
 void GeneralSettingsTab::OnLanguageChanged(winrt::Windows::Foundation::IInspectable const& sender,
@@ -72,9 +74,10 @@ void GeneralSettingsTab::OnThemeChanged(winrt::Windows::Foundation::IInspectable
     }
 }
 
-void GeneralSettingsTab::OnDebugModeToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void GeneralSettingsTab::OnDebugModeToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_debug_mode(sender.IsOn());
+    vm_->set_debug_mode(toggle.IsOn());
 }
 
 void GeneralSettingsTab::OnExportClicked(winrt::Windows::Foundation::IInspectable const&,

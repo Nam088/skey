@@ -28,9 +28,10 @@ void ToolsSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable cons
     loading_ = false;
 }
 
-void ToolsSettingsTab::OnCleanerEnabledToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ToolsSettingsTab::OnCleanerEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_cleaner_enabled(sender.IsOn());
+    vm_->set_cleaner_enabled(toggle.IsOn());
 }
 
 void ToolsSettingsTab::OnCleanNowClicked(winrt::Windows::Foundation::IInspectable const&,

@@ -18,9 +18,9 @@ struct AiSettingsTab : AiSettingsTabT<AiSettingsTab> {
                                         winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnTargetLanguageChanged(winrt::Windows::Foundation::IInspectable const& sender,
                                  winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
-    void OnAutoDetectToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnAutoDetectToggled(winrt::Windows::Foundation::IInspectable const& sender,
                              winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnEngineEnabledToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnEngineEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                 winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnEngineApiKeyChanged(winrt::Windows::Foundation::IInspectable const& sender,
                                winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);

@@ -16,11 +16,11 @@ struct SnippetsSettingsTab : SnippetsSettingsTabT<SnippetsSettingsTab> {
     void Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender,
                      winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
 
-    void OnEnableToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnEnableToggled(winrt::Windows::Foundation::IInspectable const& sender,
                          winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnAutoCapsToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnAutoCapsToggled(winrt::Windows::Foundation::IInspectable const& sender,
                            winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
-    void OnEnglishModeToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnEnglishModeToggled(winrt::Windows::Foundation::IInspectable const& sender,
                               winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnAddFieldChanged(winrt::Windows::Foundation::IInspectable const& sender,
                            winrt::Microsoft::UI::Xaml::Controls::TextChangedEventArgs const& args);

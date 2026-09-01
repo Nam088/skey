@@ -110,9 +110,10 @@ void KeyboardSettingsTab::OnCharsetChanged(winrt::Windows::Foundation::IInspecta
     }
 }
 
-void KeyboardSettingsTab::OnVietnameseToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnVietnameseToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_vietnamese(sender.IsOn());
+    vm_->set_vietnamese(toggle.IsOn());
 }
 
 void KeyboardSettingsTab::OnLanguageTogglePresetChanged(winrt::Windows::Foundation::IInspectable const& sender,
@@ -128,64 +129,76 @@ void KeyboardSettingsTab::OnLanguageTogglePresetChanged(winrt::Windows::Foundati
     RefreshLanguageToggleRow();
 }
 
-void KeyboardSettingsTab::OnSpellCheckToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnSpellCheckToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_spell_check(sender.IsOn());
+    vm_->set_spell_check(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnFreeMarkingToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnFreeMarkingToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_free_marking(sender.IsOn());
+    vm_->set_free_marking(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnModernStyleToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnModernStyleToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_modern_style(sender.IsOn());
+    vm_->set_modern_style(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnSwallowedKeyRestoreToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnSwallowedKeyRestoreToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_swallowed_key_restore(sender.IsOn());
+    vm_->set_swallowed_key_restore(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnZfwjToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnZfwjToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_allow_consonant_zfwj(sender.IsOn());
+    vm_->set_allow_consonant_zfwj(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnQuickTelexToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnQuickTelexToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_quick_telex(sender.IsOn());
+    vm_->set_quick_telex(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnQuickStartConsonantToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnQuickStartConsonantToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_quick_start_consonant(sender.IsOn());
+    vm_->set_quick_start_consonant(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnQuickEndConsonantToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnQuickEndConsonantToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_quick_end_consonant(sender.IsOn());
+    vm_->set_quick_end_consonant(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnUpperCaseFirstCharToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnUpperCaseFirstCharToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_upper_case_first_char(sender.IsOn());
+    vm_->set_upper_case_first_char(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnSmartAppSwitchToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnSmartAppSwitchToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_smart_app_switch(sender.IsOn());
+    vm_->set_smart_app_switch(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnImeBrowsersToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnImeBrowsersToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_use_ime_for_browsers(sender.IsOn());
+    vm_->set_use_ime_for_browsers(toggle.IsOn());
 }
 
-void KeyboardSettingsTab::OnExclusionEnabledToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void KeyboardSettingsTab::OnExclusionEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_app_exclusion_enabled(sender.IsOn());
+    vm_->set_app_exclusion_enabled(toggle.IsOn());
 }
 
 void KeyboardSettingsTab::OnAddExcludedAppClicked(winrt::Windows::Foundation::IInspectable const&,

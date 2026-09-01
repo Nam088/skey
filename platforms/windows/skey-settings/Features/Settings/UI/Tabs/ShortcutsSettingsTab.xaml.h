@@ -17,7 +17,7 @@ struct ShortcutsSettingsTab : ShortcutsSettingsTabT<ShortcutsSettingsTab> {
     void Page_Loaded(winrt::Windows::Foundation::IInspectable const& sender,
                      winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
 
-    void OnCleanerEnabledToggled(winrt::Microsoft::UI::Xaml::Controls::ToggleSwitch const& sender,
+    void OnCleanerEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender,
                                  winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
     void OnToggleLanguagePresetChanged(winrt::Windows::Foundation::IInspectable const& sender,
                                        winrt::Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);

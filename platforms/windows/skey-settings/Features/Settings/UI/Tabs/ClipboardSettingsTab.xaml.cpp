@@ -64,9 +64,10 @@ void ClipboardSettingsTab::Page_Loaded(winrt::Windows::Foundation::IInspectable 
     loading_ = false;
 }
 
-void ClipboardSettingsTab::OnEnableToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnEnableToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_enabled(sender.IsOn());
+    vm_->set_clipboard_enabled(toggle.IsOn());
 }
 
 void ClipboardSettingsTab::OnSearchModeChanged(winrt::Windows::Foundation::IInspectable const& sender,
@@ -76,29 +77,34 @@ void ClipboardSettingsTab::OnSearchModeChanged(winrt::Windows::Foundation::IInsp
     vm_->set_clipboard_search_mode(combo.SelectedIndex() == 0 ? "Fuzzy" : "Exact");
 }
 
-void ClipboardSettingsTab::OnAutoPasteToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnAutoPasteToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_auto_paste(sender.IsOn());
+    vm_->set_clipboard_auto_paste(toggle.IsOn());
 }
 
-void ClipboardSettingsTab::OnPastePlainTextToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnPastePlainTextToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_paste_plain_text(sender.IsOn());
+    vm_->set_clipboard_paste_plain_text(toggle.IsOn());
 }
 
-void ClipboardSettingsTab::OnSaveTextToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnSaveTextToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_save_text(sender.IsOn());
+    vm_->set_clipboard_save_text(toggle.IsOn());
 }
 
-void ClipboardSettingsTab::OnSaveImagesToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnSaveImagesToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_save_images(sender.IsOn());
+    vm_->set_clipboard_save_images(toggle.IsOn());
 }
 
-void ClipboardSettingsTab::OnMaxItemsChanged(Slider const& sender, Primitives::RangeBaseValueChangedEventArgs const&) {
+void ClipboardSettingsTab::OnMaxItemsChanged(winrt::Windows::Foundation::IInspectable const& sender, Primitives::RangeBaseValueChangedEventArgs const&) {
+    const auto slider = sender.as<Slider>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_max_items(static_cast<std::size_t>(sender.Value()));
+    vm_->set_clipboard_max_items(static_cast<std::size_t>(slider.Value()));
 }
 
 void ClipboardSettingsTab::OnSortOrderChanged(winrt::Windows::Foundation::IInspectable const& sender,
@@ -135,24 +141,28 @@ void ClipboardSettingsTab::OnPinToChanged(winrt::Windows::Foundation::IInspectab
         : skey::windows::ClipboardPinTo::bottom);
 }
 
-void ClipboardSettingsTab::OnThumbHeightChanged(Slider const& sender, Primitives::RangeBaseValueChangedEventArgs const&) {
+void ClipboardSettingsTab::OnThumbHeightChanged(winrt::Windows::Foundation::IInspectable const& sender, Primitives::RangeBaseValueChangedEventArgs const&) {
+    const auto slider = sender.as<Slider>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_image_thumb_height(static_cast<std::size_t>(sender.Value()));
+    vm_->set_clipboard_image_thumb_height(static_cast<std::size_t>(slider.Value()));
 }
 
-void ClipboardSettingsTab::OnHoverPreviewToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnHoverPreviewToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_open_preview_auto(sender.IsOn());
+    vm_->set_clipboard_open_preview_auto(toggle.IsOn());
 }
 
-void ClipboardSettingsTab::OnShowAppIconsToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnShowAppIconsToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_show_app_icons(sender.IsOn());
+    vm_->set_clipboard_show_app_icons(toggle.IsOn());
 }
 
-void ClipboardSettingsTab::OnShowHexSwatchToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void ClipboardSettingsTab::OnShowHexSwatchToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_clipboard_show_hex_color_swatch(sender.IsOn());
+    vm_->set_clipboard_show_hex_color_swatch(toggle.IsOn());
 }
 
 } // namespace winrt::SKey::Settings::implementation

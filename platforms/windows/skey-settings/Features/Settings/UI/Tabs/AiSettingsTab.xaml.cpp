@@ -122,15 +122,17 @@ void AiSettingsTab::OnTargetLanguageChanged(winrt::Windows::Foundation::IInspect
     vm_->set_translator_target_language(language_at(combo.SelectedIndex()));
 }
 
-void AiSettingsTab::OnAutoDetectToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void AiSettingsTab::OnAutoDetectToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    vm_->set_translator_auto_detect(sender.IsOn());
+    vm_->set_translator_auto_detect(toggle.IsOn());
 }
 
-void AiSettingsTab::OnEngineEnabledToggled(ToggleSwitch const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+void AiSettingsTab::OnEngineEnabledToggled(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const&) {
+    const auto toggle = sender.as<ToggleSwitch>();
     if (!vm_ || loading_) return;
-    const auto provider = winrt::to_string(winrt::unbox_value<winrt::hstring>(sender.Tag()));
-    vm_->set_translator_engine_enabled(provider, sender.IsOn());
+    const auto provider = winrt::to_string(winrt::unbox_value<winrt::hstring>(toggle.Tag()));
+    vm_->set_translator_engine_enabled(provider, toggle.IsOn());
 }
 
 void AiSettingsTab::OnEngineApiKeyChanged(winrt::Windows::Foundation::IInspectable const& sender,
