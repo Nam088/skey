@@ -44,12 +44,16 @@ jobs:
 
       - name: Build Rust core (skey.lib)
         shell: bash
+        env:
+          # Static CRT so the staticlib does not drag VCRUNTIME140.dll into
+          # every exe that links it (headless runners lack the redist).
+          RUSTFLAGS: -C target-feature=+crt-static
         run: |
           cd core
           cargo build --release -p skey-capi --target x86_64-pc-windows-msvc
 
       - name: Configure
-        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON
+        run: cmake -S platforms/windows/build-config -B out/windows-contract -DSKEY_BUILD_TESTS=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 
       - name: Build
         run: cmake --build out/windows-contract --config Release
@@ -59,6 +63,12 @@ jobs:
         run: |
           $exe = "out/windows-contract/contract-tests/Release/skey_engine_smoke_tests.exe"
           if (Test-Path $exe) {
+            $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+            $dumpbin = Get-ChildItem "$vs\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($dumpbin) {
+              Write-Host "--- imports ---"
+              & $dumpbin.FullName /DEPENDENTS $exe | Select-String -Pattern "\.dll"
+            }
             $p = Start-Process -FilePath $exe -NoNewWindow -PassThru `
               -RedirectStandardError smoke.err -RedirectStandardOutput smoke.out
             if (-not $p.WaitForExit(60000)) {
@@ -102,9 +112,16 @@ jobs:
         run: nuget restore platforms/windows/skey-settings/SKey.Settings.sln
 
       - name: Build
-        # The vcxproj intentionally leaves PlatformToolset unset so MSBuild
-        # picks whichever toolset the runner's Visual Studio ships.
-        run: msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 /m /v:m
+        # Detect the toolset the runner's Visual Studio ships (v180 on the
+        # current image) instead of pinning: bare msbuild resolves an empty
+        # DefaultPlatformToolset to v100 and fails with MSB8020.
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
+          $toolset = Get-ChildItem "$vs\MSBuild\Microsoft\VC" -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty Name
+          Write-Host "Using PlatformToolset=$toolset from $vs"
+          msbuild platforms/windows/skey-settings/SKey.Settings.vcxproj /p:Configuration=Release /p:Platform=x64 "/p:PlatformToolset=$toolset" /m /v:m
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
