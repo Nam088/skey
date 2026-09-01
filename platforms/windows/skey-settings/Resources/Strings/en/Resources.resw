@@ -1,22 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><root>
-<data name="settings.general.title"><value>General</value></data>
-<data name="settings.keyboard.title"><value>Keyboard</value></data>
-<data name="settings.shortcuts.title"><value>Shortcuts</value></data>
-<data name="settings.appearance.title"><value>Appearance</value></data>
-<data name="settings.theme.system"><value>System</value></data>
-<data name="settings.theme.light"><value>Light</value></data>
-<data name="settings.theme.dark"><value>Dark</value></data>
-<data name="settings.clipboard.title"><value>Clipboard</value></data>
 <data name="settings.translator.title"><value>Translator</value></data>
-<data name="settings.cleaner.title"><value>Keyboard cleaner</value></data>
-<data name="settings.about.title"><value>About</value></data>
 <data name="settings.general.enable"><value>Enable Vietnamese input</value></data>
 <data name="settings.general.startup"><value>Launch at startup</value></data>
-<data name="settings.keyboard.input_method"><value>Input method</value></data>
-<data name="settings.keyboard.spell_check"><value>Spell check</value></data>
-<data name="settings.clipboard.enable"><value>Enable clipboard history</value></data>
-<data name="settings.snippets.title"><value>Snippets</value></data>
-<data name="settings.tools.title"><value>Tools</value></data>
 <data name="settings.keyboard.title.Text"><value>Keyboard</value></data>
 <data name="settings.subtab.inputMethod.Content"><value>Input Method</value></data>
 <data name="settings.subtab.typingRules.Content"><value>Typing Rules</value></data>
@@ -161,7 +146,6 @@
 <data name="tools.converter.target.Header"><value>Target Encoding</value></data>
 <data name="tools.converter.input.Header"><value>Source Text</value></data>
 <data name="tools.converter.convert.Content"><value>Convert</value></data>
-<data name="settings.ai.title"><value>AI</value></data>
 <data name="settings.ai.title.Text"><value>AI</value></data>
 <data name="ai.section.provider.Text"><value>AI Provider</value></data>
 <data name="ai.option.service.Header"><value>AI Service</value></data>
