@@ -157,33 +157,70 @@ public final class TextTransformService {
     // MARK: - VNI Windows Converter
 
     private let vniPairs: [(String, String)] = [
-        ("aù", "á"), ("aà", "à"), ("aû", "ả"), ("aõ", "ã"), ("aï", "ạ"),
-        ("aù", "ắ"), ("aè", "ằ"), ("aú", "ẳ"), ("aü", "ẵ"), ("aë", "ặ"),
+        ("aù", "á"), ("aø", "à"), ("aû", "ả"), ("aõ", "ã"), ("aï", "ạ"),
+        ("aé", "ắ"), ("aè", "ằ"), ("aú", "ẳ"), ("aü", "ẵ"), ("aë", "ặ"),
         ("aá", "ấ"), ("aà", "ầ"), ("aå", "ẩ"), ("aã", "ẫ"), ("aä", "ậ"),
-        ("eù", "é"), ("eà", "è"), ("eû", "ẻ"), ("eõ", "ẽ"), ("eï", "ẹ"),
+        ("eù", "é"), ("eø", "è"), ("eû", "ẻ"), ("eõ", "ẽ"), ("eï", "ẹ"),
         ("eá", "ế"), ("eà", "ề"), ("eå", "ể"), ("eã", "ễ"), ("eä", "ệ"),
         ("í", "í"), ("ì", "ì"), ("ỉ", "ỉ"), ("ĩ", "ĩ"), ("ị", "ị"),
-        ("où", "ó"), ("oà", "ò"), ("oû", "ỏ"), ("oõ", "õ"), ("oï", "ọ"),
+        ("où", "ó"), ("oø", "ò"), ("oû", "ỏ"), ("oõ", "õ"), ("oï", "ọ"),
         ("oá", "ố"), ("oà", "ồ"), ("oå", "ổ"), ("oã", "ỗ"), ("oä", "ộ"),
-        ("ôù", "ớ"), ("ôà", "ờ"), ("ôû", "ở"), ("ôõ", "ỡ"), ("ôï", "ợ"),
-        ("uù", "ú"), ("uà", "ù"), ("uû", "ủ"), ("uõ", "ũ"), ("uï", "ụ"),
-        ("öù", "ứ"), ("öà", "ừ"), ("öû", "ử"), ("öõ", "ữ"), ("öï", "ự"),
-        ("yù", "ý"), ("yà", "ỳ"), ("yû", "ỷ"), ("yõ", "ỹ"), ("î", "ỵ"),
+        ("ôù", "ớ"), ("ôø", "ờ"), ("ôû", "ở"), ("ôõ", "ỡ"), ("ôï", "ợ"),
+        ("uù", "ú"), ("uø", "ù"), ("uû", "ủ"), ("uõ", "ũ"), ("uï", "ụ"),
+        ("öù", "ứ"), ("öø", "ừ"), ("öû", "ử"), ("öõ", "ữ"), ("öï", "ự"),
+        ("yù", "ý"), ("yø", "ỳ"), ("yû", "ỷ"), ("yõ", "ỹ"), ("î", "ỵ"),
         ("ñ", "đ"), ("Ñ", "Đ")
     ]
 
     public func vniToUnicode(_ text: String) -> String {
-        var output = text
+        var twoCharMap: [String: String] = [:]
+        var oneCharMap: [Character: String] = [:]
         for (vni, uni) in vniPairs {
-            output = output.replacingOccurrences(of: vni, with: uni)
+            if vni.count == 2 {
+                twoCharMap[vni] = uni
+            } else if let c = vni.first, vni.count == 1 {
+                oneCharMap[c] = uni
+            }
+        }
+
+        var output = ""
+        output.reserveCapacity(text.count)
+        let chars = Array(text)
+        var i = 0
+        while i < chars.count {
+            if i + 1 < chars.count {
+                let pair = String([chars[i], chars[i + 1]])
+                if let uni = twoCharMap[pair] {
+                    output.append(uni)
+                    i += 2
+                    continue
+                }
+            }
+            if let uni = oneCharMap[chars[i]] {
+                output.append(uni)
+            } else {
+                output.append(chars[i])
+            }
+            i += 1
         }
         return output
     }
 
     public func unicodeToVni(_ text: String) -> String {
-        var output = text
+        var charMap: [Character: String] = [:]
         for (vni, uni) in vniPairs {
-            output = output.replacingOccurrences(of: uni, with: vni)
+            if let c = uni.first, uni.count == 1 {
+                charMap[c] = vni
+            }
+        }
+        var output = ""
+        output.reserveCapacity(text.count * 2)
+        for char in text {
+            if let vni = charMap[char] {
+                output.append(vni)
+            } else {
+                output.append(char)
+            }
         }
         return output
     }

@@ -172,21 +172,18 @@ public final class EventTapManager {
     // MARK: - Event handling
 
     private func handleEvent(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
-        // Handle tap-disabled events IMMEDIATELY - pass through to prevent freeze
-        if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-            skeyLog("Event tap disabled (type: \(type)) - quitting app", category: .keyboard)
-            
-            // CRITICAL: Pass through ALL events FIRST before anything else
-            // This ensures keyboard works immediately without delay
-            let retainedEvent = Unmanaged.passRetained(event)
-            
-            // Quit app INSTANTLY using exit() - no graceful shutdown delay
-            // User must restart after re-granting permissions
-            DispatchQueue.global(qos: .background).async {
-                exit(0)
+        if type == .tapDisabledByTimeout {
+            skeyLog("Event tap disabled by timeout - re-enabling tap", category: .keyboard)
+            if let tap = eventTap {
+                CGEvent.tapEnable(tap: tap, enable: true)
             }
-            
-            return retainedEvent
+            return Unmanaged.passRetained(event)
+        }
+
+        if type == .tapDisabledByUserInput {
+            skeyLog("Event tap disabled by user input (permissions revoked)", category: .keyboard)
+            stop()
+            return Unmanaged.passRetained(event)
         }
 
         // Delegate event evaluation to pipeline

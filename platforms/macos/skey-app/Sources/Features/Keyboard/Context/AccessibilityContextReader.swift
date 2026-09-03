@@ -13,8 +13,37 @@ public final class AccessibilityContextReader {
 
     private init() {}
 
+    private static var spotlightCacheTime: CFAbsoluteTime = 0
+    private static var spotlightCacheValue: Bool = false
+    private static var spotlightCacheLock = os_unfair_lock()
+
+    public static func invalidateSpotlightCache() {
+        os_unfair_lock_lock(&spotlightCacheLock)
+        spotlightCacheTime = 0
+        os_unfair_lock_unlock(&spotlightCacheLock)
+    }
+
     /// Checks if Spotlight's search window is actually visible on screen.
+    /// Uses high-efficiency 150ms TTL cache to eliminate 1.6ms synchronous WindowServer blocking on hot path.
     public static func isSpotlightActive() -> Bool {
+        let now = CFAbsoluteTimeGetCurrent()
+        os_unfair_lock_lock(&spotlightCacheLock)
+        if now - spotlightCacheTime < 0.15 {
+            let val = spotlightCacheValue
+            os_unfair_lock_unlock(&spotlightCacheLock)
+            return val
+        }
+        os_unfair_lock_unlock(&spotlightCacheLock)
+
+        let active = checkSpotlightWindow()
+        os_unfair_lock_lock(&spotlightCacheLock)
+        spotlightCacheTime = now
+        spotlightCacheValue = active
+        os_unfair_lock_unlock(&spotlightCacheLock)
+        return active
+    }
+
+    private static func checkSpotlightWindow() -> Bool {
         guard let windowList = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] else {
             return false
         }
@@ -40,7 +69,7 @@ public final class AccessibilityContextReader {
     /// Exclusively applies to Spotlight overlay search field.
     /// Returns true if successful, allowing callers to bypass synthetic CGEvent backspaces completely.
     public func replaceTextViaAX(backspaces: Int, text: String) -> Bool {
-        guard Self.isSpotlightActive(), let axElem = getFocusedElement(isSpotlight: true) else {
+        guard let axElem = getFocusedElement(isSpotlight: true) else {
             return false
         }
 

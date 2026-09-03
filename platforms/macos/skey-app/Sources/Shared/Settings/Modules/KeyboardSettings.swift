@@ -20,6 +20,7 @@ public final class KeyboardSettings: NSObject, SettingsModule {
         public static let upperCaseFirstChar  = "SKey_UpperCaseFirstChar"
         public static let swallowedKeyRestore = "SKey_SwallowedKeyRestore"
         public static let allowConsonantZFWJ  = "SKey_AllowConsonantZFWJ"
+        public static let smartCoderMode      = "SKey_SmartCoderMode"
         public static let smartAppSwitch      = "SKey_SmartAppSwitch"
         public static let appExclusionEnabled = "SKey_AppExclusionEnabled"
         public static let excludedApps        = "SKey_ExcludedApps"
@@ -49,6 +50,7 @@ public final class KeyboardSettings: NSObject, SettingsModule {
             Keys.upperCaseFirstChar:  false,
             Keys.swallowedKeyRestore: true,
             Keys.allowConsonantZFWJ:  false,
+            Keys.smartCoderMode:      false,
             Keys.smartAppSwitch:      false,
             Keys.appExclusionEnabled: true
         ])
@@ -165,6 +167,14 @@ public final class KeyboardSettings: NSObject, SettingsModule {
         set {
             objectWillChange.send()
             storage.set(newValue, forKey: Keys.allowConsonantZFWJ)
+        }
+    }
+
+    public var smartCoderMode: Bool {
+        get { storage.bool(forKey: Keys.smartCoderMode, default: false) }
+        set {
+            objectWillChange.send()
+            storage.set(newValue, forKey: Keys.smartCoderMode)
         }
     }
 

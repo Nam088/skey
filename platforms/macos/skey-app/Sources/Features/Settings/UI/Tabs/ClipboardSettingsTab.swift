@@ -124,9 +124,18 @@ public struct ClipboardSettingsTab: View {
                 SettingsRow(
                     title: L10n("clipboard.option.saveImages"),
                     subtitle: L10n("clipboard.option.saveImagesDesc"),
-                    showDivider: false
+                    showDivider: true
                 ) {
                     Toggle("", isOn: $clipboardSettings.saveImages)
+                        .toggleStyle(.switch)
+                }
+
+                SettingsRow(
+                    title: L10n("clipboard.option.autoExpireOTP"),
+                    subtitle: L10n("clipboard.option.autoExpireOTPDesc"),
+                    showDivider: false
+                ) {
+                    Toggle("", isOn: $clipboardSettings.autoExpireOTP)
                         .toggleStyle(.switch)
                 }
             }

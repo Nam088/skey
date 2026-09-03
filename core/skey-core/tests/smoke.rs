@@ -138,7 +138,7 @@ mod swallowed {
     #[test]
     fn enwords_blob_is_sorted_and_well_formed() {
         let all: Vec<&[u8]> = skey_core::enwords::words().collect();
-        assert_eq!(all.len(), 14);
+        assert_eq!(all.len(), 23);
         for w in &all {
             assert!(!w.is_empty());
             assert!(w.len() <= skey_core::enwords::MAX_WORD_LEN);

@@ -10,4 +10,4 @@ name = "skey"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [dependencies]
-skey-core = { path = "../skey-core", default-features = false, features = ["alloc"] }
+skey-core = { path = "../skey-core", default-features = false, features = ["alloc", "std"] }

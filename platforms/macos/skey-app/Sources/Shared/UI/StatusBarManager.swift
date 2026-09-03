@@ -74,7 +74,7 @@ public final class StatusBarManager: NSObject {
 
         // 3. Group: Settings & Tools
         let settingsItem = NSMenuItem(
-            title: L10n(.clipboardSettings),
+            title: L10n("menu.app.settings"),
             action: #selector(openSettings),
             keyEquivalent: ","
         )

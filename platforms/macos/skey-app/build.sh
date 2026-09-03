@@ -77,6 +77,7 @@ swiftc "${SWIFT_OPT_FLAGS[@]}" \
     "${DEBUG_FLAG[@]}" \
     -import-objc-header "$SCRIPT_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/core/skey-capi/include" \
+    -I "$SCRIPT_DIR/Sources/CSKey/include" \
     "${SWIFT_FILES[@]}" \
     "$LIBSKEY" \
     -framework Cocoa \

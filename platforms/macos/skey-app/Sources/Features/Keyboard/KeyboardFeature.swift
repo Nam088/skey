@@ -29,6 +29,7 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
     private var quickEndConsonantItem: NSMenuItem?
     private var upperCaseFirstCharItem: NSMenuItem?
     private var swallowedKeyRestoreItem: NSMenuItem?
+    private var smartCoderModeItem: NSMenuItem?
 
     public init() {}
 
@@ -151,6 +152,10 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
         swallowedKeyRestoreItem?.target = self
         if let item = swallowedKeyRestoreItem { optionsMenu.addItem(item) }
 
+        smartCoderModeItem = NSMenuItem(title: L10n("menu.smartCoderMode"), action: #selector(toggleSmartCoderMode), keyEquivalent: "")
+        smartCoderModeItem?.target = self
+        if let item = smartCoderModeItem { optionsMenu.addItem(item) }
+
         smartAppSwitchItem = NSMenuItem(title: L10n("keyboard.options.smart_switch"), action: #selector(toggleSmartAppSwitch), keyEquivalent: "")
         smartAppSwitchItem?.target = self
         if let item = smartAppSwitchItem { optionsMenu.addItem(item) }
@@ -201,6 +206,20 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
         engine.setUpperCaseFirstChar(prefs.upperCaseFirstChar)
         engine.setSwallowedKeyRestore(prefs.swallowedKeyRestore)
         engine.setAllowConsonantZFWJ(prefs.allowConsonantZFWJ)
+        applyCharset(prefs.charset)
+    }
+
+    public static func charsetCode(for name: String) -> Int32 {
+        switch name {
+        case "TCVN3": return 20
+        case "VNI Windows": return 40
+        default: return 12 // XUTF8
+        }
+    }
+
+    public func applyCharset(_ name: String) {
+        let code = Self.charsetCode(for: name)
+        EventTapManager.shared.engine.setCharset(code)
     }
 
     private func syncMenuState() {
@@ -229,6 +248,7 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
         quickEndConsonantItem?.state = prefs.quickEndConsonant ? .on : .off
         upperCaseFirstCharItem?.state = prefs.upperCaseFirstChar ? .on : .off
         swallowedKeyRestoreItem?.state = prefs.swallowedKeyRestore ? .on : .off
+        smartCoderModeItem?.state = prefs.smartCoderMode ? .on : .off
     }
 
     private func applyInputMethod(_ method: InputMethodType) {
@@ -287,6 +307,12 @@ public final class KeyboardFeature: Feature, EventTapManagerDelegate {
     @objc private func toggleSmartAppSwitch() {
         let val = !AppSettings.shared.keyboard.smartAppSwitchEnabled
         AppSettings.shared.keyboard.smartAppSwitchEnabled = val
+        syncMenuState()
+    }
+
+    @objc private func toggleSmartCoderMode() {
+        let val = !AppSettings.shared.keyboard.smartCoderMode
+        AppSettings.shared.keyboard.smartCoderMode = val
         syncMenuState()
     }
 

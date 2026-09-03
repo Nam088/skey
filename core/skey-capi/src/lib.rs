@@ -836,3 +836,31 @@ pub unsafe extern "C" fn skey_engine_set_allow_consonant_zfwj(p: *mut UnikeyEngi
     unikey_engine_set_allow_consonant_zfwj(p, on)
 }
 
+/// Evaluates a mathematical expression using SKey Core's calc engine.
+///
+/// Writes the null-terminated formatted result into `out_buf`.
+/// Returns 1 on success, 0 on failure/invalid expression.
+#[no_mangle]
+pub unsafe extern "C" fn skey_calc_evaluate(
+    expr: *const c_char,
+    out_buf: *mut c_char,
+    max_len: c_int,
+) -> c_int {
+    if expr.is_null() || out_buf.is_null() || max_len <= 1 {
+        return 0;
+    }
+    let Ok(c_str) = CStr::from_ptr(expr).to_str() else {
+        return 0;
+    };
+    let Some(result) = skey_core::calc::eval_formatted(c_str) else {
+        return 0;
+    };
+    let bytes = result.as_bytes();
+    if bytes.len() >= max_len as usize {
+        return 0;
+    }
+    core::ptr::copy_nonoverlapping(bytes.as_ptr(), out_buf as *mut u8, bytes.len());
+    *(out_buf.add(bytes.len())) = 0;
+    1
+}
+

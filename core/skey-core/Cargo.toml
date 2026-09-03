@@ -18,8 +18,9 @@ serde = { version = "1", optional = true, default-features = false, features = [
 serde_json = "1"
 
 [features]
-default = ["testkit", "alloc"]
+default = ["testkit", "alloc", "std"]
 alloc = []
+std = ["alloc"]
 testkit = ["alloc"]
 serde = ["dep:serde"]
 large-macro-table = []

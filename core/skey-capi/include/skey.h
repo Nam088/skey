@@ -72,6 +72,7 @@ void skey_engine_set_quick_start_consonant(SKeyEngine *eng, int on);
 void skey_engine_set_quick_end_consonant(SKeyEngine *eng, int on);
 void skey_engine_set_upper_case_first_char(SKeyEngine *eng, int on);
 void skey_engine_set_allow_consonant_zfwj(SKeyEngine *eng, int on);
+int  skey_calc_evaluate(const char *expr, char *out_buf, int max_len);
 
 /* Unikey aliases for backward compatibility */
 #define unikey_engine_create skey_engine_create

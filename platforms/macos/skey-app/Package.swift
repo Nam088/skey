@@ -38,7 +38,7 @@ let package = Package(
             ],
             linkerSettings: [
                 .unsafeFlags([
-                    "-L../../port/target/release",
+                    "-L../../../core/target/release",
                     "-lskey"
                 ]),
                 .linkedFramework("Cocoa"),

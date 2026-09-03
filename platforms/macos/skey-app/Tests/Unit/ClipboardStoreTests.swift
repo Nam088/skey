@@ -22,4 +22,17 @@ final class ClipboardStoreTests: XCTestCase {
         XCTAssertEqual(ClipboardStore.applyPinOrder(input, pinTo: .top).map(\.id), [second, third, first])
         XCTAssertEqual(ClipboardStore.applyPinOrder(input, pinTo: .bottom).map(\.id), [first, second, third])
     }
+
+    func testSensitiveOTPIdentification() {
+        XCTAssertTrue(ClipboardStore.isSensitiveOTP("123456"))
+        XCTAssertTrue(ClipboardStore.isSensitiveOTP(" 987654 "))
+        XCTAssertTrue(ClipboardStore.isSensitiveOTP("1234"))
+        XCTAssertTrue(ClipboardStore.isSensitiveOTP("12345678"))
+
+        XCTAssertFalse(ClipboardStore.isSensitiveOTP("abc123"))
+        XCTAssertFalse(ClipboardStore.isSensitiveOTP("123"))
+        XCTAssertFalse(ClipboardStore.isSensitiveOTP("1234567890123456"))
+        XCTAssertFalse(ClipboardStore.isSensitiveOTP(nil))
+        XCTAssertFalse(ClipboardStore.isSensitiveOTP(""))
+    }
 }

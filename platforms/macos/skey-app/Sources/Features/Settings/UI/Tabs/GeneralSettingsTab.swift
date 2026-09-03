@@ -81,11 +81,33 @@ public struct GeneralSettingsTab: View {
                 }
 
                 SettingsRow(
+                    title: L10n("general.option.theme"),
+                    subtitle: L10n("general.option.themeDesc")
+                ) {
+                    Picker("", selection: $generalSettings.appTheme) {
+                        ForEach(AppTheme.allCases) { theme in
+                            Text(theme.displayName).tag(theme)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 220)
+                }
+
+                SettingsRow(
                     title: L10n("general.option.checkUpdates"),
                     subtitle: L10n("general.option.checkUpdatesDesc"),
-                    showDivider: false
+                    showDivider: true
                 ) {
                     Toggle("", isOn: $generalSettings.checkUpdates)
+                        .toggleStyle(.switch)
+                }
+
+                SettingsRow(
+                    title: L10n("general.option.inlineCalculator"),
+                    subtitle: L10n("general.option.inlineCalculatorDesc"),
+                    showDivider: false
+                ) {
+                    Toggle("", isOn: $generalSettings.inlineCalculatorEnabled)
                         .toggleStyle(.switch)
                 }
             }

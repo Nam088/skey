@@ -57,15 +57,15 @@ public final class ClipboardMonitor: @unchecked Sendable {
         // 1. Files
         if let fileURLs = pasteboard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL],
            let fileURL = fileURLs.first, fileURL.isFileURL {
-            let payload = try? Data(contentsOf: fileURL)
-            let size = payload?.count
-                ?? ((try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int) ?? 0)
+            let fileSize = (try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int) ?? 0
+            // Only embed inline payload for small files (<= 2MB) to prevent OOM on large file copies
+            let payload: Data? = fileSize <= 2 * 1024 * 1024 ? (try? Data(contentsOf: fileURL)) : nil
             return CapturedClipboardContent(
                 contentType: .fileReference,
                 contentHash: sha256Hex(Data(fileURL.path.utf8)),
                 textContent: fileURL.lastPathComponent,
                 payloadData: payload,
-                payloadSizeBytes: size,
+                payloadSizeBytes: fileSize,
                 sourceBundleID: sourceBundleID,
                 pasteboardTypeMarkers: markers
             )

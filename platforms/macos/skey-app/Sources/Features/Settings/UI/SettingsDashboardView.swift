@@ -68,6 +68,7 @@ public enum MainTab: String, CaseIterable, Identifiable {
 public struct SettingsDashboardView: View {
     @ObservedObject var loc = LocalizationService.shared
     @ObservedObject var navState = SettingsNavigationState.shared
+    @ObservedObject var generalSettings = AppSettings.shared.general
 
     public init() {}
 
@@ -241,7 +242,7 @@ public struct SettingsDashboardView: View {
                                 AboutSettingsTab()
                             }
                         }
-                        .frame(maxWidth: 520)
+                        .frame(maxWidth: navState.selectedTab == .snippets ? 560 : 520)
                         .toggleStyle(.switch)
                         .pickerStyle(.menu)
                         .controlSize(.small)
@@ -251,13 +252,15 @@ public struct SettingsDashboardView: View {
                     .padding(.horizontal, 28)
                     .padding(.bottom, 24)
                 }
+                .background(SlimScrollViewConfigurator())
                 .scrollIndicators(.automatic)
                 .animation(.spring(response: 0.3, dampingFraction: 0.82), value: navState.selectedTab)
             }
             .frame(minWidth: 440, maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(minWidth: 720, idealWidth: 780, minHeight: 520, idealHeight: 580)
+        .frame(minWidth: 740, idealWidth: 840, minHeight: 540, idealHeight: 620)
+        .preferredColorScheme(generalSettings.appTheme.colorScheme)
     }
 
     // MARK: - Sidebar Header Profile
@@ -274,3 +277,26 @@ public struct SettingsDashboardView: View {
         }
     }
 }
+
+// MARK: - SlimScrollViewConfigurator (Forces modern overlay slim scrollbar)
+
+private struct SlimScrollViewConfigurator: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            if let scrollView = view.enclosingScrollView {
+                scrollView.scrollerStyle = .overlay
+                scrollView.verticalScroller?.controlSize = .small
+            }
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        if let scrollView = nsView.enclosingScrollView {
+            scrollView.scrollerStyle = .overlay
+            scrollView.verticalScroller?.controlSize = .small
+        }
+    }
+}
+

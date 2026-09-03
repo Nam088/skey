@@ -6,3 +6,5 @@ pub mod quick;
 pub mod macros;
 #[cfg(feature = "alloc")]
 pub mod keymap;
+#[cfg(feature = "alloc")]
+pub mod calc;

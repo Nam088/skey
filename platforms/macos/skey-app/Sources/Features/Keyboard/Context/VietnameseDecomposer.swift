@@ -10,12 +10,13 @@ public enum VietnameseDecomposer {
     /// Decomposes a word like "đáu" into raw keystroke sequence (e.g. ['d', 'd', 'a', 'u', 's'])
     /// Guaranteed zero heap allocations on the hot path.
     public static func decompose(word: String) -> [UInt32] {
+        let normalized = word.precomposedStringWithCanonicalMapping
         var result: [UInt32] = []
-        result.reserveCapacity(word.utf16.count * 2)
+        result.reserveCapacity(normalized.utf16.count * 2)
 
         var toneMark: UInt32?
 
-        for scalar in word.unicodeScalars {
+        for scalar in normalized.unicodeScalars {
             let val = scalar.value
             let (base, tone) = decomposeScalar(val)
             result.append(contentsOf: base)
@@ -35,6 +36,28 @@ public enum VietnameseDecomposer {
 
     @inline(__always)
     private static func decomposeScalar(_ val: UInt32) -> ([UInt32], UInt32?) {
+        let (base, tone) = decomposeLowerScalar(val)
+        if base.count == 1 && base[0] == val && val >= 0x80 {
+            if let scalar = UnicodeScalar(val) {
+                let char = Character(scalar)
+                if char.isUppercase {
+                    let lowerChar = char.lowercased()
+                    if let lowerVal = lowerChar.unicodeScalars.first?.value, lowerVal != val {
+                        var (lowerBase, lowerTone) = decomposeLowerScalar(lowerVal)
+                        if !lowerBase.isEmpty, let firstScalar = UnicodeScalar(lowerBase[0]) {
+                            let upperFirst = Character(firstScalar).uppercased().unicodeScalars.first?.value ?? lowerBase[0]
+                            lowerBase[0] = upperFirst
+                            return (lowerBase, lowerTone)
+                        }
+                    }
+                }
+            }
+        }
+        return (base, tone)
+    }
+
+    @inline(__always)
+    private static func decomposeLowerScalar(_ val: UInt32) -> ([UInt32], UInt32?) {
         // ASCII key codes: 'a'=97, 'd'=100, 'e'=101, 'f'=102, 'j'=106, 'o'=111, 'r'=114, 's'=115, 'u'=117, 'w'=119, 'x'=120
         switch val {
         // đ, Đ

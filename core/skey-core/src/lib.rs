@@ -3,7 +3,7 @@
 //! Phase one goal is byte for byte behavioural parity with the original
 //! C++ engine, verified by the differential harness in `port/oracle`.
 //! Optimisation follows parity, never the other way round.
-#![cfg_attr(not(test), no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![forbid(unsafe_code)]
 
 // The keystroke path never allocates and works with no allocator at all.
@@ -36,6 +36,8 @@ pub use extensions::keymap;
 #[cfg(feature = "alloc")]
 pub use extensions::macros;
 pub use extensions::quick;
+#[cfg(feature = "alloc")]
+pub use extensions::calc;
 
 pub use phonetics::lexi;
 pub use phonetics::seq;

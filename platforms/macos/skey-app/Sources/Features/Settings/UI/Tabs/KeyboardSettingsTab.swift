@@ -87,7 +87,13 @@ public struct KeyboardSettingsTab: View {
                     subtitle: L10n("keyboard.option.charsetDesc"),
                     showDivider: false
                 ) {
-                    Picker("", selection: $keyboardSettings.charset) {
+                    Picker("", selection: Binding(
+                        get: { keyboardSettings.charset },
+                        set: {
+                            keyboardSettings.charset = $0
+                            EventTapManager.shared.engine.setCharset(KeyboardFeature.charsetCode(for: $0))
+                        }
+                    )) {
                         Text(L10n("keyboard.charset.unicode")).tag("Unicode")
                         Text(L10n("keyboard.charset.tcvn3")).tag("TCVN3")
                         Text(L10n("keyboard.charset.vni")).tag("VNI Windows")
@@ -177,7 +183,7 @@ public struct KeyboardSettingsTab: View {
             SettingsRow(
                 title: L10n("keyboard.advanced.swallowed_restore"),
                 subtitle: L10n("keyboard.option.swallowedKeyDesc"),
-                showDivider: false
+                showDivider: true
             ) {
                 Toggle("", isOn: Binding(
                     get: { keyboardSettings.swallowedKeyRestore },
@@ -187,6 +193,15 @@ public struct KeyboardSettingsTab: View {
                     }
                 ))
                 .toggleStyle(.switch)
+            }
+
+            SettingsRow(
+                title: L10n("keyboard.option.smartCoderMode"),
+                subtitle: L10n("keyboard.option.smartCoderModeDesc"),
+                showDivider: false
+            ) {
+                Toggle("", isOn: $keyboardSettings.smartCoderMode)
+                    .toggleStyle(.switch)
             }
         }
     }

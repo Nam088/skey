@@ -120,8 +120,21 @@ public actor ClipboardStore {
             cachedItems.insert(item, at: 0)
             eventContinuation.yield(.added(item))
 
+            if AppSettings.shared.clipboard.autoExpireOTP, Self.isSensitiveOTP(candidate.textContent) {
+                Task { [weak self, itemID = item.id] in
+                    try? await Task.sleep(nanoseconds: 60 * 1_000_000_000)
+                    try? await self?.delete(itemID: itemID)
+                }
+            }
+
             try await pruneIfNeeded(knownExisting: existing + [item])
         }
+    }
+
+    public static func isSensitiveOTP(_ text: String?) -> Bool {
+        guard let text = text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return false }
+        let isDigits = text.allSatisfy({ $0.isNumber })
+        return isDigits && (text.count == 6 || text.count == 4 || text.count == 8)
     }
 
     public func fetchHistory(matching query: String) async throws -> [ClipboardItem] {

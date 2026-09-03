@@ -67,6 +67,13 @@ public final class SKeyEngine {
         }
     }
 
+    public func setCharset(_ charset: Int32) {
+        withEngine { eng in
+            skey_engine_set_charset(eng, charset)
+            skey_engine_reset(eng)
+        }
+    }
+
     public func setSpellCheck(_ enabled: Bool) {
         setOption { opt in
             opt.spellCheckEnabled = enabled ? 1 : 0

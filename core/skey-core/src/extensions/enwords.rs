@@ -23,11 +23,11 @@
 pub const MAX_WORD_LEN: usize = 16;
 
 /// Concatenated, in sorted order.
-const BLOB: &[u8] = b"bossbufferrorerrorsguesslossmessageoffoffsetpasspassedpasswordsessionsuffix";
+const BLOB: &[u8] = b"bassbossbuffbufferchessdifferrorerrorsguessissuelesslossmassmessmessagemissoffoffsetpasspassedpasswordsessionsuffix";
 
-/// Start of each word, with a final sentinel. 14 words.
-const OFFSETS: [u16; 15] = [
-    0, 4, 8, 13, 19, 24, 28, 35, 38, 44, 48, 54, 62, 69, 75,
+/// Start of each word, with a final sentinel. 23 words.
+const OFFSETS: [u16; 24] = [
+    0, 4, 8, 12, 18, 23, 27, 32, 38, 43, 48, 52, 56, 60, 64, 71, 75, 78, 84, 88, 94, 102, 109, 115,
 ];
 
 /// True when `w`, already lowercased, is one of them.

@@ -19,12 +19,16 @@ public final class TypingPipeline {
         let ai: KeyShortcut
         let macroEnabled: Bool
         let macroInEnglish: Bool
+        let smartCoderMode: Bool
+        let inlineCalculatorEnabled: Bool
         let debug: Bool
     }
     private var hotPathSettings: HotPathSettings
     private var settingsLock = os_unfair_lock_s()
     private var settingsDirty = false
     private var cancellables = Set<AnyCancellable>()
+    private let coderModeDetector = SmartCoderModeDetector()
+    private let inlineCalculator = InlineCalculator()
 
     /// Tracks whether caret may have moved due to navigation, selection, or app focus
     private var caretMayHaveMoved = false
@@ -42,9 +46,12 @@ public final class TypingPipeline {
             clipboard: settings.shortcuts.clipboardShortcut, cleaner: settings.shortcuts.cleanerShortcut,
             cleanerEnabled: settings.shortcuts.cleanerEnabled, ai: settings.shortcuts.aiShortcut,
             macroEnabled: settings.macro.isEnabled, macroInEnglish: settings.macro.inEnglishMode,
+            smartCoderMode: settings.keyboard.smartCoderMode,
+            inlineCalculatorEnabled: settings.general.inlineCalculatorEnabled,
             debug: settings.general.isDebugMode)
         [settings.shortcuts.objectWillChange.eraseToAnyPublisher(),
          settings.macro.objectWillChange.eraseToAnyPublisher(),
+         settings.keyboard.objectWillChange.eraseToAnyPublisher(),
          settings.general.objectWillChange.eraseToAnyPublisher()].forEach { publisher in
             publisher.sink { [weak self] _ in
                 guard let self else { return }
@@ -77,6 +84,7 @@ public final class TypingPipeline {
         if type == .leftMouseDown || type == .rightMouseDown || type == .otherMouseDown {
             engine.reset()
             MacroEngine.shared.reset()
+            AccessibilityContextReader.invalidateSpotlightCache()
             modifierOnlyCandidate = false
             caretMayHaveMoved = false
             return .passThrough
@@ -175,6 +183,7 @@ public final class TypingPipeline {
         if isCommand || isControl || isOption {
             engine.reset()
             MacroEngine.shared.reset()
+            AccessibilityContextReader.invalidateSpotlightCache()
             caretMayHaveMoved = false
             return .passThrough
         }
@@ -191,9 +200,9 @@ public final class TypingPipeline {
 
         let isVn = languageProvider()
 
-        // Stage 7: English mode handling (With optional Macro Expansion)
+        // Stage 7: English mode handling (With optional Macro Expansion & Inline Calculator)
         if !isVn {
-            if shortcutSettings.macroEnabled && shortcutSettings.macroInEnglish {
+            if (shortcutSettings.macroEnabled && shortcutSettings.macroInEnglish) || shortcutSettings.inlineCalculatorEnabled {
                 return handleEnglishMacroKeyDown(keyCode: keyCode, flags: flags, event: event)
             }
             return .passThrough
@@ -217,6 +226,8 @@ public final class TypingPipeline {
         if category == .navigation {
             engine.reset()
             MacroEngine.shared.reset()
+            coderModeDetector.reset()
+            inlineCalculator.reset()
             caretMayHaveMoved = (keyCode != KeyConstants.kVK_Escape)
             return .passThrough
         }
@@ -229,14 +240,17 @@ public final class TypingPipeline {
 
         // Fast-path 3: Backspace key (0x33)
         if category == .backspace {
-            MacroEngine.shared.recordBackspace()
+            coderModeDetector.recordBackspace()
+            inlineCalculator.recordBackspace()
             let res = engine.backspace()
             if res.handled {
                 caretMayHaveMoved = false
                 let bs = resolveBackspaces(res.backspaces)
+                MacroEngine.shared.recordTransform(backspaces: bs, text: res.text)
                 KeyEventSender.shared.inject(backspaces: bs, text: res.text)
                 return .swallowed
             }
+            MacroEngine.shared.recordBackspace()
             caretMayHaveMoved = false
             return .passThrough
         }
@@ -245,6 +259,8 @@ public final class TypingPipeline {
         if category == .wordBreak && keyCode != KeyConstants.kVK_Space {
             engine.reset()
             MacroEngine.shared.reset()
+            coderModeDetector.reset()
+            inlineCalculator.reset()
             caretMayHaveMoved = false
             return .passThrough
         }
@@ -265,16 +281,46 @@ public final class TypingPipeline {
 
         // Filter printable ASCII range (Space 32 to ~ 126)
         if (32...126).contains(charCode) {
-            // Check Space for Macro Expansion
+            // Check Space for Macro Expansion & Reset Modes
             if keyCode == KeyConstants.kVK_Space {
+                coderModeDetector.reset()
+                inlineCalculator.reset()
                 let macroRes = MacroEngine.shared.evaluateMacroOnSpace()
                 if macroRes.handled {
                     engine.reset()
                     caretMayHaveMoved = false
                     let bs = resolveBackspaces(macroRes.backspaces)
+                    skeyLog("[TypingPipeline] Space triggered macro: backspaces=\(bs), replacement='\(macroRes.replacement)'", category: .keyboard)
                     KeyEventSender.shared.inject(backspaces: bs, text: macroRes.replacement)
                     return .swallowed
                 }
+            }
+
+            // Inline Calculator: evaluate =expression= (e.g. =150*12= -> 1800)
+            if currentHotPathSettings().inlineCalculatorEnabled, let scalar = UnicodeScalar(charCode) {
+                let ch = Character(scalar)
+                if let calcResult = inlineCalculator.process(char: ch) {
+                    engine.reset()
+                    MacroEngine.shared.reset()
+                    coderModeDetector.reset()
+                    caretMayHaveMoved = false
+                    let bs = resolveBackspaces(calcResult.backspaces)
+                    KeyEventSender.shared.inject(backspaces: bs, text: calcResult.resultText)
+                    return .swallowed
+                }
+            }
+
+            // Smart Coder Mode: bypass Vietnamese engine for CamelCase, snake_case, code prefixes (_, $, @, /, --)
+            if currentHotPathSettings().smartCoderMode, let scalar = UnicodeScalar(charCode) {
+                let ch = Character(scalar)
+                if coderModeDetector.process(char: ch) {
+                    engine.reset()
+                    MacroEngine.shared.recordChar(ch)
+                    caretMayHaveMoved = false
+                    return .passThrough
+                }
+            } else if let scalar = UnicodeScalar(charCode) {
+                _ = coderModeDetector.process(char: Character(scalar))
             }
 
             let res = engine.filter(character: charCode)
@@ -286,9 +332,7 @@ public final class TypingPipeline {
                     skeyLog("Typing transform: '\(UnicodeScalar(charCode) ?? " ")' -> bs=\(bs) '\(res.text)'", category: .keyboard)
                 }
                 #endif
-                if let scalar = UnicodeScalar(charCode) {
-                    MacroEngine.shared.recordChar(Character(scalar))
-                }
+                MacroEngine.shared.recordTransform(backspaces: bs, text: res.text)
                 KeyEventSender.shared.inject(backspaces: bs, text: res.text)
                 return .swallowed
             } else {
@@ -320,16 +364,19 @@ public final class TypingPipeline {
 
         if category == .navigation || category == .functionOrMedia {
             MacroEngine.shared.reset()
+            inlineCalculator.reset()
             return .passThrough
         }
 
         if category == .backspace {
             MacroEngine.shared.recordBackspace()
+            inlineCalculator.recordBackspace()
             return .passThrough
         }
 
         if category == .wordBreak && keyCode != KeyConstants.kVK_Space {
             MacroEngine.shared.reset()
+            inlineCalculator.reset()
             return .passThrough
         }
 
@@ -343,20 +390,36 @@ public final class TypingPipeline {
 
         guard (32...126).contains(charCode) else {
             MacroEngine.shared.reset()
+            inlineCalculator.reset()
             return .passThrough
         }
 
         if keyCode == KeyConstants.kVK_Space {
-            let macroRes = MacroEngine.shared.evaluateMacroOnSpace()
-            if macroRes.handled {
-                let bs = resolveBackspaces(macroRes.backspaces)
-                KeyEventSender.shared.inject(backspaces: bs, text: macroRes.replacement)
-                return .swallowed
+            inlineCalculator.reset()
+            if currentHotPathSettings().macroEnabled && currentHotPathSettings().macroInEnglish {
+                let macroRes = MacroEngine.shared.evaluateMacroOnSpace()
+                if macroRes.handled {
+                    let bs = resolveBackspaces(macroRes.backspaces)
+                    skeyLog("[TypingPipeline English] Space triggered macro: backspaces=\(bs), replacement='\(macroRes.replacement)'", category: .keyboard)
+                    KeyEventSender.shared.inject(backspaces: bs, text: macroRes.replacement)
+                    return .swallowed
+                }
             }
             return .passThrough
         }
 
-        if let scalar = UnicodeScalar(charCode) {
+        // Inline Calculator in English mode: evaluate =expression= (e.g. =150*12= -> 1800)
+        if currentHotPathSettings().inlineCalculatorEnabled, let scalar = UnicodeScalar(charCode) {
+            let ch = Character(scalar)
+            if let calcResult = inlineCalculator.process(char: ch) {
+                MacroEngine.shared.reset()
+                let bs = resolveBackspaces(calcResult.backspaces)
+                KeyEventSender.shared.inject(backspaces: bs, text: calcResult.resultText)
+                return .swallowed
+            }
+        }
+
+        if currentHotPathSettings().macroEnabled && currentHotPathSettings().macroInEnglish, let scalar = UnicodeScalar(charCode) {
             MacroEngine.shared.recordChar(Character(scalar))
         }
 
@@ -385,6 +448,8 @@ public final class TypingPipeline {
             clipboard: settings.shortcuts.clipboardShortcut, cleaner: settings.shortcuts.cleanerShortcut,
             cleanerEnabled: settings.shortcuts.cleanerEnabled, ai: settings.shortcuts.aiShortcut,
             macroEnabled: settings.macro.isEnabled, macroInEnglish: settings.macro.inEnglishMode,
+            smartCoderMode: settings.keyboard.smartCoderMode,
+            inlineCalculatorEnabled: settings.general.inlineCalculatorEnabled,
             debug: settings.general.isDebugMode)
         os_unfair_lock_lock(&settingsLock)
         hotPathSettings = value

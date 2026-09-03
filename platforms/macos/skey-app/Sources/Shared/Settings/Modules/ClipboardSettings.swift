@@ -52,6 +52,7 @@ public final class ClipboardSettings: NSObject, SettingsModule {
         public static let sortOrder                 = "SKey_ClipboardSortOrder"
         public static let highlightMatch            = "SKey_ClipboardHighlightMatch"
         public static let popupPosition             = "SKey_ClipboardPopupPosition"
+        public static let autoExpireOTP             = "SKey_ClipboardAutoExpireOTP"
     }
 
     public init(storage: SettingsStorage = .shared) {
@@ -80,7 +81,8 @@ public final class ClipboardSettings: NSObject, SettingsModule {
             Keys.pinTo:                      ClipboardPinTo.top.rawValue,
             Keys.sortOrder:                  ClipboardSortOrder.lastCopiedAt.rawValue,
             Keys.highlightMatch:             HighlightMatchStyle.color.rawValue,
-            Keys.popupPosition:              ClipboardPopupPosition.cursor.rawValue
+            Keys.popupPosition:              ClipboardPopupPosition.cursor.rawValue,
+            Keys.autoExpireOTP:              true
         ])
     }
 
@@ -262,6 +264,14 @@ public final class ClipboardSettings: NSObject, SettingsModule {
         set {
             objectWillChange.send()
             storage.set(newValue.rawValue, forKey: Keys.popupPosition)
+        }
+    }
+
+    public var autoExpireOTP: Bool {
+        get { storage.bool(forKey: Keys.autoExpireOTP, default: true) }
+        set {
+            objectWillChange.send()
+            storage.set(newValue, forKey: Keys.autoExpireOTP)
         }
     }
 }

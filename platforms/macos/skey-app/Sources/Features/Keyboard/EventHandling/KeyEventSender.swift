@@ -34,6 +34,8 @@ public final class KeyEventSender {
         semaphore.wait()
         defer { semaphore.signal() }
 
+        skeyLog("[KeyEventSender] inject called: backspaces=\(backspaces), text='\(text)' (count=\(text.count))", category: .keyboard)
+
         // Strategy A: If target app is Spotlight, use direct AX replacement
         if AccessibilityContextReader.isSpotlightActive() {
             if AccessibilityContextReader.shared.replaceTextViaAX(backspaces: backspaces, text: text) {
@@ -62,44 +64,44 @@ public final class KeyEventSender {
         usleep(KeyConstants.settleDelayUs)
     }
 
-    /// Zero-heap-allocation unicode string sender using stack buffers
+    /// Zero-heap-allocation unicode string sender using atomic CGEvent delivery
     private func sendText(_ text: String, source: CGEventSource) {
         let utf16Count = text.utf16.count
         guard utf16Count > 0 else { return }
 
-        let chunkSize = 20
-        withUnsafeTemporaryAllocation(of: UniChar.self, capacity: max(utf16Count, chunkSize)) { buffer in
-            guard let basePtr = buffer.baseAddress else { return }
+        let emit: (UnsafePointer<UniChar>, Int) -> Void = { basePtr, length in
+            guard
+                let down = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
+                let up   = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false)
+            else { return }
 
-            var length = 0
-            for codeUnit in text.utf16 {
-                basePtr[length] = codeUnit
-                length += 1
-            }
+            down.flags = [.maskNonCoalesced]
+            up.flags = [.maskNonCoalesced]
+            down.keyboardSetUnicodeString(stringLength: length, unicodeString: basePtr)
+            // Note: Never set unicodeString on keyUp events! KeyUp is a release event;
+            // setting unicodeString on keyUp causes Chromium/Electron/Safari to insert the text twice.
 
-            var offset = 0
-            while offset < length {
-                let currentChunkLen = min(chunkSize, length - offset)
-                let chunkPtr = basePtr.advanced(by: offset)
+            self.stamp(down)
+            self.stamp(up)
+            down.post(tap: .cgSessionEventTap)
+            up.post(tap: .cgSessionEventTap)
+        }
 
-                guard
-                    let down = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: true),
-                    let up   = CGEvent(keyboardEventSource: source, virtualKey: 0, keyDown: false)
-                else { break }
-
-                down.flags = [.maskNonCoalesced]
-                up.flags = [.maskNonCoalesced]
-                down.keyboardSetUnicodeString(stringLength: currentChunkLen, unicodeString: chunkPtr)
-                up.keyboardSetUnicodeString(stringLength: currentChunkLen, unicodeString: chunkPtr)
-
-                stamp(down); stamp(up)
-                down.post(tap: .cgSessionEventTap)
-                up.post(tap: .cgSessionEventTap)
-
-                offset += currentChunkLen
-                if offset < length {
-                    usleep(KeyConstants.interChunkDelayUs)
+        if utf16Count <= 1024 {
+            withUnsafeTemporaryAllocation(of: UniChar.self, capacity: utf16Count) { buffer in
+                guard let basePtr = buffer.baseAddress else { return }
+                var length = 0
+                for codeUnit in text.utf16 {
+                    basePtr[length] = codeUnit
+                    length += 1
                 }
+                emit(basePtr, length)
+            }
+        } else {
+            let unichars = Array(text.utf16)
+            unichars.withUnsafeBufferPointer { buffer in
+                guard let basePtr = buffer.baseAddress else { return }
+                emit(basePtr, buffer.count)
             }
         }
     }
