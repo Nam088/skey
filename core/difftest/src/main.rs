@@ -1,8 +1,40 @@
 //! Speaks the same stdin protocol and prints the same trace format as
 //! port/oracle, so the two can be diffed line by line.
+//!
+//! Subcommands supported:
+//! - `gen [size]`: Emit golden test corpus in oracle stdin format.
+//! - `type [im] [en]`: Type input lines from stdin and output converted text.
+//! - `bench [corpus] [im] [cs] [rounds] [label]`: Benchmark keystroke throughput.
+//! - `hashes [size]`: Recompute and display golden hash table matrix.
+//! - Default harness mode: Accepts engine flags as arguments, reads protocol lines from stdin (`K`, `B`, `R`, `L`, `U`, `T`, `Z`, `S`, `C`, `-`) and prints traces.
 use std::io::{self, BufRead, Write};
 use skey_core::{charset::Charset, engine::OutputType, Engine, Options};
 
+/// Emits a single trace line formatted identically to the C++ oracle test harness.
+///
+/// Output format: `<tag> b=<backspaces> n=<len> t=<out_type> o=<hex_bytes>`
+///
+/// ### Arguments
+///
+/// * `out` - Target output writer sink implementing [`Write`].
+/// * `tag` - Command indicator tag string (e.g., `"K"`, `"B"`, `"R"`).
+/// * `backs` - Number of backspaces needed before outputting transformed bytes.
+/// * `ty` - Engine output category flag ([`OutputType::Char`] or [`OutputType::Key`]).
+/// * `bytes` - Slice of raw output bytes to be encoded and printed as uppercase hex.
+///
+/// ### Returns
+///
+/// This function returns `()` on successful formatting and writing to `out`.
+///
+/// ### Examples
+///
+/// ```rust,ignore
+/// use skey_core::engine::OutputType;
+///
+/// let mut buf = Vec::new();
+/// emit(&mut buf, "K", 1, OutputType::Char, &[0xC3, 0xA1]);
+/// assert_eq!(std::str::from_utf8(&buf).unwrap(), "K b=1 n=2 t=0 o=C3A1\n");
+/// ```
 fn emit(out: &mut impl Write, tag: &str, backs: i32, ty: OutputType, bytes: &[u8]) {
     let t = match ty {
         OutputType::Char => 0,
@@ -15,8 +47,32 @@ fn emit(out: &mut impl Write, tag: &str, backs: i32, ty: OutputType, bytes: &[u8
     writeln!(out).unwrap();
 }
 
-
-
+/// Entry point for `difftest` harness. Parses command-line subcommands or runs the line-by-line oracle diff engine.
+///
+/// ### Arguments
+///
+/// None (arguments are read directly via [`std::env::args`]).
+///
+/// Supported CLI arguments / subcommands:
+/// - `gen [size]`: Generates and prints oracle protocol script lines for diff testing.
+/// - `type [im] [en]`: Interactive/line-by-line typing converter for word lists.
+/// - `bench [corpus] [im] [cs] [rounds] [label]`: Benchmarks keystroke throughput against standard corpus.
+/// - `hashes [size]`: Recomputes golden traces hash matrix.
+/// - Engine flags (7 to 12 integers) followed by stdin protocol commands (`K`, `B`, `R`, `L`, `U`, `T`, `Z`, `S`, `C`, `-`).
+///
+/// ### Returns
+///
+/// This function returns `()` upon process completion, printing formatted trace lines or benchmark metrics to stdout.
+///
+/// ### Examples
+///
+/// ```bash
+/// # Run default diff trace test for Telex + UTF-8:
+/// cargo run -p difftest -- 0 12 1 0 0 1 0 < oracle_input.txt
+///
+/// # Run throughput benchmark:
+/// cargo run -p difftest -- bench corpus.txt 0 12 20 "telex-utf8"
+/// ```
 fn main() {
     let a: Vec<String> = std::env::args().skip(1).collect();
     match a.first().map(|s| s.as_str()) {

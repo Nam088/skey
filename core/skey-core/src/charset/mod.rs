@@ -1,39 +1,54 @@
-//! Output charsets.
+//! Output character encoding and decoding implementations.
 //!
-//! The original dispatches through the virtual `VnCharset::putChar`, and
-//! `getSeqSteps` abuses it by encoding a range into a zero length stream
-//! purely to count bytes. Here the same code path serves both, but the
-//! counting sink stores nothing, so backspace arithmetic allocates and
-//! copies nothing.
-//!
-//! VIQR is stateful. The engine calls `startOutput` before every write,
-//! so that state lives exactly one output pass: `Encoder::new` is
-//! `startOutput`.
+//! Provides zero-allocation encoding routines for various Vietnamese character sets
+//! (Unicode UTF-8, UTF-16, VNI Windows, TCVN3, VIQR, etc.) as well as character counting
+//! for accurate backspace calculation.
 
 use crate::lexi::VN_STD_CHAR_OFFSET;
 use crate::out::{Counter, OutBuf, Sink};
 use crate::tables;
 
+/// Unicode UTF-16 encoding identifier.
 pub const UNICODE: i32 = 0;
+/// Unicode UTF-8 encoding identifier.
 pub const UNIUTF8: i32 = 1;
+/// Unicode numeric character reference (decimal, e.g. `&#...;`).
 pub const UNIREF: i32 = 2;
+/// Unicode numeric character reference (hexadecimal, e.g. `&#x...;`).
 pub const UNIREF_HEX: i32 = 3;
+/// Decomposed Unicode (NFD).
 pub const UNIDECOMPOSED: i32 = 4;
+/// Windows CP1258 encoding identifier.
 pub const WINCP1258: i32 = 5;
+/// C-string escaped Unicode format (`\uXXXX`).
 pub const UNI_CSTRING: i32 = 6;
+/// Vietnamese Standard character set.
 pub const VNSTANDARD: i32 = 7;
+/// VIQR (Vietnamese Quoted-Readable) encoding identifier.
 pub const VIQR: i32 = 10;
+/// UTF-8 VIQR encoding identifier.
 pub const UTF8VIQR: i32 = 11;
+/// Extended UTF-8 encoding identifier.
 pub const XUTF8: i32 = 12;
+/// TCVN3 (ABC) encoding identifier.
 pub const TCVN3: i32 = 20;
+/// VPS encoding identifier.
 pub const VPS: i32 = 21;
+/// VISCII encoding identifier.
 pub const VISCII: i32 = 22;
+/// BK HCM 1 encoding identifier.
 pub const BKHCM1: i32 = 23;
+/// Vietware F encoding identifier.
 pub const VIETWAREF: i32 = 24;
+/// ISC encoding identifier.
 pub const ISC: i32 = 25;
+/// VNI Windows 1-byte encoding identifier.
 pub const VNIWIN: i32 = 40;
+/// BK HCM 2 encoding identifier.
 pub const BKHCM2: i32 = 41;
+/// Vietware X encoding identifier.
 pub const VIETWAREX: i32 = 42;
+/// VNI Macintosh encoding identifier.
 pub const VNIMAC: i32 = 43;
 
 const TOTAL_SINGLE: i32 = 6;
@@ -49,10 +64,14 @@ const STD_START_QUOTE: u32 = VN_STD_CHAR_OFFSET + 201;
 const STD_END_QUOTE: u32 = VN_STD_CHAR_OFFSET + 202;
 const STD_ELLIPSIS: u32 = VN_STD_CHAR_OFFSET + 190;
 
+/// Vietnamese character encoding identifier wrapper.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
-pub struct Charset(pub i32);
+pub struct Charset(
+    /// Numeric charset code (e.g. `UNICODE`, `UNIUTF8`, `VNIWIN`, `TCVN3`).
+    pub i32,
+);
 
 impl Default for Charset {
     fn default() -> Self {
@@ -61,10 +80,27 @@ impl Default for Charset {
 }
 
 impl Charset {
+    /// Checks whether this charset is the C-escaped Unicode format (`\uXXXX`).
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if the charset equals [`UNI_CSTRING`]; otherwise `false`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::{UNI_CSTRING, XUTF8};
+    ///
+    /// assert!(Charset(UNI_CSTRING).is_unicode_cstring());
+    /// assert!(!Charset(XUTF8).is_unicode_cstring());
+    /// ```
     pub fn is_unicode_cstring(self) -> bool {
         self.0 == UNI_CSTRING
     }
 
+    /// Checks whether one buffer entry always costs exactly one step.
+    ///
     /// True when one buffer entry always costs exactly one step, the fast
     /// path the original takes in `getSeqSteps` for XUTF8 and UNICODE.
     ///
@@ -76,12 +112,43 @@ impl Charset {
     /// count. Double byte charsets and VN standard are excluded because
     /// theirs is not, and VIQR because its length depends on preceding
     /// output.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if one character maps to one edit step; `false` if step count depends on encoding context.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::{XUTF8, VIQR};
+    ///
+    /// assert!(Charset(XUTF8).one_step_per_char());
+    /// assert!(!Charset(VIQR).one_step_per_char());
+    /// ```
     pub fn one_step_per_char(self) -> bool {
         self.0 == XUTF8
             || self.0 == UNICODE
             || (self.0 >= TCVN3 && self.0 < TCVN3 + TOTAL_SINGLE)
     }
 
+    /// Returns `true` if this charset ID is recognized and supported by the encoder.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if the encoding identifier corresponds to a recognized Vietnamese charset
+    /// (e.g. Unicode variants, TCVN3, VNI Windows, VIQR, VISCII, VPS, BK HCM); otherwise `false`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::{XUTF8, TCVN3};
+    ///
+    /// assert!(Charset(XUTF8).is_supported());
+    /// assert!(Charset(TCVN3).is_supported());
+    /// assert!(!Charset(9999).is_supported());
+    /// ```
     pub fn is_supported(self) -> bool {
         matches!(
             self.0,
@@ -364,6 +431,24 @@ pub struct Encoder {
 }
 
 impl Encoder {
+    /// Creates a new character encoder for the given character set.
+    ///
+    /// ### Arguments
+    ///
+    /// - `cs`: The target character set encoding wrapper ([`Charset`]).
+    ///
+    /// ### Returns
+    ///
+    /// A new [`Encoder`] instance configured to encode into `cs`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::{Encoder, XUTF8};
+    ///
+    /// let encoder = Encoder::new(Charset(XUTF8));
+    /// ```
     pub fn new(cs: Charset) -> Self {
         Encoder {
             kind: kind_of(cs),
@@ -371,18 +456,82 @@ impl Encoder {
         }
     }
 
+    /// Encodes and writes a single Vietnamese standard character (`std_char`) into an [`OutBuf`].
+    ///
+    /// ### Arguments
+    ///
+    /// - `os`: Mutable reference to the target [`OutBuf`] buffer.
+    /// - `std_char`: Standard Vietnamese character code point (`StdVnChar`) or ASCII code.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if the character was encoded and accepted by `os`; `false` if buffer capacity was exceeded.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::{Encoder, XUTF8};
+    /// use skey_core::out::OutBuf;
+    ///
+    /// let mut enc = Encoder::new(Charset(XUTF8));
+    /// let mut buf = OutBuf::default();
+    /// assert!(enc.put(&mut buf, b'a' as u32));
+    /// assert_eq!(buf.bytes_up_to(buf.len()), b"a");
+    /// ```
     pub fn put(&mut self, os: &mut OutBuf, std_char: u32) -> bool {
         self.emit(os, std_char)
     }
 
-    /// Same as `put`, for any sink.
+    /// Same as `put`, for any generic [`Sink`].
+    ///
+    /// ### Arguments
+    ///
+    /// - `os`: Mutable reference to any target stream implementing [`Sink`].
+    /// - `std_char`: Standard Vietnamese character code point (`StdVnChar`) or ASCII code.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if all encoded bytes were accepted by `os`; `false` if the sink rejected any byte.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::{Encoder, XUTF8};
+    /// use skey_core::out::Counter;
+    ///
+    /// let mut enc = Encoder::new(Charset(XUTF8));
+    /// let mut counter = Counter::default();
+    /// assert!(enc.put_into(&mut counter, b'a' as u32));
+    /// assert_eq!(counter.n, 1);
+    /// ```
     pub fn put_into<S: Sink>(&mut self, os: &mut S, std_char: u32) -> bool {
         self.emit(os, std_char)
     }
 
-    /// Bytes this character would emit, given the state so far. The
-    /// state advances exactly as it would when writing, because the
+    /// Bytes this character would emit, given the state so far.
+    ///
+    /// The state advances exactly as it would when writing, because the
     /// original counts by encoding into a zero length stream.
+    ///
+    /// ### Arguments
+    ///
+    /// - `std_char`: Standard Vietnamese character code point (`StdVnChar`) or ASCII code.
+    ///
+    /// ### Returns
+    ///
+    /// Returns the number of bytes that would be emitted for `std_char` under current encoder state.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::{Encoder, XUTF8};
+    ///
+    /// let mut enc = Encoder::new(Charset(XUTF8));
+    /// assert_eq!(enc.count(b'a' as u32), 1);
+    /// ```
     pub fn count(&mut self, std_char: u32) -> usize {
         let mut c = Counter::default();
         self.emit(&mut c, std_char);
@@ -679,8 +828,28 @@ fn unicode_to_std(u: u16) -> u32 {
     u as u32
 }
 
-/// `StdVnToUpper`. Note the parity test runs on the whole StdVnChar; the
-/// 0x10000 offset is even, so it is the same parity as the index.
+/// Converts a Vietnamese standard character index (`StdVnChar`) to uppercase.
+///
+/// In the Vietnamese standard character table, lowercase characters have odd parity and
+/// uppercase characters have even parity (`uppercase + 1 == lowercase`).
+///
+/// ### Arguments
+///
+/// - `ch`: Standard Vietnamese character code (`StdVnChar`) or ASCII codepoint.
+///
+/// ### Returns
+///
+/// The uppercase counterpart if `ch` is a lowercase Vietnamese standard character; otherwise returns `ch` unchanged.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::charset::std_to_upper;
+/// use skey_core::phonetics::lexi::VN_STD_CHAR_OFFSET;
+///
+/// let lower_a = VN_STD_CHAR_OFFSET + 1;
+/// assert_eq!(std_to_upper(lower_a), lower_a - 1);
+/// ```
 pub fn std_to_upper(ch: u32) -> u32 {
     if ch >= VN_STD_CHAR_OFFSET
         && ch < VN_STD_CHAR_OFFSET + tables::TOTAL_ALPHA_VNCHARS as u32
@@ -692,7 +861,28 @@ pub fn std_to_upper(ch: u32) -> u32 {
     }
 }
 
-/// `StdVnToLower`.
+/// Converts a Vietnamese standard character index (`StdVnChar`) to lowercase.
+///
+/// In the Vietnamese standard character table, uppercase characters have even parity and
+/// lowercase characters have odd parity (`uppercase + 1 == lowercase`).
+///
+/// ### Arguments
+///
+/// - `ch`: Standard Vietnamese character code (`StdVnChar`) or ASCII codepoint.
+///
+/// ### Returns
+///
+/// The lowercase counterpart if `ch` is an uppercase Vietnamese standard character; otherwise returns `ch` unchanged.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::charset::std_to_lower;
+/// use skey_core::phonetics::lexi::VN_STD_CHAR_OFFSET;
+///
+/// let upper_a = VN_STD_CHAR_OFFSET;
+/// assert_eq!(std_to_lower(upper_a), upper_a + 1);
+/// ```
 pub fn std_to_lower(ch: u32) -> u32 {
     if ch >= VN_STD_CHAR_OFFSET
         && ch < VN_STD_CHAR_OFFSET + tables::TOTAL_ALPHA_VNCHARS as u32
@@ -704,13 +894,31 @@ pub fn std_to_lower(ch: u32) -> u32 {
     }
 }
 
-/// Decodes a NUL terminated byte string into StdVnChars, terminator
-/// included, which is what `VnConvert` with `inLen = -1` produces: the
-/// stream hands the NUL out as a character before flagging end of
-/// stream, so the converted key and text are NUL terminated in memory.
+/// Decodes a NUL-terminated byte string into a vector of Vietnamese standard character codes (`StdVnChar`).
 ///
-/// Returns `None` when more than `max_chars` would be produced, matching
-/// `VnConvert` returning out of memory and `addItem` rejecting the item.
+/// The terminator is omitted if truncated or at EOF.
+///
+/// ### Arguments
+///
+/// - `cs`: The source character set (currently supports [`UNIUTF8`], [`XUTF8`], [`VIQR`], [`UTF8VIQR`]).
+/// - `input`: The raw byte slice containing the text.
+/// - `max_chars`: Maximum number of characters allowed in the decoded output.
+///
+/// ### Returns
+///
+/// Returns `Some(Vec<u32>)` of standard Vietnamese character codes on success, or `None` if
+/// decoding failed, exceeded `max_chars`, or the charset does not support decoding.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::Charset;
+/// use skey_core::charset::{decode_nul_terminated, UNIUTF8};
+///
+/// let input = b"ti\xE1\xBA\xBFng Vi\xE1\xBB\x87t\0"; // "tiếng Việt" in UTF-8
+/// let decoded = decode_nul_terminated(Charset(UNIUTF8), input, 32);
+/// assert!(decoded.is_some());
+/// ```
 #[cfg(feature = "alloc")]
 pub fn decode_nul_terminated(cs: Charset, input: &[u8], max_chars: usize) -> Option<alloc::vec::Vec<u32>> {
     use alloc::vec::Vec;

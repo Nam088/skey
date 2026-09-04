@@ -1,17 +1,9 @@
-//! Newtypes over the original engine's numeric spaces.
+//! Vietnamese phonetic character representation and lexical spaces.
 //!
-//! The numeric encoding is load bearing and is NOT an implementation
-//! detail we are free to change:
-//!
-//!   * even index  = upper case, odd index = lower case
-//!   * tone level  = +2 per level from the toneless base
-//!   * StdVnChar   = lexi index + 0x10000, minus 1 when capitalised,
-//!     plus 2 * tone
-//!
-//! `changeCase`, `vnToLower`, `appendVowel` and `writeOutput` in the
-//! original all rely on this arithmetic. Reordering the enum silently
-//! breaks the engine, so the invariants are asserted at compile time in
-//! `assert_layout` below.
+//! Numeric properties:
+//! - Even index: uppercase, Odd index: lowercase.
+//! - Tone level: +2 per tone level from base.
+//! - StdVnChar: lexical index + 0x10000, minus 1 when capitalized, plus 2 * tone.
 
 /// Index into the Vietnamese lexical alphabet. `-1` is the original
 /// `vnl_nonVnChar` sentinel, kept as is for phase one fidelity.
@@ -27,14 +19,16 @@ pub struct VSeq(pub i16);
 pub struct CSeq(pub i16);
 
 impl Lexi {
+    /// Sentinel representing a non-Vietnamese character.
     pub const NON_VN: Lexi = Lexi(-1);
 
+    /// Checks if this symbol is a non-Vietnamese character.
     #[inline]
     pub fn is_non_vn(self) -> bool {
         self.0 < 0
     }
 
-    /// `changeCase` in the original: flips the parity bit.
+    /// Toggles the casing of the Vietnamese lexical symbol.
     #[inline]
     pub fn change_case(self) -> Lexi {
         if self.is_non_vn() {
@@ -46,7 +40,7 @@ impl Lexi {
         }
     }
 
-    /// `vnToLower` in the original: forces the parity bit to odd.
+    /// Converts this Vietnamese lexical symbol to lowercase.
     #[inline]
     pub fn to_lower(self) -> Lexi {
         if self.is_non_vn() {
@@ -58,6 +52,7 @@ impl Lexi {
         }
     }
 
+    /// Returns the non-negative index value.
     #[inline]
     pub fn idx(self) -> usize {
         debug_assert!(self.0 >= 0, "non Vn lexi used as an index");
@@ -66,11 +61,16 @@ impl Lexi {
 }
 
 impl VSeq {
+    /// Sentinel representing an empty or nil vowel sequence.
     pub const NIL: VSeq = VSeq(-1);
+
+    /// Checks whether this vowel sequence is nil.
     #[inline]
     pub fn is_nil(self) -> bool {
         self.0 < 0
     }
+
+    /// Returns the vowel sequence table index.
     #[inline]
     pub fn idx(self) -> usize {
         debug_assert!(self.0 >= 0, "nil vowel sequence used as an index");
@@ -79,11 +79,16 @@ impl VSeq {
 }
 
 impl CSeq {
+    /// Sentinel representing an empty or nil consonant sequence.
     pub const NIL: CSeq = CSeq(-1);
+
+    /// Checks whether this consonant sequence is nil.
     #[inline]
     pub fn is_nil(self) -> bool {
         self.0 < 0
     }
+
+    /// Returns the consonant sequence table index.
     #[inline]
     pub fn idx(self) -> usize {
         debug_assert!(self.0 >= 0, "nil consonant sequence used as an index");
@@ -93,6 +98,7 @@ impl CSeq {
 
 /// Offset of the Vietnamese block inside the StdVnChar space.
 pub const VN_STD_CHAR_OFFSET: u32 = 0x10000;
+/// Sentinel value representing an invalid standard character code.
 pub const INVALID_STD_CHAR: u32 = 0xFFFF_FFFF;
 
 /// Compile time guard on the numeric invariants described above.

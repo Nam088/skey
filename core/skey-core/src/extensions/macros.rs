@@ -1,12 +1,6 @@
-//! Macro table.
+//! Fast contiguous macro table implementation with binary search lookup.
 //!
-//! The original keeps this inside `UkSharedMem`, which may not contain
-//! pointers, so it is a fixed `MacroDef[1024]` index over a fixed
-//! `char[131072]` arena: 136 KB reserved whether or not any macro is
-//! defined, and `lookup` binary searches the index through a comparator
-//! that walks both strings. Here the storage grows with the content and
-//! the ordering and comparison semantics are preserved exactly, because
-//! `lookup` is what the engine's word end path depends on.
+//! Stores key-value replacement pairs in a contiguous memory arena with case-folded ordering.
 
 use alloc::string::String;
 use alloc::vec::Vec;
@@ -61,6 +55,20 @@ pub struct MacroTable {
 }
 
 impl MacroTable {
+    /// Creates an empty macro table with dynamic heap storage.
+    ///
+    /// ### Returns
+    ///
+    /// Returns an empty [`MacroTable`] ready to register shortcut expansions.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let table = MacroTable::new();
+    /// assert_eq!(table.count(), 0);
+    /// ```
     pub fn new() -> Self {
         MacroTable {
             data: Vec::new(),
@@ -68,11 +76,36 @@ impl MacroTable {
         }
     }
 
+    /// Clears all macro entries and resets internal buffers.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let mut table = MacroTable::new();
+    /// table.reset_content();
+    /// assert_eq!(table.count(), 0);
+    /// ```
     pub fn reset_content(&mut self) {
         self.data.clear();
         self.entries.clear();
     }
 
+    /// Returns the total number of macros stored.
+    ///
+    /// ### Returns
+    ///
+    /// The number of macro definitions currently held in the table.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let table = MacroTable::new();
+    /// assert_eq!(table.count(), 0);
+    /// ```
     pub fn count(&self) -> usize {
         self.entries.len()
     }
@@ -82,19 +115,74 @@ impl MacroTable {
         &data[at as usize..at as usize + len as usize]
     }
 
+    /// Returns the trigger key sequence of the macro at index `i`.
+    ///
+    /// ### Arguments
+    ///
+    /// - `i`: Zero-based index of the macro item.
+    ///
+    /// ### Returns
+    ///
+    /// `Some(&[u32])` containing the Vietnamese standard character sequence if `i < count()`; otherwise `None`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let table = MacroTable::new();
+    /// assert_eq!(table.key(0), None);
+    /// ```
     pub fn key(&self, i: usize) -> Option<&[u32]> {
         self.entries
             .get(i)
             .map(|e| Self::slice_of(&self.data, e.key_at, e.key_len))
     }
 
+    /// Returns the replacement text sequence of the macro at index `i`.
+    ///
+    /// ### Arguments
+    ///
+    /// - `i`: Zero-based index of the macro item.
+    ///
+    /// ### Returns
+    ///
+    /// `Some(&[u32])` containing the replacement text standard character sequence if `i < count()`; otherwise `None`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let table = MacroTable::new();
+    /// assert_eq!(table.text(0), None);
+    /// ```
     pub fn text(&self, i: usize) -> Option<&[u32]> {
         self.entries
             .get(i)
             .map(|e| Self::slice_of(&self.data, e.text_at, e.text_len))
     }
 
-    /// `CMacroTable::lookup`.
+    /// Binary searches for a matching macro definition matching `key`.
+    ///
+    /// Comparisons are case-folded using Vietnamese standard character rules.
+    ///
+    /// ### Arguments
+    ///
+    /// - `key`: Standard Vietnamese character code slice representing the trigger word.
+    ///
+    /// ### Returns
+    ///
+    /// `Some(&[u32])` of standard Vietnamese character codes for the replacement text on match; `None` if not found.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let table = MacroTable::new();
+    /// assert_eq!(table.lookup(&[b'v' as u32, b'n' as u32]), None);
+    /// ```
     pub fn lookup(&self, key: &[u32]) -> Option<&[u32]> {
         let data = &self.data;
         self.entries
@@ -106,15 +194,33 @@ impl MacroTable {
             })
     }
 
-    /// `CMacroTable::addItem(key, text, charset)`. Returns false when the
-    /// item is rejected, which the original does by way of `VnConvert`
-    /// reporting out of memory for an over long key or text.
+    /// Adds a key-text macro pair decoded using the specified charset.
+    ///
+    /// ### Arguments
+    ///
+    /// - `key`: NUL-terminated or bounded byte slice for the trigger shortcut.
+    /// - `text`: NUL-terminated or bounded byte slice for the replacement expansion.
+    /// - `cs`: Character set used to decode `key` and `text` (e.g. Unicode UTF-8 or VIQR).
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if added successfully; `false` if the table is full ([`MAX_MACRO_ITEMS`]) or decoding failed.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::UNIUTF8;
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let mut table = MacroTable::new();
+    /// assert!(table.add_item(b"vn\0", b"Vi\xE1\xBB\x87t Nam\0", Charset(UNIUTF8)));
+    /// assert_eq!(table.count(), 1);
+    /// ```
     pub fn add_item(&mut self, key: &[u8], text: &[u8], cs: Charset) -> bool {
         if self.entries.len() >= MAX_MACRO_ITEMS {
             return false;
         }
-        // The key budget is MAX_MACRO_KEY_LEN StdVnChars including the
-        // NUL the converter emits, likewise for the text.
         let k = match charset::decode_nul_terminated(cs, key, MAX_MACRO_KEY_LEN) {
             Some(v) => v,
             None => return false,
@@ -123,8 +229,6 @@ impl MacroTable {
             Some(v) => v,
             None => return false,
         };
-        // Stored without the terminator; every reader here is length
-        // aware, and the ordering is unchanged.
         let strip = |v: &[u32]| -> usize {
             if v.last() == Some(&0) {
                 v.len() - 1
@@ -147,13 +251,33 @@ impl MacroTable {
         true
     }
 
-    /// `CMacroTable::addItem(item, charset)`: one `key:text` line.
+    /// Parses and adds a single `key:text` line into the table.
+    ///
+    /// ### Arguments
+    ///
+    /// - `line`: Byte slice in format `key:text`.
+    /// - `cs`: Character set used to decode `key` and `text`.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if the line was valid and added successfully; `false` if colon is missing or capacity exceeded.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::UNIUTF8;
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let mut table = MacroTable::new();
+    /// assert!(table.add_line(b"vn:Vi\xE1\xBB\x87t Nam", Charset(UNIUTF8)));
+    /// assert_eq!(table.count(), 1);
+    /// ```
     pub fn add_line(&mut self, line: &[u8], cs: Charset) -> bool {
         let pos = match line.iter().position(|&b| b == b':') {
             Some(p) => p,
             None => return false,
         };
-        // The original copies at most MAX_MACRO_KEY_LEN-1 bytes of key.
         let mut key_len = pos;
         if key_len > MAX_MACRO_KEY_LEN - 1 {
             key_len = MAX_MACRO_KEY_LEN - 1;
@@ -166,17 +290,6 @@ impl MacroTable {
     }
 
     fn sort(&mut self) {
-        // `qsort` with `macCompare`, which compares keys case folded.
-        //
-        // Two keys that differ only in case therefore compare equal, and
-        // qsort is not stable, so the original's relative order for such
-        // a pair is whatever the platform's qsort happens to produce and
-        // which of the two `lookup` finds is likewise unspecified. There
-        // is no behaviour to preserve there. This sort is stable, so the
-        // tie break is insertion order, which is at least reproducible.
-        //
-        // The arena is moved aside so the comparator can read it while the
-        // index is being reordered.
         let data = core::mem::take(&mut self.data);
         self.entries.sort_by(|a, b| {
             cmp_folded(
@@ -187,9 +300,27 @@ impl MacroTable {
         self.data = data;
     }
 
-    /// `CMacroTable::loadFromFile`, minus the file handling: the caller
-    /// supplies the bytes. Returns the file version that was detected, so
-    /// the caller can rewrite a legacy file as the original does.
+    /// Loads macro definitions from raw file bytes and sorts entries.
+    ///
+    /// ### Arguments
+    ///
+    /// - `data`: Raw file contents representing the macro definition file.
+    ///
+    /// ### Returns
+    ///
+    /// Returns the detected macro file format version (e.g. `1` for UTF-8 format, `0` for legacy VIQR).
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let mut table = MacroTable::new();
+    /// let content = b"DO NOT DELETE THIS LINE*** version=1 ***\nvn:Vi\xE1\xBB\x87t Nam\n";
+    /// let ver = table.load_from_bytes(content);
+    /// assert_eq!(ver, 1);
+    /// assert_eq!(table.count(), 1);
+    /// ```
     pub fn load_from_bytes(&mut self, data: &[u8]) -> i32 {
         self.reset_content();
         let mut lines = data.split(|&b| b == b'\n');
@@ -201,8 +332,6 @@ impl MacroTable {
             Charset(charset::VIQR)
         };
 
-        // A missing header means the first line is data, exactly as the
-        // original's rewind does.
         let body: Vec<&[u8]> = if version == 0 && !is_header(first) {
             core::iter::once(first).chain(lines).collect()
         } else {
@@ -223,7 +352,24 @@ impl MacroTable {
         version
     }
 
-    /// `CMacroTable::writeToFile`, minus the file handling.
+    /// Serializes all macros to a UTF-8 formatted string suitable for saving to disk.
+    ///
+    /// ### Returns
+    ///
+    /// Returns a [`String`] formatted with the version 1 header and `key:text` lines.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::Charset;
+    /// use skey_core::charset::UNIUTF8;
+    /// use skey_core::extensions::macros::MacroTable;
+    ///
+    /// let mut table = MacroTable::new();
+    /// table.add_line(b"vn:Viet Nam", Charset(UNIUTF8));
+    /// let file_content = table.to_utf8_file();
+    /// assert!(file_content.contains("vn:Viet Nam"));
+    /// ```
     pub fn to_utf8_file(&self) -> String {
         let mut s = String::from("DO NOT DELETE THIS LINE*** version=1 ***\n");
         for i in 0..self.entries.len() {

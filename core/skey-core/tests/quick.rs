@@ -1,5 +1,5 @@
-//! The OpenKey style typing shortcuts. Every one of them is off by
-//! default, and off must be indistinguishable from the original.
+//! Typing shortcuts tests. Every one of them is off by
+//! default.
 use skey_core::{charset::Charset, Engine, Options};
 
 /// Types `keys` and returns what the front end's buffer would hold.
@@ -47,9 +47,8 @@ mod quick_telex {
         }
     }
 
-    /// The replacement carries the case of the letter that was typed,
-    /// which is what OpenKey does: `handleQuickTelex` gives both letters
-    /// the same caps flag. So two capitals give two capitals.
+    /// The replacement carries the case of the letter that was typed.
+    /// Two capitals give two capitals.
     #[test]
     fn the_replacement_carries_the_case_that_was_typed() {
         assert_eq!(typed("Cco", on()), "Cho");

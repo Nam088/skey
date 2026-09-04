@@ -38,11 +38,7 @@ pub fn pack3(a: Lexi, b: Lexi, c: Lexi) -> u32 {
 }
 
 #[cfg(debug_assertions)]
-/// Binary search over a flat, compile time sorted key array. The
-/// original sorted a copy of the table with `qsort` at start up and then
-/// used `bsearch` with a comparator that looped over three elements per
-/// comparison; this is the same search with no start up cost, no
-/// indirect call, and one integer compare per step.
+/// Binary search over a flat, compile-time sorted vowel sequence key array for a 3-vowel sequence.
 pub fn lookup_vseq3(v1: Lexi, v2: Lexi, v3: Lexi) -> VSeq {
     let key = pack3(v1, v2, v3);
     let mut lo = 0usize;
@@ -62,18 +58,21 @@ pub fn lookup_vseq3(v1: Lexi, v2: Lexi, v3: Lexi) -> VSeq {
 }
 
 #[cfg(debug_assertions)]
+/// Look up a single vowel sequence in debug builds.
 #[inline]
 pub fn lookup_vseq1(v1: Lexi) -> VSeq {
     lookup_vseq3(v1, Lexi::NON_VN, Lexi::NON_VN)
 }
 
 #[cfg(debug_assertions)]
+/// Look up a 2-vowel sequence in debug builds.
 #[inline]
 pub fn lookup_vseq2(v1: Lexi, v2: Lexi) -> VSeq {
     lookup_vseq3(v1, v2, Lexi::NON_VN)
 }
 
 #[cfg(debug_assertions)]
+/// Binary search over a flat, compile-time sorted consonant sequence key array for a 3-consonant sequence.
 pub fn lookup_cseq3(c1: Lexi, c2: Lexi, c3: Lexi) -> CSeq {
     let key = pack3(c1, c2, c3);
     let mut lo = 0usize;
@@ -93,19 +92,20 @@ pub fn lookup_cseq3(c1: Lexi, c2: Lexi, c3: Lexi) -> CSeq {
 }
 
 #[cfg(debug_assertions)]
+/// Look up a single consonant sequence in debug builds.
 #[inline]
 pub fn lookup_cseq1(c1: Lexi) -> CSeq {
     lookup_cseq3(c1, Lexi::NON_VN, Lexi::NON_VN)
 }
 
 #[cfg(debug_assertions)]
+/// Look up a 2-consonant sequence in debug builds.
 #[inline]
 pub fn lookup_cseq2(c1: Lexi, c2: Lexi) -> CSeq {
     lookup_cseq3(c1, c2, Lexi::NON_VN)
 }
 
-/// One AND against a precomputed bitmap. The original tested gi and qu
-/// with branches and then scanned a static list for k.
+/// Validates whether consonant sequence `c` can legally precede vowel sequence `v`.
 #[inline]
 pub fn is_valid_cv(c: CSeq, v: VSeq) -> bool {
     let r = seq::is_valid_cv(c, v);
@@ -115,6 +115,7 @@ pub fn is_valid_cv(c: CSeq, v: VSeq) -> bool {
 }
 
 #[cfg(debug_assertions)]
+/// Reference implementation of consonant-vowel validity check used in debug assertions.
 pub fn is_valid_cv_reference(c: CSeq, v: VSeq) -> bool {
     if c.is_nil() || v.is_nil() {
         return true;
@@ -129,9 +130,7 @@ pub fn is_valid_cv_reference(c: CSeq, v: VSeq) -> bool {
     true
 }
 
-/// Table backed replacements. The search functions stay in the file as
-/// the debug shadow, which is what makes swapping in a generated table
-/// safe rather than hopeful.
+/// Converts a single lexical vowel symbol to its corresponding [`VSeq`] representation.
 #[inline]
 pub fn vseq1(sym: Lexi) -> VSeq {
     let r = seq::v_single(sym);
@@ -140,6 +139,7 @@ pub fn vseq1(sym: Lexi) -> VSeq {
     r
 }
 
+/// Converts a single lexical consonant symbol to its corresponding [`CSeq`] representation.
 #[inline]
 pub fn cseq1(sym: Lexi) -> CSeq {
     let r = seq::c_single(sym);
@@ -148,6 +148,7 @@ pub fn cseq1(sym: Lexi) -> CSeq {
     r
 }
 
+/// Attempts to extend an existing vowel sequence `vs` by appending lexical symbol `sym`.
 #[inline]
 pub fn vseq_extend(vs: VSeq, sym: Lexi) -> VSeq {
     let r = seq::v_extend(vs, sym);
@@ -163,6 +164,7 @@ pub fn vseq_extend(vs: VSeq, sym: Lexi) -> VSeq {
     r
 }
 
+/// Attempts to extend an existing consonant sequence `cs` by appending lexical symbol `sym`.
 #[inline]
 pub fn cseq_extend(cs: CSeq, sym: Lexi) -> CSeq {
     if cs.is_nil() {
@@ -181,6 +183,20 @@ pub fn cseq_extend(cs: CSeq, sym: Lexi) -> CSeq {
     r
 }
 
+/// Validates whether vowel sequence `v` can legally be followed by ending consonant sequence `c`.
+///
+/// Returns `false` if `v` cannot accept consonant codas (e.g. `ơi`, `âu`), if `c` is not a valid
+/// syllable-final consonant in Vietnamese, or if the combination is prohibited in Vietnamese phonotactics.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::phonetics::lexi_consts as L;
+/// use skey_core::phonetics::rules::is_valid_vc;
+///
+/// assert!(is_valid_vc(L::vs_a, L::cs_n)); // "an" is valid
+/// assert!(!is_valid_vc(L::vs_ai, L::cs_n)); // "ain" is invalid (diphthong with -i cannot take coda)
+/// ```
 pub fn is_valid_vc(v: VSeq, c: CSeq) -> bool {
     if v.is_nil() || c.is_nil() {
         return true;
@@ -195,10 +211,20 @@ pub fn is_valid_vc(v: VSeq, c: CSeq) -> bool {
     tables::VC_VALID[v.idx()] & (1u32 << c.0) != 0
 }
 
-// Fusing this whole relation into one 31 by 71 by 31 bitmap was tried and
-// measured no faster: the common path is already two well predicted nil
-// tests and one masked load. It cost 8.8 KB of tables for nothing, so it
-// is not here.
+/// Validates whether a full Consonant-Vowel-Consonant (`C1 - V - C2`) syllable structure is orthographically valid.
+///
+/// Checks onset-nucleus validity ([`is_valid_cv`]) and nucleus-coda validity ([`is_valid_vc`]),
+/// plus orthographic exceptions like `quyn`/`quynh` and `gieng`/`giêng`.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::phonetics::lexi_consts as L;
+/// use skey_core::phonetics::rules::is_valid_cvc;
+///
+/// assert!(is_valid_cvc(L::cs_v, L::vs_ie, L::cs_t)); // "việt"
+/// assert!(is_valid_cvc(L::cs_qu, L::vs_y, L::cs_nh)); // "quỳnh"
+/// ```
 pub fn is_valid_cvc(c1: CSeq, v: VSeq, c2: CSeq) -> bool {
     if v.is_nil() {
         return c1.is_nil() || !c2.is_nil();
@@ -230,11 +256,13 @@ pub fn is_valid_cvc(c1: CSeq, v: VSeq, c2: CSeq) -> bool {
     false
 }
 
+/// Strips any tone mark from a Vietnamese lexical symbol, returning its base form.
 #[inline]
 pub fn std_no_tone(l: Lexi) -> Lexi {
     Lexi(tables::STD_NO_TONE[l.idx()] as i16)
 }
 
+/// Returns `true` if lexical symbol `l` is a vowel.
 #[inline]
 pub fn is_vowel(l: Lexi) -> bool {
     if l.is_non_vn() {

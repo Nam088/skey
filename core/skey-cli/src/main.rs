@@ -1,3 +1,5 @@
+//! Command-line test harness and interactive interface for SKey Vietnamese input engine.
+
 use std::io::{self, IsTerminal, Read, Write};
 use std::process::Command;
 use skey_core::charset::{self, Charset};
@@ -10,6 +12,22 @@ struct RawTerminalGuard {
 }
 
 impl RawTerminalGuard {
+    /// Enters terminal raw mode if stdin is connected to an interactive TTY.
+    ///
+    /// ### Arguments
+    ///
+    /// None.
+    ///
+    /// ### Returns
+    ///
+    /// Returns a new [`RawTerminalGuard`] instance with `active` flag reflecting whether raw mode was enabled.
+    ///
+    /// ### Examples
+    ///
+    /// ```rust,ignore
+    /// let _guard = RawTerminalGuard::enter();
+    /// // Raw mode active until _guard drops
+    /// ```
     fn enter() -> Self {
         let is_tty = io::stdin().is_terminal();
         if is_tty {
@@ -29,6 +47,22 @@ impl Drop for RawTerminalGuard {
     }
 }
 
+/// Returns a human-readable display name for the given input method ID.
+///
+/// ### Arguments
+///
+/// * `im` - Input method identifier constant (e.g. `IM_TELEX`, `IM_VNI`, `IM_VIQR`).
+///
+/// ### Returns
+///
+/// Returns `"Telex"`, `"VNI"`, `"VIQR"`, or `"Custom"`.
+///
+/// ### Examples
+///
+/// ```rust,ignore
+/// use skey_core::input::IM_TELEX;
+/// assert_eq!(im_name(IM_TELEX), "Telex");
+/// ```
 fn im_name(im: i32) -> &'static str {
     match im {
         IM_TELEX => "Telex",
@@ -38,9 +72,25 @@ fn im_name(im: i32) -> &'static str {
     }
 }
 
+/// Prints the interactive REPL welcome banner and keyboard shortcut guide.
+///
+/// ### Arguments
+///
+/// * `eng` - Reference to current [`Engine`] state machine to display current mode and options.
+///
+/// ### Returns
+///
+/// Returns `()`.
+///
+/// ### Examples
+///
+/// ```rust,ignore
+/// let eng = skey_core::Engine::new();
+/// print_banner(&eng);
+/// ```
 fn print_banner(eng: &Engine) {
     println!("\x1b[1;36m=====================================================\x1b[0m");
-    println!("\x1b[1;32m  UniKey Terminal REPL (Rust Version) \x1b[0m");
+    println!("\x1b[1;32m  SKey - Bộ gõ tiếng Việt macOS (Terminal REPL) \x1b[0m");
     println!("\x1b[1;36m=====================================================\x1b[0m");
     println!("  Phím tắt điều khiển:");
     println!("    \x1b[1;33mCtrl + V\x1b[0m hoặc \x1b[1;33mCtrl + E\x1b[0m : Bật / Tắt gõ Tiếng Việt");
@@ -52,6 +102,22 @@ fn print_banner(eng: &Engine) {
     println!("Bắt đầu gõ trực tiếp bên dưới:\r\n");
 }
 
+/// Prints current engine status including Vietnamese mode toggle, active input method, and charset.
+///
+/// ### Arguments
+///
+/// * `eng` - Reference to [`Engine`] instance.
+///
+/// ### Returns
+///
+/// Returns `()`.
+///
+/// ### Examples
+///
+/// ```rust,ignore
+/// let eng = skey_core::Engine::new();
+/// print_status(&eng);
+/// ```
 fn print_status(eng: &Engine) {
     let mode_str = if eng.viet_key {
         "\x1b[1;32m[VIỆT NAM: BẬT]\x1b[0m"
@@ -63,6 +129,24 @@ fn print_status(eng: &Engine) {
     let _ = io::stdout().flush();
 }
 
+/// Runs the interactive terminal REPL in raw mode with live keypress transformations.
+///
+/// Handles control keys (toggle mode, cycle input method, exit) and simulates
+/// terminal backspacing when diacritics are applied or removed.
+///
+/// ### Arguments
+///
+/// None.
+///
+/// ### Returns
+///
+/// Returns `Ok(())` on normal clean exit (`Ctrl+C` or `Ctrl+D`), or `Err(io::Error)` if an I/O operation fails.
+///
+/// ### Examples
+///
+/// ```rust,ignore
+/// run_interactive().unwrap();
+/// ```
 fn run_interactive() -> io::Result<()> {
     let _guard = RawTerminalGuard::enter();
 
@@ -173,13 +257,48 @@ fn run_interactive() -> io::Result<()> {
     Ok(())
 }
 
-/// Helper function to pop N unicode characters from a String
+/// Helper function to pop `n` unicode characters from a String.
+///
+/// ### Arguments
+///
+/// * `s` - Mutable reference to target [`String`].
+/// * `n` - Number of Unicode scalar characters (`char`) to remove from the tail of `s`.
+///
+/// ### Returns
+///
+/// Returns `()`. If `s` has fewer than `n` characters, it pops until empty.
+///
+/// ### Examples
+///
+/// ```rust,ignore
+/// let mut s = String::from("tiếng");
+/// pop_chars(&mut s, 2);
+/// assert_eq!(s, "tiế");
+/// ```
 fn pop_chars(s: &mut String, n: usize) {
     for _ in 0..n {
         s.pop();
     }
 }
 
+/// Runs stream processing mode when standard input is piped or redirected.
+///
+/// Reads incoming bytes chunk-by-chunk, applies typing transformations, and streams results to stdout.
+///
+/// ### Arguments
+///
+/// None.
+///
+/// ### Returns
+///
+/// Returns `Ok(())` on reaching EOF, or `Err(io::Error)` if read/write operations encounter an I/O failure.
+///
+/// ### Examples
+///
+/// ```bash
+/// # Pipe keystrokes into skey-cli
+/// echo "vieetj Nam" | cargo run -p skey-cli
+/// ```
 fn run_stream() -> io::Result<()> {
     let mut eng = Engine::new();
     eng.set_input_method(IM_TELEX);
@@ -234,6 +353,25 @@ fn run_stream() -> io::Result<()> {
     Ok(())
 }
 
+/// Entry point for `skey-cli`: automatically detects TTY to run either interactive REPL or piped stream mode.
+///
+/// ### Arguments
+///
+/// None.
+///
+/// ### Returns
+///
+/// Returns `Ok(())` on successful exit, or an [`io::Result`] error if terminal or stream operations fail.
+///
+/// ### Examples
+///
+/// ```bash
+/// # Run interactive mode (in a terminal)
+/// cargo run -p skey-cli
+///
+/// # Run stream processing mode (piped)
+/// printf "hoaf binhf" | cargo run -p skey-cli
+/// ```
 fn main() -> io::Result<()> {
     if io::stdin().is_terminal() {
         run_interactive()

@@ -30,7 +30,7 @@ const OFFSETS: [u16; 24] = [
     0, 4, 8, 12, 18, 23, 27, 32, 38, 43, 48, 52, 56, 60, 64, 71, 75, 78, 84, 88, 94, 102, 109, 115,
 ];
 
-/// True when `w`, already lowercased, is one of them.
+/// Checks if a lowercase byte slice matches any English word known to suffer from key-swallowing.
 pub fn is_swallowed_word(w: &[u8]) -> bool {
     let mut lo = 0usize;
     let mut hi = OFFSETS.len() - 1;
@@ -47,7 +47,7 @@ pub fn is_swallowed_word(w: &[u8]) -> bool {
     false
 }
 
-/// The words, for tests and for a front end that wants to show them.
+/// Returns an iterator yielding all supported swallowed-key English words.
 pub fn words() -> impl Iterator<Item = &'static [u8]> {
     (0..OFFSETS.len() - 1).map(|i| &BLOB[OFFSETS[i] as usize..OFFSETS[i + 1] as usize])
 }

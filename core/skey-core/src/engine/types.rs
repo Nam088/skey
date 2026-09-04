@@ -1,8 +1,11 @@
-//! Types and options for the SKey typing engine.
+//! SKey - Bộ gõ tiếng Việt macOS: Types and options.
 
 use crate::phonetics::lexi::{CSeq, Lexi, VSeq};
 
-pub const MAX_UK_ENGINE: usize = 128;
+/// Maximum keystroke history buffer capacity.
+pub const MAX_ENGINE_BUFFER: usize = 128;
+/// Maximum key events buffered by the SKey engine.
+pub const MAX_SKEY_ENGINE: usize = MAX_ENGINE_BUFFER;
 
 #[cfg(feature = "alloc")]
 #[derive(Clone, Copy, PartialEq)]
@@ -21,29 +24,36 @@ pub(crate) const VNW_CV: u8 = 4;
 pub(crate) const VNW_VC: u8 = 5;
 pub(crate) const VNW_CVC: u8 = 6;
 
+/// Type of output emitted by the engine.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum OutputType {
+    /// Transformed characters ready to be committed.
     Char,
+    /// Raw key stroke codes.
     Key,
 }
 
+/// Configuration settings controlling Vietnamese input behavior and shortcuts.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(default))]
 pub struct Options {
+    /// Place tone marks anywhere in the word freely (oà vs òa).
     pub free_marking: bool,
+    /// Use modern tone placement style (òa, úy instead of oà, uý).
     pub modern_style: bool,
+    /// Enable macro expansions.
     pub macro_enabled: bool,
-    /// Dead at the engine level, in the original and therefore here:
-    /// `UnikeySetOptions` stores it and the engine never reads it.
+    /// Reserved for clipboard operations at the platform layer.
     pub use_unicode_clipboard: bool,
-    /// Dead at the engine level, same as above.
+    /// Reserved option for macro execution.
     pub always_macro: bool,
-    /// Dead at the engine level, and the original does not even copy it
-    /// in `UnikeySetOptions`.
+    /// Reserved strict spell check option.
     pub strict_spell_check: bool,
+    /// Enable Vietnamese spelling check rules.
     pub spell_check_enabled: bool,
+    /// Automatically restore raw input if an invalid Vietnamese word is detected.
     pub auto_non_vn_restore: bool,
     /// Restore the raw key strokes when a listed English word came out
     /// with a key swallowed and no Vietnamese mark produced: `off` became
@@ -78,12 +88,12 @@ pub struct Options {
     ///
     /// The riskiest of these options by a distance: it is the only one
     /// that changes character classification rather than rewriting an
-    /// event, and `UKC_MAP` is the table the whole spell checker rests on.
+    /// event, and `CHAR_TYPE_MAP` is the table the whole spell checker rests on.
     pub allow_consonant_zfwj: bool,
 }
 
 impl Default for Options {
-    /// Mirrors `CreateDefaultUnikeyOptions`.
+    /// Default option values.
     fn default() -> Self {
         Options {
             free_marking: true,
@@ -221,14 +231,49 @@ impl WordInfo {
     }
 }
 
-/// Result of one key press.
-#[derive(Clone, Copy, Debug)]
+/// Result of processing one key press event by [`Engine`](crate::Engine).
+///
+/// Indicates what editing actions the front-end (OS input method integration layer)
+/// must perform to synchronize the editor buffer with the Vietnamese engine state.
+///
+/// ### Fields & Integration Flow
+///
+/// 1. Check `handled`:
+///    - If `false`: The engine did not transform or consume this key. The front-end should pass
+///      the original keystroke through to the application untouched.
+///    - If `true`: The engine consumed this key and computed an edit operation.
+/// 2. Emit `backspaces`:
+///    - Send `backspaces` backspace keystrokes to erase stale text previously committed.
+/// 3. Commit `Engine::output()`:
+///    - Read the replacement bytes via [`Engine::output()`](crate::Engine::output) and forward them
+///      to the client application.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::{Engine, Edit, OutputType};
+///
+/// let mut engine = Engine::new();
+/// // First letter 'a' is buffered but not transformed yet, so handled is false
+/// // (letting the OS front-end commit the plain ASCII 'a'):
+/// let edit1: Edit = engine.key(b'a' as u32);
+/// assert_eq!(edit1.backspaces, 0);
+/// assert!(!edit1.handled);
+///
+/// // Typing 's' (acute accent in Telex) transforms 'a' into 'á':
+/// let edit2: Edit = engine.key(b's' as u32);
+/// assert_eq!(edit2.backspaces, 1);
+/// assert!(edit2.handled);
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Edit {
-    /// Backspaces the front end must send before the new bytes.
+    /// Number of backspaces the front-end must send before outputting replacement bytes.
     pub backspaces: i32,
+    /// Type of output emitted by the engine ([`OutputType::Char`] or [`OutputType::Key`]).
     pub out_type: OutputType,
-    /// False means the engine did not consume the key: the front end
-    /// should let the original key through untouched. The bytes to send
-    /// are `Engine::output()`.
+    /// Whether the key was consumed/handled by the engine.
+    ///
+    /// If `false`, the front-end should let the original key through to the OS event queue.
+    /// If `true`, the front-end should delete `backspaces` characters and commit [`Engine::output()`](crate::Engine::output).
     pub handled: bool,
 }

@@ -69,9 +69,13 @@ const fn cons_codes() -> ([u8; LEXI_SPAN], usize) {
     (code, next as usize)
 }
 
+/// Dense vowel code mapping per lexical index.
 pub const VOWEL_CODE: [u8; LEXI_SPAN] = vowel_codes().0;
+/// Number of distinct vowel codes.
 pub const VOWEL_CODES: usize = vowel_codes().1;
+/// Dense consonant code mapping per lexical index.
 pub const CONS_CODE: [u8; LEXI_SPAN] = cons_codes().0;
+/// Number of distinct consonant codes.
 pub const CONS_CODES: usize = cons_codes().1;
 
 // --------------------------------------------------- generation search
@@ -209,9 +213,13 @@ const fn build_prefix(a: i16, b: i16) -> [i8; VSEQ_COUNT] {
     t
 }
 
+/// Single-vowel sequence lookup table by lexical symbol index.
 pub const V_SINGLE: [i8; LEXI_SPAN] = build_v_single();
+/// Multi-vowel extension lookup table mapping `(vseq, next_vowel) -> vseq`.
 pub const V_EXTEND: [[i8; 16]; VSEQ_COUNT] = build_v_extend();
+/// Table removing circumflex roof from vowel sequence.
 pub const V_NO_ROOF: [i8; VSEQ_COUNT] = build_no_roof();
+/// Table removing horn/hook from vowel sequence.
 pub const V_NO_HOOK: [i8; VSEQ_COUNT] = build_no_hook();
 /// u with roof on the o, keeping the third vowel: `lookupVSeq(u, or, v2)`.
 pub const V_U_OR: [i8; VSEQ_COUNT] = build_prefix(L::u.0, L::or.0);
@@ -255,11 +263,14 @@ const fn build_c_extend() -> [[i8; 24]; CSEQ_COUNT] {
     t
 }
 
+/// Single-consonant sequence lookup table by lexical symbol index.
 pub const C_SINGLE: [i8; LEXI_SPAN] = build_c_single();
+/// Multi-consonant extension lookup table mapping `(cseq, next_consonant) -> cseq`.
 pub const C_EXTEND: [[i8; 24]; CSEQ_COUNT] = build_c_extend();
 
 // --------------------------------------------------------- accessors
 
+/// Maps a single lexical vowel symbol to its [`VSeq`].
 #[inline]
 pub fn v_single(sym: Lexi) -> VSeq {
     if sym.0 < 0 {
@@ -269,6 +280,7 @@ pub fn v_single(sym: Lexi) -> VSeq {
     }
 }
 
+/// Extends vowel sequence `vs` with lexical vowel `sym`.
 #[inline]
 pub fn v_extend(vs: VSeq, sym: Lexi) -> VSeq {
     if vs.0 < 0 || sym.0 < 0 {
@@ -281,6 +293,7 @@ pub fn v_extend(vs: VSeq, sym: Lexi) -> VSeq {
     VSeq(V_EXTEND[vs.0 as usize][code as usize] as i16)
 }
 
+/// Maps a single lexical consonant symbol to its [`CSeq`].
 #[inline]
 pub fn c_single(sym: Lexi) -> CSeq {
     if sym.0 < 0 {
@@ -290,6 +303,7 @@ pub fn c_single(sym: Lexi) -> CSeq {
     }
 }
 
+/// Extends consonant sequence `cs` with lexical consonant `sym`.
 #[inline]
 pub fn c_extend(cs: CSeq, sym: Lexi) -> CSeq {
     if cs.0 < 0 || sym.0 < 0 {
@@ -302,26 +316,31 @@ pub fn c_extend(cs: CSeq, sym: Lexi) -> CSeq {
     CSeq(C_EXTEND[cs.0 as usize][code as usize] as i16)
 }
 
+/// Returns the sequence resulting from stripping the roof (caret) from `vs`.
 #[inline]
 pub fn v_no_roof(vs: VSeq) -> VSeq {
     VSeq(V_NO_ROOF[vs.idx()] as i16)
 }
 
+/// Returns the sequence resulting from stripping the hook/horn from `vs`.
 #[inline]
 pub fn v_no_hook(vs: VSeq) -> VSeq {
     VSeq(V_NO_HOOK[vs.idx()] as i16)
 }
 
+/// Modifies a `uo` sequence to `uô` while keeping the third vowel.
 #[inline]
 pub fn v_u_or(vs: VSeq) -> VSeq {
     VSeq(V_U_OR[vs.idx()] as i16)
 }
 
+/// Reverts a modified `uo` sequence back to plain `uo`.
 #[inline]
 pub fn v_u_o(vs: VSeq) -> VSeq {
     VSeq(V_U_O[vs.idx()] as i16)
 }
 
+/// Applies both hooks to a `uo` sequence (`ươ`).
 #[inline]
 pub fn v_uh_oh(vs: VSeq) -> VSeq {
     VSeq(V_UH_OH[vs.idx()] as i16)
@@ -378,8 +397,35 @@ const fn build_tone_pos() -> [i8; VSEQ_COUNT * 4] {
     t
 }
 
+/// Precomputed tone placement position lookup table.
 pub const TONE_POS: [i8; VSEQ_COUNT * 4] = build_tone_pos();
 
+/// Determines the 0-indexed position within vowel sequence `vs` where a tone mark belongs.
+///
+/// ### Arguments
+///
+/// - `vs`: The vowel sequence to query.
+/// - `terminated`: Whether the syllable is closed by an ending consonant (`C2`).
+/// - `modern`: Whether modern tone placement style is selected (e.g. `hòa` vs `hoà`, `thúy` vs `thuý`).
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::phonetics::lexi_consts as L;
+/// use skey_core::phonetics::seq::tone_pos;
+///
+/// // Single vowel: always index 0
+/// assert_eq!(tone_pos(L::vs_a, false, false), 0);
+/// assert_eq!(tone_pos(L::vs_a, true, false), 0);
+///
+/// // Vowel with roof (e.g. "iê" -> vs_ier, roof on 'ê' at index 1):
+/// assert_eq!(tone_pos(L::vs_ier, false, false), 1);
+///
+/// // Two-vowel open sequence ("oa", term == false):
+/// assert_eq!(tone_pos(L::vs_oa, false, false), 1);
+/// // Two-vowel terminated sequence when modern == false (term == true):
+/// assert_eq!(tone_pos(L::vs_ia, true, false), 0);
+/// ```
 #[inline]
 pub fn tone_pos(vs: VSeq, terminated: bool, modern: bool) -> i32 {
     TONE_POS[vs.idx() * 4 + (terminated as usize) * 2 + modern as usize] as i32
@@ -439,8 +485,10 @@ const fn build_cv_valid() -> [u128; CSEQ_COUNT] {
     t
 }
 
+/// Bitmaps indicating which vowel sequences each consonant sequence can legally precede.
 pub const CV_VALID: [u128; CSEQ_COUNT] = build_cv_valid();
 
+/// Fast bitmap-based test of whether consonant sequence `c` can legally precede vowel sequence `v`.
 #[inline]
 pub fn is_valid_cv(c: CSeq, v: VSeq) -> bool {
     if c.0 < 0 || v.0 < 0 {

@@ -18,6 +18,7 @@ use crate::out::At;
 
 impl Engine {
     #[cfg(feature = "alloc")]
+    /// Returns the standard character code of buffer entry `i` for macro matching.
     pub(super) fn macro_std_char(&self, i: i32) -> u32 {
         let e = self.b(i);
         if !e.vn_sym.is_non_vn() {
@@ -179,11 +180,12 @@ impl Engine {
         1
     }
 
+    /// Automatically capitalizes the first character of a sentence after a full stop or line break.
     pub(super) fn apply_upper_case_first_char(&mut self, ev: &mut KeyEvent) -> bool {
         if !self.options.upper_case_first_char {
             return false;
         }
-        if ev.ch_type == input::UKC_RESET {
+        if ev.ch_type == input::CHAR_RESET {
             // Enter and the other control characters start a sentence.
             self.capitalise_next = true;
             return false;
@@ -201,7 +203,7 @@ impl Engine {
             self.capitalise_next = true;
             return false;
         }
-        if ev.ch_type == input::UKC_WORD_BREAK {
+        if ev.ch_type == input::CHAR_WORD_BREAK {
             // A space neither arms nor disarms, so `mot. hai` capitalises
             // `hai` while `mot hai` does not.
             return false;
@@ -209,7 +211,7 @@ impl Engine {
         if !self.capitalise_next {
             return false;
         }
-        if ev.ch_type != input::UKC_VN || ev.vn_sym.is_non_vn() {
+        if ev.ch_type != input::CHAR_VN || ev.vn_sym.is_non_vn() {
             // A digit or a bracket ends the wait without consuming it,
             // which is what a typist expects.
             self.capitalise_next = false;
@@ -228,12 +230,12 @@ impl Engine {
         ev.vn_sym != was
     }
 
-
+    /// Rewrites doubled consonants according to Quick Telex rules (e.g. `cc` -> `ch`, `uu` -> `ươ`).
     pub(super) fn apply_quick_telex(&mut self, ev: &mut KeyEvent) -> Option<i32> {
         if !self.options.quick_telex || self.current < 0 {
             return None;
         }
-        if ev.ev_type != input::NORMAL || ev.ch_type != input::UKC_VN {
+        if ev.ev_type != input::NORMAL || ev.ch_type != input::CHAR_VN {
             return None;
         }
         // `uu` for u horn plus o horn. The one shortcut that rewrites a
@@ -256,7 +258,7 @@ impl Engine {
                 let code = if upper { b'O' as u32 } else { b'o' as u32 };
                 let mut sub = self.input.key_code_to_event(code);
                 sub.ev_type = input::NORMAL;
-                sub.ch_type = input::UKC_VN;
+                sub.ch_type = input::CHAR_VN;
                 sub.vn_sym = input::iso_to_lexi(code);
                 let _ = self.process_append(&mut sub);
                 let last = self.current;
@@ -297,6 +299,7 @@ impl Engine {
     }
 
 
+    /// Internal implementation of raw key strokes restoration.
     pub(super) fn restore_key_strokes_inner(
         &mut self,
         from_word_end: bool,
@@ -370,7 +373,7 @@ impl Engine {
         (true, self.backs, count)
     }
 
-
+    /// Rewrites onset or coda shortcuts if the resulting substitution produces a valid word.
     #[cfg(feature = "alloc")]
     pub(super) fn apply_quick_consonant(&mut self) -> bool {
         if !(self.options.quick_start_consonant || self.options.quick_end_consonant) {
@@ -389,9 +392,9 @@ impl Engine {
             return false;
         }
         // Keep the hot path allocation-free.  The engine's key ring is
-        // bounded by MAX_UK_ENGINE, so a stack scratch buffer is sufficient
+        // bounded by MAX_SKEY_ENGINE, so a stack scratch buffer is sufficient
         // for the current word and avoids a Vec allocation on every boundary.
-        let mut typed = [0u32; MAX_UK_ENGINE];
+        let mut typed = [0u32; MAX_SKEY_ENGINE];
         let typed_len = (self.key_current - start + 1) as usize;
         for (n, i) in (start..=self.key_current).enumerate() {
             typed[n] = self.keys[i as usize];
@@ -401,8 +404,7 @@ impl Engine {
         }
 
         // Build the candidates: onset only, coda only, then both. The
-        // first that produces a valid word wins, which matches the order
-        // OpenKey applies them in.
+        // first that produces a valid word wins.
         let onset = if self.options.quick_start_consonant {
             crate::extensions::quick::onset(typed[0] as u8)
         } else {
@@ -425,8 +427,8 @@ impl Engine {
             }
         };
 
-        let mut candidate = [0u32; MAX_UK_ENGINE];
-        let build = |use_onset: bool, use_coda: bool, candidate: &mut [u32; MAX_UK_ENGINE]| -> Option<usize> {
+        let mut candidate = [0u32; MAX_SKEY_ENGINE];
+        let build = |use_onset: bool, use_coda: bool, candidate: &mut [u32; MAX_SKEY_ENGINE]| -> Option<usize> {
             if use_onset && onset.is_none() {
                 return None;
             }
@@ -440,7 +442,7 @@ impl Engine {
             // stack scratch bounded; oversized words cannot be replayed by
             // the fixed-capacity engine anyway.
             let expansion = use_onset as usize + use_coda as usize;
-            if typed_len + expansion > MAX_UK_ENGINE {
+            if typed_len + expansion > MAX_SKEY_ENGINE {
                 return None;
             }
             let mut out_len = 0usize;
@@ -532,6 +534,7 @@ impl Engine {
     }
 
 
+    /// Handles word break keys (space, punctuation, enter), triggering macro expansion, quick consonant fixes, and spell check restorations.
     pub(super) fn process_word_end(&mut self, ev: &mut KeyEvent) -> i32 {
         if self.options.macro_enabled && self.macro_match(ev) != 0 {
             return 1;

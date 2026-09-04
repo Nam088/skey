@@ -1,4 +1,4 @@
-// @generated from archive/unikey-legacy/ukengine/vnlexi.h by core/tablegen/gen_lexi.py.
+// Phonetic constants and character classification.
 // The enum order is load bearing: parity encodes case, each tone
 // level is plus two. See the compile time assertions in lexi.rs.
 

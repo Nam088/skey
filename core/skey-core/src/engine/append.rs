@@ -13,12 +13,13 @@ use crate::phonetics::rules::{
 use crate::phonetics::tables::{self, VSEQ};
 
 impl Engine {
+    /// Classifies a key code under engine options (taking z, f, w, j rules into account).
     pub(super) fn char_type(&self, key_code: u32) -> u8 {
         if self.options.allow_consonant_zfwj
             && key_code < 128
             && matches!(key_code as u8 | 0x20, b'z' | b'f' | b'w' | b'j')
         {
-            return input::UKC_VN;
+            return input::CHAR_VN;
         }
         self.input.char_type(key_code)
     }
@@ -27,10 +28,10 @@ impl Engine {
     /// original kept was redundant.
     #[inline]
     pub(super) fn key_is_word_break(&self, i: i32) -> bool {
-        self.char_type(self.keys[i as usize]) == input::UKC_WORD_BREAK
+        self.char_type(self.keys[i as usize]) == input::CHAR_WORD_BREAK
     }
 
-
+    /// Marks that buffer contents starting at index `pos` have changed and accumulates backspaces.
     pub(super) fn mark_change(&mut self, pos: i32) {
         if pos < self.change_pos {
             self.backs += self.get_seq_steps(pos, self.change_pos - 1);
@@ -84,6 +85,7 @@ impl Engine {
         }
     }
 
+    /// Returns the standard character code formatted for output sink encoding.
     #[inline]
     pub(super) fn std_char_for_output(&self, e: &WordInfo) -> u32 {
         if !e.vn_sym.is_non_vn() {
@@ -95,6 +97,7 @@ impl Engine {
         }
     }
 
+    /// Encodes and writes changed characters from `change_pos` up to `current` into the output buffer.
     pub(super) fn write_output(&mut self) {
         self.out.reset();
         let mut enc = Encoder::new(self.charset);
@@ -110,7 +113,7 @@ impl Engine {
 
     /// Keep at least ten entries available.
     pub(super) fn prepare_buffer(&mut self) {
-        if self.current >= 0 && self.current as usize + 10 >= MAX_UK_ENGINE {
+        if self.current >= 0 && self.current as usize + 10 >= MAX_SKEY_ENGINE {
             // Drop at least half the entries, never from mid word.
             // The original evaluates the buffer read before the bound
             // check; `rid <= current < 128` keeps that in range.
@@ -128,7 +131,7 @@ impl Engine {
             }
         }
 
-        if self.key_current > 0 && self.key_current as usize + 1 >= MAX_UK_ENGINE {
+        if self.key_current > 0 && self.key_current as usize + 1 >= MAX_SKEY_ENGINE {
             let rid = self.key_current / 2;
             let n = (self.key_current - rid + 1) as usize;
             self.keys.copy_within(rid as usize..(rid as usize + n), 0);
@@ -138,20 +141,21 @@ impl Engine {
         }
     }
 
+    /// Appends a key event to the word buffer, routing vowels, consonants, word breaks, and non-VN characters.
     pub(super) fn process_append(&mut self, ev: &mut KeyEvent) -> i32 {
         match ev.ch_type {
-            input::UKC_RESET => {
+            input::CHAR_RESET => {
                 // The original also matches macros on ENTER, but only
                 // under #if defined(_WIN32). The POSIX build does not,
                 // and neither does this port.
                 self.reset();
                 0
             }
-            input::UKC_WORD_BREAK => {
+            input::CHAR_WORD_BREAK => {
                 self.single_mode = false;
                 self.process_word_end(ev)
             }
-            input::UKC_NON_VN => {
+            input::CHAR_NON_VN => {
                 if self.viet_key
                     && self.charset.0 == charset::VIQR
                     && self.check_escape_viqr(ev) != 0
@@ -177,7 +181,7 @@ impl Engine {
                 1
             }
             _ => {
-                // UKC_VN
+                // CHAR_VN
                 if is_vowel(ev.vn_sym) {
                     let v = std_no_tone(ev.vn_sym.to_lower());
                     if self.current >= 0
@@ -199,6 +203,7 @@ impl Engine {
 // -------------------------------------------------------- append paths
 
 impl Engine {
+    /// Appends a vowel to the current word buffer, checking phonotactics and shifting tone positions if needed.
     pub(super) fn append_vowel(&mut self, ev: &mut KeyEvent) -> i32 {
         let auto_completed = false;
 
@@ -368,6 +373,7 @@ impl Engine {
         1
     }
 
+    /// Appends a consonant to the current word buffer, handling onsets (`C1`) and codas (`C2`).
     pub(super) fn append_consonnant(&mut self, ev: &mut KeyEvent) -> i32 {
         let mut complex_event = false;
         self.current += 1;
@@ -574,6 +580,7 @@ impl Engine {
         }
     }
 
+    /// Processes an escape character trigger to bypass typing rules.
     pub(super) fn process_esc_char(&mut self, ev: &mut KeyEvent) -> i32 {
         if self.viet_key
             && self.current >= 0
@@ -585,7 +592,7 @@ impl Engine {
         self.process_append(ev)
     }
 
-
+    /// Appends a character starting a new word when spell check is disabled or in single mode.
     pub(super) fn process_no_spell_check(&mut self, ev: &KeyEvent) -> i32 {
         let sym = self.cur().vn_sym;
         if is_vowel(sym) {
@@ -615,6 +622,8 @@ impl Engine {
         self.mark_change(self.current);
         1
     }
+
+    /// Synchronizes the key stroke ring buffer by decrementing the cursor after a backspace.
     pub(super) fn synch_key_stroke_buffer(&mut self) {
         if self.key_current >= 0 {
             self.key_current -= 1;

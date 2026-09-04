@@ -12,9 +12,19 @@ use crate::phonetics::seq;
 use crate::phonetics::tables::VSEQ;
 
 impl Engine {
-    /// One table load. `seq::TONE_POS` is generated from the same data at
-    /// compile time; the original's branch chain is kept below as a
-    /// debug time shadow so the two can never drift apart unnoticed.
+    /// Calculates the 0-indexed position within vowel sequence `vs` where a tone mark should land.
+    ///
+    /// ### Tone Placement Rules
+    ///
+    /// 1. Single vowel (`len == 1`): Tone is always on index 0.
+    /// 2. Circumflex / roof present (`roof_pos != -1`): Tone lands on the roof vowel (`â`, `ê`, `ô`).
+    /// 3. Horn / hook present (`hook_pos != -1`): Tone lands on the horn vowel (`ơ`, `ư`),
+    ///    with special handling for `ươ`, `ươi`, `ươu` where tone lands on `ơ` (index 1).
+    /// 4. Three-vowel sequence (`len == 3`): Tone lands on the middle vowel (index 1).
+    /// 5. Two vowels:
+    ///    - Under modern style ([`Options::modern_style`](crate::Options::modern_style)), `oa`, `oe`, `uy` place tone on index 1 (`hòa`, `hòe`, `thúy`).
+    ///    - Otherwise, if closed by an ending consonant (`terminated == true`), tone lands on index 0;
+    ///      if open (`terminated == false`), tone lands on index 1.
     #[inline]
     pub(super) fn get_tone_position(&self, vs: VSeq, terminated: bool) -> i32 {
         let r = seq::tone_pos(vs, terminated, self.options.modern_style);
@@ -67,6 +77,7 @@ impl Engine {
     }
 
 
+    /// Processes a roof/circumflex modifier key (e.g. `aa` -> `â`, `ee` -> `ê`, `oo` -> `ô`).
     pub(super) fn process_roof(&mut self, ev: &mut KeyEvent) -> i32 {
         if !self.viet_key || self.current < 0 || self.cur().v_offset() < 0 {
             return self.process_append(ev);
@@ -324,6 +335,7 @@ impl Engine {
         1
     }
 
+    /// Processes a hook/horn modifier key (e.g. `aw` -> `ă`, `ow` -> `ơ`, `uw` -> `ư`).
     pub(super) fn process_hook(&mut self, ev: &mut KeyEvent) -> i32 {
         if !self.viet_key || self.current < 0 || self.cur().v_offset() < 0 {
             return self.process_append(ev);
@@ -466,6 +478,7 @@ impl Engine {
         1
     }
 
+    /// Processes a tone modifier key (acute, grave, hook above, tilde, dot below).
     pub(super) fn process_tone(&mut self, ev: &mut KeyEvent) -> i32 {
         if self.current < 0 || !self.viet_key {
             return self.process_append(ev);
@@ -535,6 +548,7 @@ impl Engine {
         1
     }
 
+    /// Processes a d-stroke modifier key (e.g. `dd` -> `đ`).
     pub(super) fn process_dd(&mut self, ev: &mut KeyEvent) -> i32 {
         if !self.viet_key || self.current < 0 {
             return self.process_append(ev);
@@ -600,6 +614,7 @@ impl Engine {
         self.process_append(ev)
     }
 
+    /// Processes an explicit mapped character from a custom key map table.
     pub(super) fn process_map_char(&mut self, ev: &mut KeyEvent) -> i32 {
         if self.caps_lock_on && !(ev.key_code < 128 && (ev.key_code as u8 as char).is_alphabetic())
         {
@@ -672,6 +687,7 @@ impl Engine {
         ret
     }
 
+    /// Processes the `w` keystroke in Telex mode (acts either as a hook modifier or standalone `ư`).
     pub(super) fn process_telex_w(&mut self, ev: &mut KeyEvent) -> i32 {
         if !self.viet_key {
             return self.process_append(ev);
@@ -682,7 +698,7 @@ impl Engine {
         if self.used_as_map_char {
             ev.ev_type = input::MAP_CHAR;
             ev.vn_sym = if upper { L::Uh } else { L::uh };
-            ev.ch_type = input::UKC_VN;
+            ev.ch_type = input::CHAR_VN;
             let ret = self.process_map_char(ev);
             if ret == 0 {
                 if self.current >= 0 {
@@ -704,13 +720,14 @@ impl Engine {
             }
             ev.ev_type = input::MAP_CHAR;
             ev.vn_sym = if upper { L::Uh } else { L::uh };
-            ev.ch_type = input::UKC_VN;
+            ev.ch_type = input::CHAR_VN;
             self.used_as_map_char = true;
             return self.process_map_char(ev);
         }
         ret
     }
 
+    /// Checks whether VIQR escape character prefixing is needed.
     pub(super) fn check_escape_viqr(&mut self, ev: &KeyEvent) -> i32 {
         if self.current < 0 {
             return 0;
@@ -739,7 +756,7 @@ impl Engine {
         }
 
         if escape {
-            let word_break = ev.ch_type == input::UKC_WORD_BREAK;
+            let word_break = ev.ch_type == input::CHAR_WORD_BREAK;
             for k in 0..2 {
                 self.current += 1;
                 let p = self.bm(self.current);

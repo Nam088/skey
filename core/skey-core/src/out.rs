@@ -1,15 +1,22 @@
 //! Output sinks.
 //!
-//! `OutBuf` mirrors `StringBOStream`: the byte counter is incremented
-//! before the capacity check, so the reported size can exceed what was
-//! actually stored once the caller's buffer is full. That is the
-//! original's behaviour and the macro path can reach it, so it is
-//! modelled rather than smoothed over.
+//! `OutBuf` maintains a fixed-capacity byte buffer and a count of
+//! requested bytes.
 
-pub const OUT_CAPACITY: usize = 1024; // matches UnikeyBuf[1024]
+/// Default capacity in bytes for output buffers.
+pub const OUT_CAPACITY: usize = 1024;
 
 /// Anything a charset can write bytes into.
 pub trait Sink {
+    /// Writes a single byte into the sink.
+    ///
+    /// ### Arguments
+    ///
+    /// - `b`: Byte value to write.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if the byte was accepted; `false` if capacity was exceeded or sink was in error.
     fn put(&mut self, b: u8) -> bool;
 
     /// Two and three byte writes. The defaults are exactly two and three
@@ -21,6 +28,15 @@ pub trait Sink {
     /// the whole group fit" check would store nothing and report a
     /// different count. The count is observable: `writeOutput` assigns it
     /// to the size the caller reads.
+    ///
+    /// ### Arguments
+    ///
+    /// - `b0`: First byte to write.
+    /// - `b1`: Second byte to write.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if both bytes were accepted; `false` otherwise.
     #[inline]
     fn put2(&mut self, b0: u8, b1: u8) -> bool {
         let a = self.put(b0);
@@ -28,6 +44,17 @@ pub trait Sink {
         a && b
     }
 
+    /// Writes three bytes sequentially into the sink.
+    ///
+    /// ### Arguments
+    ///
+    /// - `b0`: First byte to write.
+    /// - `b1`: Second byte to write.
+    /// - `b2`: Third byte to write.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if all three bytes were accepted; `false` otherwise.
     #[inline]
     fn put3(&mut self, b0: u8, b1: u8, b2: u8) -> bool {
         let a = self.put(b0);
@@ -40,6 +67,7 @@ pub trait Sink {
 /// Counts bytes without storing them, for backspace arithmetic.
 #[derive(Default)]
 pub struct Counter {
+    /// Accumulated byte count.
     pub n: usize,
 }
 
@@ -51,16 +79,12 @@ impl Sink for Counter {
     }
 }
 
-/// The original hands charsets a `ByteOutStream` over the caller's
-/// buffer, but two paths bypass the stream and index the buffer
-/// directly: the VIQR escape writes positions 0 and 1 and overwrites the
-/// reported size, and the key stroke restore walks its own local cursor.
-/// Both can be live at the same time, so the buffer exposes an appending
-/// `put` and an absolute `write_at` over one shared `count`.
+/// Fixed-size output buffer exposing an appending `put` and an absolute
+/// `write_at` over one shared `count`.
 #[derive(Clone, Copy)]
 pub struct OutBuf {
     bytes: [u8; OUT_CAPACITY],
-    /// Bytes the writer asked for, `StringBOStream::m_out`.
+    /// Bytes requested by the writer.
     count: usize,
     cap: usize,
     bad: bool,
@@ -131,6 +155,18 @@ impl OutBuf {
         !self.bad && self.count + n <= self.cap
     }
 
+    /// Resets the buffer cursor to 0, clearing error states and restoring maximum capacity.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::{OutBuf, Sink};
+    ///
+    /// let mut buf = OutBuf::default();
+    /// buf.put(b'x');
+    /// buf.reset();
+    /// assert!(buf.is_empty());
+    /// ```
     pub fn reset(&mut self) {
         self.count = 0;
         self.bad = false;
@@ -138,6 +174,21 @@ impl OutBuf {
     }
 
     /// Direct indexed write, for the paths that bypass the stream.
+    ///
+    /// ### Arguments
+    ///
+    /// - `idx`: Zero-based index within the buffer.
+    /// - `b`: Byte to store at `idx`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::OutBuf;
+    ///
+    /// let mut buf = OutBuf::default();
+    /// buf.write_at(0, b'a');
+    /// assert_eq!(buf.bytes_up_to(1), b"a");
+    /// ```
     #[inline]
     pub fn write_at(&mut self, idx: usize, b: u8) {
         if idx < self.cap {
@@ -146,17 +197,63 @@ impl OutBuf {
     }
 
     /// Overrides the reported size, as assigning to `*m_pOutSize` does.
+    ///
+    /// ### Arguments
+    ///
+    /// - `n`: New byte count to set.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::OutBuf;
+    ///
+    /// let mut buf = OutBuf::default();
+    /// buf.set_count(5);
+    /// assert_eq!(buf.len(), 5);
+    /// ```
     #[inline]
     pub fn set_count(&mut self, n: usize) {
         self.count = n;
     }
 
+    /// Returns the maximum capacity of the output buffer.
+    ///
+    /// ### Returns
+    ///
+    /// Maximum number of bytes the buffer can hold ([`OUT_CAPACITY`]).
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::{OutBuf, OUT_CAPACITY};
+    ///
+    /// let buf = OutBuf::default();
+    /// assert_eq!(buf.capacity(), OUT_CAPACITY);
+    /// ```
     #[inline]
     pub fn capacity(&self) -> usize {
         self.cap
     }
 
-    /// Two byte little endian, as `StringBOStream::putW`.
+    /// Writes a 16-bit word in little-endian order.
+    ///
+    /// ### Arguments
+    ///
+    /// - `w`: 16-bit unsigned integer to write.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if both bytes fit in the buffer; `false` on overflow.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::OutBuf;
+    ///
+    /// let mut buf = OutBuf::default();
+    /// assert!(buf.put_w_le(0x1234));
+    /// assert_eq!(buf.bytes_up_to(2), &[0x34, 0x12]);
+    /// ```
     #[inline]
     pub fn put_w_le(&mut self, w: u16) -> bool {
         let a = self.put((w & 0xFF) as u8);
@@ -164,27 +261,104 @@ impl OutBuf {
         a && b
     }
 
-    /// The size the original reports to the caller.
+    /// Returns the current number of bytes in the output buffer.
+    ///
+    /// ### Returns
+    ///
+    /// Number of bytes written to the buffer.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::{OutBuf, Sink};
+    ///
+    /// let mut buf = OutBuf::default();
+    /// buf.put(b'c');
+    /// assert_eq!(buf.len(), 1);
+    /// ```
     #[inline]
     pub fn len(&self) -> usize {
         self.count
     }
+
+    /// Checks whether the output buffer is empty.
+    ///
+    /// ### Returns
+    ///
+    /// Returns `true` if `len() == 0`; otherwise `false`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::OutBuf;
+    ///
+    /// let buf = OutBuf::default();
+    /// assert!(buf.is_empty());
+    /// ```
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.count == 0
     }
+
+    /// Returns the remaining available byte capacity in the buffer.
+    ///
+    /// ### Returns
+    ///
+    /// The number of additional bytes that can be written before hitting capacity.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::{OutBuf, OUT_CAPACITY};
+    ///
+    /// let buf = OutBuf::default();
+    /// assert_eq!(buf.remaining(), OUT_CAPACITY);
+    /// ```
     #[inline]
     pub fn remaining(&self) -> usize {
         self.cap.saturating_sub(self.count)
     }
-    /// Bytes stored, clamped to `n`. The engine reports a size held
-    /// separately (`*m_pOutSize` in the original), which is not always
-    /// the stream's own counter.
+
+    /// Returns the slice of bytes written so far, clamped to `n` and buffer capacity.
+    ///
+    /// ### Arguments
+    ///
+    /// - `n`: Maximum number of bytes to include in the slice.
+    ///
+    /// ### Returns
+    ///
+    /// A byte slice `&[u8]` containing up to `n` bytes from the buffer start.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::{OutBuf, Sink};
+    ///
+    /// let mut buf = OutBuf::default();
+    /// buf.put(b'h');
+    /// buf.put(b'i');
+    /// assert_eq!(buf.bytes_up_to(2), b"hi");
+    /// ```
     #[inline]
     pub fn bytes_up_to(&self, n: usize) -> &[u8] {
         let n = if n < self.cap { n } else { self.cap };
         &self.bytes[..n]
     }
+
+    /// Returns `true` if no write overflow or bad state has occurred.
+    ///
+    /// ### Returns
+    ///
+    /// `true` if healthy, `false` if an overflow occurred during any previous write.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::OutBuf;
+    ///
+    /// let buf = OutBuf::default();
+    /// assert!(buf.is_ok());
+    /// ```
     #[inline]
     pub fn is_ok(&self) -> bool {
         !self.bad
@@ -202,6 +376,27 @@ pub struct At<'a> {
 }
 
 impl<'a> At<'a> {
+    /// Creates a new sub-window into an [`OutBuf`] starting at `base` offset with capacity `cap`.
+    ///
+    /// ### Arguments
+    ///
+    /// - `buf`: Mutable reference to the parent [`OutBuf`].
+    /// - `base`: Byte offset in `buf` where window writes begin.
+    /// - `cap`: Maximum number of bytes allowed in this sub-window.
+    ///
+    /// ### Returns
+    ///
+    /// An [`At`] sink writing into `buf` starting at `base`.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::{At, OutBuf};
+    ///
+    /// let mut buf = OutBuf::default();
+    /// let window = At::new(&mut buf, 0, 10);
+    /// assert_eq!(window.count(), 0);
+    /// ```
     pub fn new(buf: &'a mut OutBuf, base: usize, cap: usize) -> Self {
         At {
             buf,
@@ -210,6 +405,23 @@ impl<'a> At<'a> {
             count: 0,
         }
     }
+
+    /// Returns the total number of bytes written to this window.
+    ///
+    /// ### Returns
+    ///
+    /// The count of bytes attempted/written to the window.
+    ///
+    /// ### Examples
+    ///
+    /// ```
+    /// use skey_core::out::{At, OutBuf, Sink};
+    ///
+    /// let mut buf = OutBuf::default();
+    /// let mut window = At::new(&mut buf, 0, 10);
+    /// window.put(b'a');
+    /// assert_eq!(window.count(), 1);
+    /// ```
     pub fn count(&self) -> usize {
         self.count
     }

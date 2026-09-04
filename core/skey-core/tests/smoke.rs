@@ -1,6 +1,6 @@
 //! Behaviour checks that need neither the testkit nor an allocator, so
 //! they also run under:
-//!     cargo test -p unikey-core --no-default-features --test smoke
+//!     cargo test -p skey-core --no-default-features --test smoke
 use skey_core::{charset::Charset, Engine, Options};
 
 fn type_bytes(im: i32, cs: i32, keys: &str) -> Vec<Vec<u8>> {

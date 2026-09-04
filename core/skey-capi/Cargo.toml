@@ -2,7 +2,7 @@
 name = "skey-capi"
 version = "0.1.0"
 edition = "2021"
-description = "C ABI for SKey Vietnamese typing engine"
+description = "SKey - Bộ gõ tiếng Việt macOS (C API)"
 license = "GPL-2.0-or-later"
 
 [lib]

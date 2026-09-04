@@ -1,15 +1,13 @@
-//! User defined key map files.
+//! User-defined key mapping parser and serializer.
 //!
-//! Port of `usrkeymap.cpp`. The parser works on bytes so the core stays
-//! free of file handling; a front end reads the file and hands the
-//! contents over.
+//! Operates directly on byte buffers, keeping the core engine pure and free of I/O operations.
 
 use alloc::vec::Vec;
 
 use crate::input::{self, EV_COUNT, NORMAL};
 use crate::lexi_consts as L;
 
-/// `UkEvLabelList`, declared once and used two ways: a match for the
+/// Event label list, declared once and used two ways: a match for the
 /// forward direction, which rustc turns into a length switch and then a
 /// jump table, and a flat slice for the reverse, which only the file
 /// writer needs. One list means they cannot drift.
@@ -109,10 +107,12 @@ fn parse_name_value(line: &[u8]) -> Option<(&[u8], &[u8])> {
     Some((name, &line[value_start..vmark + 1]))
 }
 
-/// One accepted mapping, in file order. `UkLoadKeyOrderMap`.
+/// One accepted mapping, in file order.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct KeyMapPair {
+    /// ASCII character / key code being mapped.
     pub key: u8,
+    /// Action or character mapped to this key.
     pub action: u16,
 }
 
@@ -123,9 +123,27 @@ fn as_action_byte(a: u16) -> u8 {
     a as u8
 }
 
-/// `UkLoadKeyOrderMap`: returns the mappings in file order. A key that is
-/// already assigned is silently rejected, and an unknown label is
-/// reported to stderr by the original and simply skipped here.
+/// Parses user-defined key mappings from raw configuration file bytes in file order.
+///
+/// A key that is already assigned is silently rejected, and an unknown label is skipped.
+///
+/// ### Arguments
+///
+/// - `data`: Raw bytes of the keymap configuration file (lines formatted as `key = action`).
+///
+/// ### Returns
+///
+/// Returns a [`Vec<KeyMapPair>`] preserving the order of parsed definitions.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::extensions::keymap::parse_order_map;
+///
+/// let config = b"s = Tone1\nf = Tone2\n";
+/// let pairs = parse_order_map(config);
+/// assert_eq!(pairs.len(), 2);
+/// ```
 pub fn parse_order_map(data: &[u8]) -> Vec<KeyMapPair> {
     let mut key_map = [NORMAL; 256];
     let mut out: Vec<KeyMapPair> = Vec::new();
@@ -163,9 +181,30 @@ pub fn parse_order_map(data: &[u8]) -> Vec<KeyMapPair> {
     out
 }
 
-/// `UkLoadKeyMap`: the order map collapsed into the 256 entry table the
-/// input processor uses. Action keys apply to both cases; character
-/// mappings carry their own case.
+/// The order map collapsed into the 256 entry table the
+/// input processor uses.
+///
+/// Action keys apply to both cases; character mappings carry their own case.
+///
+/// ### Arguments
+///
+/// - `data`: Raw bytes of the keymap configuration file.
+///
+/// ### Returns
+///
+/// A `[u8; 256]` array mapping each ASCII byte value to its corresponding action code.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::extensions::keymap::parse_key_map;
+/// use skey_core::input::TONE1;
+///
+/// let config = b"s = Tone1\n";
+/// let map = parse_key_map(config);
+/// assert_eq!(map[b's' as usize], TONE1 as u8);
+/// assert_eq!(map[b'S' as usize], TONE1 as u8);
+/// ```
 pub fn parse_key_map(data: &[u8]) -> [u8; 256] {
     let mut map = [NORMAL as u8; 256];
     for p in parse_order_map(data) {
@@ -177,11 +216,30 @@ pub fn parse_key_map(data: &[u8]) -> [u8; 256] {
     map
 }
 
-/// `UkStoreKeyOrderMap`.
+/// Stores key order map into string formatted as a standard SKey configuration file.
+///
+/// ### Arguments
+///
+/// - `pairs`: Slice of [`KeyMapPair`] items to serialize.
+///
+/// ### Returns
+///
+/// Returns a formatted [`String`] containing comments and `key = action` entries.
+///
+/// ### Examples
+///
+/// ```
+/// use skey_core::extensions::keymap::{write_order_map, KeyMapPair};
+/// use skey_core::input::TONE1;
+///
+/// let pairs = [KeyMapPair { key: b's', action: TONE1 }];
+/// let text = write_order_map(&pairs);
+/// assert!(text.contains("s = Tone1"));
+/// ```
 pub fn write_order_map(pairs: &[KeyMapPair]) -> alloc::string::String {
     use alloc::string::String;
     let mut s = String::from(
-        "; This is UniKey user-defined key mapping file, generated from UniKey (Windows)\n\n",
+        "; SKey user-defined key mapping file\n\n",
     );
     for p in pairs {
         if let Some(label) = action_label(p.action) {
