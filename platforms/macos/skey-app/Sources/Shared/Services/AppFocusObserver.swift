@@ -20,9 +20,13 @@ public final class AppFocusObserver {
     private var _currentPID: pid_t = 0
     private var _currentBundleID: String?
     private var _currentCategory: AppCategory = .nativeApp
+    private var _currentNeedsPerCharacterInjection = true
 
     private static var cache: [String: AppCategory] = [:]
     private static var cacheLock = os_unfair_lock()
+
+    private static var perCharCache: [String: Bool] = [:]
+    private static var perCharCacheLock = os_unfair_lock()
 
     // MARK: - Dynamic Classification Engine
 
@@ -90,6 +94,56 @@ public final class AppFocusObserver {
         return .nativeApp
     }
 
+    // MARK: - Injection Capability Detection
+
+    /// Whether injected text must be delivered one character per `CGEvent` for this app.
+    ///
+    /// Qt hosts discard any `CGEvent` whose unicode string holds more than one character,
+    /// dropping the entire replacement while still applying the backspaces that preceded it.
+    /// Measured on TeXstudio 4.9.7 (Qt 6): every replacement of two characters or more was
+    /// lost, every single-character one arrived. AppKit and Chromium accept both forms.
+    ///
+    /// Deliberately kept separate from `AppCategory`: this answers one narrow question about
+    /// event delivery, while the category drives recomposition and selection heuristics.
+    /// Folding the two would change behaviour for apps that merely happen to embed Qt.
+    ///
+    /// Defaults to `true` when the bundle cannot be inspected, so an unknown app takes the
+    /// slower path that works everywhere rather than the faster one that silently eats text.
+    public static func needsPerCharacterInjection(for bundleID: String?, bundleURL: URL? = nil) -> Bool {
+        guard let bundleID, !bundleID.isEmpty else { return true }
+
+        os_unfair_lock_lock(&perCharCacheLock)
+        if let cached = perCharCache[bundleID] {
+            os_unfair_lock_unlock(&perCharCacheLock)
+            return cached
+        }
+        os_unfair_lock_unlock(&perCharCacheLock)
+
+        let url = bundleURL ?? NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID)
+        let detected = containsQtRuntime(bundleURL: url)
+
+        os_unfair_lock_lock(&perCharCacheLock)
+        perCharCache[bundleID] = detected
+        os_unfair_lock_unlock(&perCharCacheLock)
+        return detected
+    }
+
+    /// Detects a bundled Qt runtime, shipped either as `Qt*.framework` or as `libQt*.dylib`.
+    /// Both layouts are common, so the directory is scanned by name rather than probing a
+    /// fixed list of paths.
+    private static func containsQtRuntime(bundleURL: URL?) -> Bool {
+        guard let bundleURL else { return true }
+        let frameworks = bundleURL.appendingPathComponent("Contents/Frameworks")
+        guard let entries = try? FileManager.default.contentsOfDirectory(atPath: frameworks.path) else {
+            // No Frameworks directory at all means no bundled Qt. A plain AppKit app looks
+            // exactly like this, and those were verified to accept multi-character events.
+            return false
+        }
+        return entries.contains { name in
+            name.hasPrefix("Qt") || name.hasPrefix("libQt")
+        }
+    }
+
     // MARK: - State Accessors
 
     public var currentPID: pid_t {
@@ -105,6 +159,13 @@ public final class AppFocusObserver {
     public var currentCategory: AppCategory {
         os_unfair_lock_lock(&lock); defer { os_unfair_lock_unlock(&lock) }
         return _currentCategory
+    }
+
+    /// Cached answer for the frontmost app. Read on the event tap hot path, so it must never
+    /// touch the filesystem: the value is resolved once per app activation.
+    public var currentNeedsPerCharacterInjection: Bool {
+        os_unfair_lock_lock(&lock); defer { os_unfair_lock_unlock(&lock) }
+        return _currentNeedsPerCharacterInjection
     }
 
     private init() {
@@ -134,6 +195,7 @@ public final class AppFocusObserver {
         guard let app else {
             os_unfair_lock_lock(&lock)
             _currentPID = 0; _currentBundleID = nil; _currentCategory = .nativeApp
+            _currentNeedsPerCharacterInjection = true
             os_unfair_lock_unlock(&lock)
             return
         }
@@ -143,6 +205,7 @@ public final class AppFocusObserver {
         let pid = app.processIdentifier
         let bundleID = app.bundleIdentifier
         let category = Self.category(for: bundleID, bundleURL: app.bundleURL)
+        let needsPerChar = Self.needsPerCharacterInjection(for: bundleID, bundleURL: app.bundleURL)
 
         if category == .webBrowser || category == .spotlight {
             let appElem = AXUIElementCreateApplication(app.processIdentifier)
@@ -154,6 +217,7 @@ public final class AppFocusObserver {
         _currentPID = pid
         _currentBundleID = bundleID
         _currentCategory = category
+        _currentNeedsPerCharacterInjection = needsPerChar
         os_unfair_lock_unlock(&lock)
     }
 }
