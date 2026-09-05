@@ -1,6 +1,6 @@
 cask "skey" do
-  version "1.0.11"
-  sha256 "1ade0069f5451e2003bff38d4ea1de61c037c4bf94837efdfab8e178f2a862f0"
+  version "1.0.12"
+  sha256 "88d04c40b8efbaf37d888d7c50ed6d7edf551960fcaa5f30d6d50ece110c4276"
 
   # Release tags are platform prefixed (mac-v1.0.10). The previous "v#{version}" form
   # pointed at tags that have never existed, so every brew install fetched a 404.
