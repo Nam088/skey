@@ -1,8 +1,15 @@
 name: Release - Windows
 
 on:
+  # Deliberately not triggered by pushes to main. Both release workflows used to fire on
+  # every commit with no `paths` filter, so a macOS-only change cut a Windows tag and
+  # published a Windows build containing nothing new. Three commits on 2026-09-05 burned
+  # six tags across both platforms that way, and every one of those releases was pushed at
+  # users as an update. Version numbers tracked commit count rather than anything a user
+  # would recognise.
+  #
+  # Releasing is now an explicit act: push a win-v* tag, or run this workflow by hand.
   push:
-    branches: [main]
     tags:
       - 'win-v*'
   workflow_dispatch:
@@ -58,7 +65,7 @@ jobs:
 
       - name: Auto Tag
         id: auto_tag
-        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           git fetch --tags --force

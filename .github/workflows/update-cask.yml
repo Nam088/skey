@@ -2,7 +2,10 @@ name: Update Homebrew Cask
 
 on:
   workflow_run:
-    workflows: ["Build & Release SKey macOS"]
+    # Must match `name:` in release-macos.yml exactly. It was renamed to
+    # "Release - macOS" and this string was left behind, so the cask silently
+    # stopped updating after 2026-08-31 while releases kept shipping.
+    workflows: ["Release - macOS"]
     types: [completed]
 
 permissions:
@@ -23,9 +26,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.workflow_run.head_branch }}
         run: |
-          TAG=$(gh release view --repo ${{ github.repository }} --json tagName --jq '.tagName')
+          # `gh release view` with no tag returns the newest release of ANY platform, and
+          # this repo publishes win-v* into the same repo. Pick the newest mac-v* release by
+          # version, not by list position: GitHub does not return releases newest-first.
+          TAG=$(gh release list --repo ${{ github.repository }} --limit 50 \
+                  --json tagName,isDraft,isPrerelease \
+                  --jq '[.[] | select(.isDraft == false and .isPrerelease == false)
+                             | select(.tagName | startswith("mac-v")) | .tagName]
+                        | sort_by(.[5:] | split(".") | map(tonumber)) | last')
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            echo "::error::No published mac-v* release found"
+            exit 1
+          fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          VERSION="${TAG#v}"
+          # Strip the platform prefix: the cask's url interpolates mac-v#{version}.
+          VERSION="${TAG#mac-v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
           DMG_URL=$(gh release view "$TAG" --repo ${{ github.repository }} --json assets --jq '.assets[] | select(.name | endswith(".dmg")) | .url')
