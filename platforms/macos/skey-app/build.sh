@@ -73,8 +73,17 @@ if [[ "$BUILD_MODE" == "debug" ]]; then
     SWIFT_OPT_FLAGS=(-Onone)
 fi
 
+# Must match scripts/build_release.sh. Without an explicit -target, swiftc stamps the build
+# host's OS version as the minimum, so a dev machine on a newer macOS silently produces a
+# binary that will not launch on the versions we claim to support, and local testing then
+# says nothing about what users receive.
+MACOS_DEPLOYMENT_TARGET="14.0"
+HOST_ARCH="$(uname -m)"
+[[ "$HOST_ARCH" == "arm64" ]] || HOST_ARCH="x86_64"
+
 swiftc "${SWIFT_OPT_FLAGS[@]}" \
     "${DEBUG_FLAG[@]}" \
+    -target "${HOST_ARCH}-apple-macos${MACOS_DEPLOYMENT_TARGET}" \
     -import-objc-header "$SCRIPT_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/core/skey-capi/include" \
     -I "$SCRIPT_DIR/Sources/CSKey/include" \

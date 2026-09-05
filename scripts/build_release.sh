@@ -64,9 +64,17 @@ while IFS= read -r -d '' file; do
     SWIFT_FILES+=("$file")
 done < <(find "$APP_DIR/Sources" -name "*.swift" -print0)
 
+# Deployment target vs SDK are two separate dials, and conflating them shipped a broken
+# binary once already: `-target ...macos26.0` on a macOS 14 runner produced `minos 26.0,
+# sdk 14.5`, an app that refused to launch below macOS 26 yet was built against the old SDK
+# so it never got Liquid Glass either. Keep this at the oldest macOS we support; the SDK
+# comes from whichever Xcode the runner selects, and building against the macOS 26 SDK is
+# what grants Liquid Glass on macOS 26 regardless of the value below.
+MACOS_DEPLOYMENT_TARGET="14.0"
+
 # Compile arm64 binary
 swiftc -O -wmo \
-    -target arm64-apple-macos26.0 \
+    -target "arm64-apple-macos${MACOS_DEPLOYMENT_TARGET}" \
     -import-objc-header "$APP_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/core/skey-capi/include" \
     "${SWIFT_FILES[@]}" \
@@ -81,7 +89,7 @@ swiftc -O -wmo \
 
 # Compile x86_64 binary
 swiftc -O -wmo \
-    -target x86_64-apple-macos26.0 \
+    -target "x86_64-apple-macos${MACOS_DEPLOYMENT_TARGET}" \
     -import-objc-header "$APP_DIR/Support/BridgingHeader.h" \
     -I "$REPO_DIR/core/skey-capi/include" \
     "${SWIFT_FILES[@]}" \

@@ -18,17 +18,30 @@ on:
 jobs:
   build:
     name: Build macOS App
-    runs-on: macos-14
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode
+      - name: Select Xcode 26 (macOS 26 SDK)
         run: |
-          if [ -d "/Applications/Xcode_15.4.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_15.4.app
-          elif [ -d "/Applications/Xcode.app" ]; then
+          set -euo pipefail
+          # Liquid Glass is granted by the SDK an app links against, not by its deployment
+          # target, so the whole point of this runner is the macOS 26 SDK. Assert it instead
+          # of trusting the image default: a silent drop back to an older Xcode would ship a
+          # pre-Liquid-Glass build with a green tick, which is exactly how the previous
+          # "minos 26.0, sdk 14.5" binary reached users unnoticed.
+          if [ -d "/Applications/Xcode_26.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.app
+          else
             sudo xcode-select -s /Applications/Xcode.app
           fi
+          SDK_VERSION="$(xcrun --sdk macosx --show-sdk-version)"
+          echo "Xcode: $(xcodebuild -version | head -1)"
+          echo "macOS SDK: ${SDK_VERSION}"
+          case "$SDK_VERSION" in
+            26.*) ;;
+            *) echo "::error::Expected macOS SDK 26.x for Liquid Glass, got ${SDK_VERSION}"; exit 1 ;;
+          esac
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -70,6 +83,11 @@ jobs:
             -framework CryptoKit \
             -lsqlite3 \
             -o SKey.app/Contents/MacOS/SKey
+
+      - name: Verify binary target and SDK
+        run: |
+          bash scripts/verify_macos_binary.sh \
+            platforms/macos/skey-app/SKey.app/Contents/MacOS/SKey 14.0 26
 
       - name: Code sign
         run: |
