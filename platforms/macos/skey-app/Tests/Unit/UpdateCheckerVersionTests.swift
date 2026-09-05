@@ -59,6 +59,60 @@ final class UpdateCheckerVersionTests: XCTestCase {
                        .orderedSame)
     }
 
+    // MARK: - Choosing which release to offer
+
+    /// Mirrors the order GitHub actually returned for this repo on 2026-09-05. Note that it
+    /// is not newest-first: win-v1.0.9 precedes win-v1.0.10, and mac-v1.0.9 precedes
+    /// mac-v1.0.10. Taking the first matching entry would pin the updater to 1.0.9 and hide
+    /// every release after it.
+    private var realWorldListing: [[String: Any]] {
+        [
+            ["tag_name": "win-v1.0.9", "draft": false, "prerelease": false],
+            ["tag_name": "win-v1.0.10", "draft": false, "prerelease": false],
+            ["tag_name": "mac-v1.0.9", "draft": false, "prerelease": false],
+            ["tag_name": "mac-v1.0.10", "draft": false, "prerelease": false],
+            ["tag_name": "win-v1.0.8", "draft": false, "prerelease": false],
+            ["tag_name": "mac-v1.0.8", "draft": false, "prerelease": false],
+        ]
+    }
+
+    func testPicksHighestVersionNotFirstInList() {
+        let picked = UpdateCheckerService.newestRelease(in: realWorldListing, tagPrefix: "mac-v")
+        XCTAssertEqual(picked?["tag_name"] as? String, "mac-v1.0.10",
+                       "Must pick the highest mac version, not the first one the API happens to list")
+    }
+
+    func testNeverPicksAnotherPlatform() {
+        let picked = UpdateCheckerService.newestRelease(in: realWorldListing, tagPrefix: "mac-v")
+        let tag = picked?["tag_name"] as? String ?? ""
+        XCTAssertTrue(tag.hasPrefix("mac-v"),
+                      "A Windows release must never be offered to macOS users, got '\(tag)'")
+    }
+
+    func testSkipsDraftsAndPreReleases() {
+        let listing: [[String: Any]] = [
+            ["tag_name": "mac-v2.0.0", "draft": true, "prerelease": false],
+            ["tag_name": "mac-v1.9.0", "draft": false, "prerelease": true],
+            ["tag_name": "mac-v1.0.10", "draft": false, "prerelease": false],
+        ]
+        XCTAssertEqual(
+            UpdateCheckerService.newestRelease(in: listing, tagPrefix: "mac-v")?["tag_name"] as? String,
+            "mac-v1.0.10")
+    }
+
+    func testReturnsNilWhenNoMacReleaseExists() {
+        let listing: [[String: Any]] = [
+            ["tag_name": "win-v1.0.10", "draft": false, "prerelease": false],
+        ]
+        XCTAssertNil(UpdateCheckerService.newestRelease(in: listing, tagPrefix: "mac-v"))
+    }
+
+    func testDoubleDigitPatchOutranksSingleDigit() {
+        // Plain string ordering would rank "1.0.9" above "1.0.10"; numeric ordering must not.
+        XCTAssertEqual(UpdateCheckerService.compareSemVer(remote: "mac-v1.0.10", local: "1.0.9"),
+                       .orderedDescending)
+    }
+
     // MARK: - Never offer an update on garbage
 
     func testUnparseableVersionsCompareEqualRatherThanGuessing() {

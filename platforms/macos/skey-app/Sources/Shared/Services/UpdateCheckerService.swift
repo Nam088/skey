@@ -107,15 +107,7 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
                     return
                 }
 
-                // GitHub returns newest first. Take the newest macOS release that is actually
-                // published, skipping drafts and pre-releases.
-                let macRelease = releases.first { release in
-                    guard let tag = release["tag_name"] as? String,
-                          tag.hasPrefix(self.releaseTagPrefix) else { return false }
-                    let isDraft = (release["draft"] as? Bool) ?? false
-                    let isPrerelease = (release["prerelease"] as? Bool) ?? false
-                    return !isDraft && !isPrerelease
-                }
+                let macRelease = Self.newestRelease(in: releases, tagPrefix: self.releaseTagPrefix)
 
                 guard let json = macRelease,
                       let tagName = json["tag_name"] as? String,
@@ -289,6 +281,31 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
     }
 
     // MARK: - Semantic Versioning Comparison
+
+    /// Picks the highest-versioned published release carrying `tagPrefix`.
+    ///
+    /// Deliberately does not take the first match. GitHub's release list is not reliably
+    /// ordered newest first: this repo's own listing returns win-v1.0.9, win-v1.0.10,
+    /// mac-v1.0.9, mac-v1.0.10, so trusting position would pin the updater to 1.0.9 forever
+    /// and hide every release after it. Drafts and pre-releases are skipped.
+    nonisolated static func newestRelease(in releases: [[String: Any]], tagPrefix: String) -> [String: Any]? {
+        var best: [String: Any]?
+        var bestTag = ""
+
+        for release in releases {
+            guard let tag = release["tag_name"] as? String, tag.hasPrefix(tagPrefix) else { continue }
+            let isDraft = (release["draft"] as? Bool) ?? false
+            let isPrerelease = (release["prerelease"] as? Bool) ?? false
+            guard !isDraft, !isPrerelease else { continue }
+            guard !parseNumbers(tag).isEmpty else { continue }
+
+            if best == nil || compareSemVer(remote: tag, local: bestTag) == .orderedDescending {
+                best = release
+                bestTag = tag
+            }
+        }
+        return best
+    }
 
     /// Extracts the dotted numeric version out of a tag name.
     ///
