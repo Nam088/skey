@@ -31,6 +31,12 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
 
     private let repoOwner = "Nam088"
     private let repoName = "skey"
+
+    /// Tag prefix for macOS releases. The repo publishes Windows releases into the same
+    /// repository under `win-v*`, and `/releases/latest` returns whichever was published most
+    /// recently regardless of platform. Left unfiltered, a Windows release would be offered to
+    /// macOS users, download link included.
+    private let releaseTagPrefix = "mac-v"
     private var downloadTask: URLSessionDownloadTask?
     private var downloadSession: URLSession?
 
@@ -60,7 +66,9 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
 
         state = .checking
 
-        guard let url = URL(string: "https://api.github.com/repos/\(repoOwner)/\(repoName)/releases/latest") else {
+        // List releases instead of asking for /releases/latest: that endpoint is
+        // platform-blind and would hand macOS users whatever shipped last, Windows included.
+        guard let url = URL(string: "https://api.github.com/repos/\(repoOwner)/\(repoName)/releases?per_page=30") else {
             state = .error("Invalid API URL")
             return
         }
@@ -93,18 +101,37 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
                     return
                 }
 
-                guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      let tagName = json["tag_name"] as? String,
-                      let htmlUrlStr = json["html_url"] as? String,
-                      let htmlUrl = URL(string: htmlUrlStr) else {
+                guard let releases = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
                     if isManual { self.state = .error("Dữ liệu phản hồi không hợp lệ") }
                     else { self.state = .idle }
                     return
                 }
 
+                // GitHub returns newest first. Take the newest macOS release that is actually
+                // published, skipping drafts and pre-releases.
+                let macRelease = releases.first { release in
+                    guard let tag = release["tag_name"] as? String,
+                          tag.hasPrefix(self.releaseTagPrefix) else { return false }
+                    let isDraft = (release["draft"] as? Bool) ?? false
+                    let isPrerelease = (release["prerelease"] as? Bool) ?? false
+                    return !isDraft && !isPrerelease
+                }
+
+                guard let json = macRelease,
+                      let tagName = json["tag_name"] as? String,
+                      let htmlUrlStr = json["html_url"] as? String,
+                      let htmlUrl = URL(string: htmlUrlStr) else {
+                    // No macOS release published yet is a normal state, not an error.
+                    self.lastCheckDate = Date()
+                    self.state = isManual ? .upToDate : .idle
+                    return
+                }
+
                 self.lastCheckDate = Date()
                 let releaseNotes = (json["body"] as? String) ?? ""
-                let remoteVersion = tagName.trimmingCharacters(in: CharacterSet(charactersIn: "vV "))
+                let remoteVersion = tagName.hasPrefix(self.releaseTagPrefix)
+                    ? String(tagName.dropFirst(self.releaseTagPrefix.count))
+                    : tagName.trimmingCharacters(in: CharacterSet(charactersIn: "vV "))
 
                 // Find Universal Zip or DMG asset
                 var downloadUrl: URL?
@@ -113,6 +140,12 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
                         if let name = asset["name"] as? String,
                            let browserUrl = asset["browser_download_url"] as? String,
                            let url = URL(string: browserUrl) {
+                            // Belt and braces: the release is already filtered to mac-v*, but a
+                            // stray Windows asset attached there must never become the download.
+                            let lowercased = name.lowercased()
+                            if lowercased.contains("windows") || lowercased.hasSuffix(".msi") || lowercased.hasSuffix(".exe") {
+                                continue
+                            }
                             if name.hasSuffix(".zip") {
                                 downloadUrl = url
                                 break
@@ -257,15 +290,50 @@ public final class UpdateCheckerService: NSObject, ObservableObject, URLSessionD
 
     // MARK: - Semantic Versioning Comparison
 
-    public static func compareSemVer(remote: String, local: String) -> ComparisonResult {
-        func parseNumbers(_ str: String) -> [Int] {
-            let clean = str.trimmingCharacters(in: CharacterSet(charactersIn: "vV \t\n\r"))
-            let core = clean.components(separatedBy: "-").first ?? clean
-            return core.components(separatedBy: ".").compactMap { Int($0) }
+    /// Extracts the dotted numeric version out of a tag name.
+    ///
+    /// Release tags in this repo are platform prefixed (`mac-v1.0.9`, `win-v1.0.8`), and the
+    /// previous implementation split on `-` and kept the first piece, so `mac-v1.0.9` reduced
+    /// to `mac` and parsed to an empty array. Every comparison then treated the remote as
+    /// version 0 and reported "you are on the latest version", which disabled updates
+    /// entirely: even `mac-v2.0.0` looked older than a local `1.0.6`.
+    ///
+    /// Accepts `1.0.9`, `v1.0.9`, `mac-v1.0.9` and `1.0.9-beta.2` alike. Pre-release suffixes
+    /// are dropped, matching the previous intent.
+    nonisolated static func parseNumbers(_ str: String) -> [Int] {
+        let trimmed = str.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Prefer the digits following the last "v" (`mac-v1.0.9`), else the first digit run.
+        var start = trimmed.startIndex
+        if let vIndex = trimmed.lastIndex(where: { $0 == "v" || $0 == "V" }) {
+            let after = trimmed.index(after: vIndex)
+            if after < trimmed.endIndex, trimmed[after].isNumber {
+                start = after
+            }
+        }
+        if start == trimmed.startIndex, let firstDigit = trimmed.firstIndex(where: { $0.isNumber }) {
+            start = firstDigit
         }
 
+        let core = trimmed[start...].components(separatedBy: "-").first ?? ""
+        // Stop at the first non-numeric component so "1.0.x" yields [1, 0] rather than [1, 0]
+        // silently skipping a component and comparing the wrong positions against each other.
+        var numbers: [Int] = []
+        for component in core.components(separatedBy: ".") {
+            guard let value = Int(component) else { break }
+            numbers.append(value)
+        }
+        return numbers
+    }
+
+    nonisolated public static func compareSemVer(remote: String, local: String) -> ComparisonResult {
         let r = parseNumbers(remote)
         let l = parseNumbers(local)
+
+        // An unparseable side means we cannot honestly say anything about ordering, and
+        // guessing "up to date" is how this silently disabled updates for everyone. Treat it
+        // as equal so the caller reports no update rather than a wrong one.
+        guard !r.isEmpty, !l.isEmpty else { return .orderedSame }
         let maxCount = max(r.count, l.count)
 
         for i in 0..<maxCount {

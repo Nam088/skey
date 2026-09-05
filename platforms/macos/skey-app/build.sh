@@ -24,8 +24,13 @@ mkdir -p "$APP_BUNDLE/Contents/Resources"
 cp "$SCRIPT_DIR/Resources/Info.plist" "$APP_BUNDLE/Contents/Info.plist"
 
 # Dynamically stamp current version from git tag
-CURRENT_TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo "1.0.12")"
-CURRENT_VERSION="${CURRENT_TAG#v}"
+# Only macOS tags. The repo also carries win-v* tags, and an unfiltered `git describe`
+# picks whichever was cut last, which is how the About screen ended up announcing
+# "Phiên bản win-v1.0.6" on a macOS build. Strip the prefix too: CFBundleShortVersionString
+# must be a bare dotted version, or the update checker cannot parse its own version.
+CURRENT_TAG="$(git describe --tags --abbrev=0 --match 'mac-v*' 2>/dev/null || echo "mac-v1.0.12")"
+CURRENT_VERSION="${CURRENT_TAG#mac-v}"
+CURRENT_VERSION="${CURRENT_VERSION#v}"
 echo "==> Stamping version $CURRENT_VERSION into Info.plist..."
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $CURRENT_VERSION" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $CURRENT_VERSION" "$APP_BUNDLE/Contents/Info.plist" 2>/dev/null || true
