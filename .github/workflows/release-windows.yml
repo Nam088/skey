@@ -1,17 +1,26 @@
 name: Release - Windows
 
 on:
-  # Deliberately not triggered by pushes to main. Both release workflows used to fire on
-  # every commit with no `paths` filter, so a macOS-only change cut a Windows tag and
-  # published a Windows build containing nothing new. Three commits on 2026-09-05 burned
-  # six tags across both platforms that way, and every one of those releases was pushed at
-  # users as an update. Version numbers tracked commit count rather than anything a user
-  # would recognise.
+  # Auto-release on main, but scoped to this platform. Previously both release workflows
+  # fired on every push with no paths filter, so a macOS-only commit cut a Windows tag and
+  # published a Windows build containing nothing new: three commits on 2026-09-05 burned six
+  # tags, and every one was pushed at users as an update.
   #
-  # Releasing is now an explicit act: push a win-v* tag, or run this workflow by hand.
+  # `core/**` and `shared/**` appear in both lists on purpose: a change there really does
+  # ship to both platforms.
+  #
+  # The `tags:` trigger is intentionally absent. GitHub documents that `branches` and `paths`
+  # are ANDed, but says nothing about how `paths` interacts with `tags`, and a release
+  # pipeline is the wrong place to depend on undocumented behaviour: a manually pushed tag
+  # could silently do nothing. Use workflow_dispatch to release by hand.
   push:
-    tags:
-      - 'win-v*'
+    branches: [main]
+    paths:
+      - 'platforms/windows/**'
+      - 'installer-windows/**'
+      - 'core/**'
+      - 'shared/**'
+      - '.github/workflows/release-windows.yml'
   workflow_dispatch:
     inputs:
       platform:
@@ -65,7 +74,7 @@ jobs:
 
       - name: Auto Tag
         id: auto_tag
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
         shell: bash
         run: |
           git fetch --tags --force
